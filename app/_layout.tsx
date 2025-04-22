@@ -1,39 +1,56 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { Slot, useRouter, useSegments } from "expo-router";
+import { useEffect, useState } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/utils/firebase";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Cegah splash screen menghilang otomatis
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const router = useRouter();
+  const segments = useSegments();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Cek apakah pengguna sedang login
   useEffect(() => {
-    if (loaded) {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+      setIsAuthChecked(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Redirect user jika belum login
+  useEffect(() => {
+    if (!isAuthChecked) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    if (!isLoggedIn && !inAuthGroup) {
+      router.replace("/(auth)/login");
+    } else if (isLoggedIn && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [isLoggedIn, isAuthChecked, segments]);
+
+  // Sembunyikan splash screen setelah auth check selesai
+  useEffect(() => {
+    if (isAuthChecked) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [isAuthChecked]);
 
-  if (!loaded) {
+  if (!isAuthChecked) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GluestackUIProvider mode="light">
+      <Slot />
+    </GluestackUIProvider>
   );
 }
