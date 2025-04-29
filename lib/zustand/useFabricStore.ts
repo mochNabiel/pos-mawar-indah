@@ -17,8 +17,8 @@ export const useFabricStore = create<FabricStore>((set, get) => ({
     set({ fabrics: data, isLoading: false })
   },
 
-  findFabricByKode: (kode: string) => {
-    return get().fabrics.find((f) => f.kode === kode)
+  findFabricByCode: (code: string) => {
+    return get().fabrics.find((f) => f.code === code)
   },
 
   addFabric: async (data: Fabric) => {
@@ -27,20 +27,20 @@ export const useFabricStore = create<FabricStore>((set, get) => ({
     set((state) => ({ fabrics: [...state.fabrics, newFabric] }))
   },
 
-  updateFabric: async (kode: string, data: Partial<Fabric>) => {
-    await updateFabricInDb(kode, data)
+  updateFabric: async (code: string, data: Partial<Fabric>) => {
+    await updateFabricInDb(code, data)
     set((state) => ({
       fabrics: state.fabrics.map((f) =>
-        f.kode === kode ? { ...f, ...data } : f
+        f.code === code ? { ...f, ...data } : f
       ),
     }))
   },
 
-  deleteFabric: async (kode: string) => {
+  deleteFabric: async (code: string) => {
     try {
-      await deleteFabricInDb(kode) 
+      await deleteFabricInDb(code) 
       set((state) => ({
-        fabrics: state.fabrics.filter((f) => f.kode !== kode),  // Menghapus kain dari state
+        fabrics: state.fabrics.filter((f) => f.code !== code),  // Menghapus kain dari state
       }))
     } catch (error) {
       console.error("Gagal menghapus kain: ", error)

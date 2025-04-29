@@ -23,8 +23,8 @@ export const getAllFabrics = async (): Promise<FabricWithId[]> => {
   }))
 }
 
-export const updateFabricInDb = async (kode: string, data: Partial<Fabric>) => {
-  const q = query(fabricsRef, where("kode", "==", kode))
+export const updateFabricInDb = async (code: string, data: Partial<Fabric>) => {
+  const q = query(fabricsRef, where("code", "==", code))
   const snapshot = await getDocs(q)
 
   if (snapshot.empty) {
@@ -36,8 +36,8 @@ export const updateFabricInDb = async (kode: string, data: Partial<Fabric>) => {
   return updateDoc(docRef, data)
 }
 
-export const deleteFabricInDb = async (kode: string) => {
-  const q = query(fabricsRef, where("kode", "==", kode))
+export const deleteFabricInDb = async (code: string) => {
+  const q = query(fabricsRef, where("code", "==", code))
   const snapshot = await getDocs(q)
 
   if (snapshot.empty) {
@@ -50,8 +50,8 @@ export const deleteFabricInDb = async (kode: string) => {
   return deleteDoc(docRef)
 }
 
-export const isKodeKainUnique = async (kode: string) => {
-  const q = query(fabricsRef, where("kode", "==", kode))
+export const isFabricCodeUnique = async (code: string) => {
+  const q = query(fabricsRef, where("code", "==", code))
   const snapshot = await getDocs(q)
   return snapshot.empty
 }

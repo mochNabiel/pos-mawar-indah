@@ -21,15 +21,15 @@ import useToastMessage from "@/lib/hooks/useToastMessage"
 
 const FabricDetailPage = () => {
   const router = useRouter()
-  const { kode } = useLocalSearchParams()
+  const { code } = useLocalSearchParams()
   const { fabrics, fetchAllFabrics, deleteFabric } = useFabricStore()
   const {showToast} = useToastMessage()
 
   const [showModal, setShowModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const kodeParam = Array.isArray(kode) ? kode[0] : kode
-  const fabric = fabrics.find((item) => item.kode === kodeParam)
+  const codeParam = Array.isArray(code) ? code[0] : code
+  const fabric = fabrics.find((item) => item.code === codeParam)
 
   useEffect(() => {
     if (fabrics.length === 0) {
@@ -42,7 +42,7 @@ const FabricDetailPage = () => {
   const handleDeleteFabric = async () => {
     setIsDeleting(true)
     try {
-      await deleteFabric(kodeParam)
+      await deleteFabric(codeParam)
       setShowModal(false)
       showToast("Kain berhasil dihapus", "success")
       router.push("/fabrics")
@@ -59,27 +59,27 @@ const FabricDetailPage = () => {
     <View className="flex-1 bg-white p-5">
       <View className="mb-5">
         <Text className="text-lg font-bold">Kode Kain</Text>
-        <Text className="text-lg">{fabric.kode}</Text>
+        <Text className="text-lg">{fabric.code}</Text>
       </View>
       <View className="mb-5">
         <Text className="text-lg font-bold">Nama Kain</Text>
-        <Text className="text-lg">{fabric.nama}</Text>
+        <Text className="text-lg">{fabric.name}</Text>
       </View>
       <View className="mb-5">
         <Text className="text-lg font-bold">Harga Ecer</Text>
-        <Text className="text-lg">{fabric.hargaEcer}</Text>
+        <Text className="text-lg">{fabric.retailPrice}</Text>
       </View>
       <View className="mb-5">
         <Text className="text-lg font-bold">Harga Grosir</Text>
-        <Text className="text-lg">{fabric.hargaGrosir}</Text>
+        <Text className="text-lg">{fabric.wholesalePrice}</Text>
       </View>
       <View className="mb-5">
         <Text className="text-lg font-bold">Harga Roll</Text>
-        <Text className="text-lg">{fabric.hargaRoll}</Text>
+        <Text className="text-lg">{fabric.rollPrice}</Text>
       </View>
       <View className="mb-5">
         <Text className="text-lg font-bold">Warna</Text>
-        <Text className="text-lg">{fabric.warna}</Text>
+        <Text className="text-lg">{fabric.color}</Text>
       </View>
       <View className="flex flex-row justify-between items-center gap-5 mt-5">
         <Button
@@ -96,7 +96,7 @@ const FabricDetailPage = () => {
         </Button>
         <Button
           onPress={() => {
-            router.push(`/fabrics/${kodeParam}/edit`)
+            router.push(`/fabrics/${codeParam}/edit`)
           }}
           variant="solid"
           action="info"

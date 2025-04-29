@@ -28,7 +28,7 @@ const FabricListPage = () => {
   useEffect(() => {
     if (debouncedSearch) {
       const result = fabrics.filter((f) =>
-        f.nama.toLowerCase().includes(debouncedSearch.toLowerCase())
+        f.name.toLowerCase().includes(debouncedSearch.toLowerCase())
       )
       setFiltered(result)
     } else {
@@ -40,16 +40,16 @@ const FabricListPage = () => {
     <Pressable
       onPress={() =>
         router.push({
-          pathname: "/fabrics/[kode]", 
-          params: { kode: item.kode },
+          pathname: "/fabrics/[code]",
+          params: { code: item.code },
         })
       }
       className="mb-3"
     >
       <Card size="lg" variant="outline" className="shadow-md bg-white">
-        <Heading size="lg">{item.nama}</Heading>
-        <Text>Kode: {item.kode}</Text>
-        <Text>Warna: {item.warna}</Text>
+        <Heading size="lg">{item.name}</Heading>
+        <Text>Kode: {item.code}</Text>
+        <Text>Warna: {item.color}</Text>
       </Card>
     </Pressable>
   )
@@ -75,7 +75,7 @@ const FabricListPage = () => {
 
           <FlatList
             data={filtered}
-            keyExtractor={(item) => item.kode}
+            keyExtractor={(item) => item.code}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 16 }}
             showsVerticalScrollIndicator={false}

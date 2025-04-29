@@ -30,17 +30,17 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import fabricSchema, { TFabricSchema } from "@/schema/fabricSchema"
 import { Fabric } from "@/types/fabric"
 
-import { isKodeKainUnique } from "@/lib/firestore/fabric"
+import { isFabricCodeUnique } from "@/lib/firestore/fabric"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
 
 const NewFabricPage = () => {
   const router = useRouter()
-  const {addFabric} = useFabricStore()
+  const { addFabric } = useFabricStore()
 
   const { showToast } = useToastMessage()
   const [loading, setLoading] = useState<boolean>(false)
-  const [checkingKode, setCheckingKode] = useState(false)
+  const [checkingCode, setCheckingCode] = useState(false)
 
   const {
     control,
@@ -53,10 +53,10 @@ const NewFabricPage = () => {
   const onSubmit = async (data: TFabricSchema) => {
     setLoading(true)
 
-    // Cek apakah kode kain sudah ada di database
-    const isUnique = await isKodeKainUnique(data.kode)
+    // Cek apakah code kain sudah ada di database
+    const isUnique = await isFabricCodeUnique(data.code)
     if (!isUnique) {
-      showToast("Kode kain sudah ada, coba gunakan kode lain", "error")
+      showToast("code kain sudah ada, coba gunakan code lain", "error")
       setLoading(false)
       return
     }
@@ -64,9 +64,9 @@ const NewFabricPage = () => {
     const finalData: Fabric = {
       ...data,
       // Ubah ke number sebelum masuk ke Firestore
-      hargaEcer: Number(data.hargaEcer),
-      hargaGrosir: Number(data.hargaGrosir),
-      hargaRoll: Number(data.hargaRoll),
+      retailPrice: Number(data.retailPrice),
+      wholesalePrice: Number(data.wholesalePrice),
+      rollPrice: Number(data.rollPrice),
     }
 
     try {
@@ -81,24 +81,24 @@ const NewFabricPage = () => {
     }
   }
 
-  const handleCheckKode = async (kode: string) => {
-    if (!kode) {
-      showToast("Masukkan kode kain terlebih dahulu", "error")
+  const handleCheckCode = async (code: string) => {
+    if (!code) {
+      showToast("Masukkan code kain terlebih dahulu", "error")
       return
     }
 
     try {
-      setCheckingKode(true)
-      const isUnique = await isKodeKainUnique(kode.trim())
+      setCheckingCode(true)
+      const isUnique = await isFabricCodeUnique(code.trim())
       if (isUnique) {
-        showToast("Kode tersedia dan dapat digunakan", "success")
+        showToast("code tersedia dan dapat digunakan", "success")
       } else {
-        showToast("Kode sudah dipakai, gunakan kode lain", "error")
+        showToast("code sudah dipakai, gunakan code lain", "error")
       }
     } catch (err) {
-      showToast("Terjadi kesalahan saat mengecek kode", "error")
+      showToast("Terjadi kesalahan saat mengecek code", "error")
     } finally {
-      setCheckingKode(false)
+      setCheckingCode(false)
     }
   }
 
@@ -112,7 +112,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="kode"
+          name="code"
           render={({ field }) => (
             <View className="flex flex-row justify-between items-center gap-5 w-full">
               <Input size="lg" variant="underlined" className="flex-1 mr-2">
@@ -125,19 +125,19 @@ const NewFabricPage = () => {
                 />
               </Input>
               <Button
-                onPress={() => handleCheckKode(field.value)}
-                disabled={checkingKode}
+                onPress={() => handleCheckCode(field.value)}
+                disabled={checkingCode}
                 className="h-full rounded-full"
               >
                 <ButtonText>
-                  {checkingKode ? <Spinner /> : "Cek Kode"}
+                  {checkingCode ? <Spinner /> : "Cek kode"}
                 </ButtonText>
               </Button>
             </View>
           )}
         />
-        {errors.kode && (
-          <Text className="text-red-500">{errors.kode.message}</Text>
+        {errors.code && (
+          <Text className="text-red-500">{errors.code.message}</Text>
         )}
       </FormControl>
 
@@ -149,7 +149,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="nama"
+          name="name"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -162,8 +162,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.nama && (
-          <Text className="text-red-500">{errors.nama.message}</Text>
+        {errors.name && (
+          <Text className="text-red-500">{errors.name.message}</Text>
         )}
       </FormControl>
 
@@ -175,7 +175,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="hargaEcer"
+          name="retailPrice"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -188,8 +188,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.hargaEcer && (
-          <Text className="text-red-500">{errors.hargaEcer.message}</Text>
+        {errors.retailPrice && (
+          <Text className="text-red-500">{errors.retailPrice.message}</Text>
         )}
       </FormControl>
 
@@ -201,7 +201,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="hargaGrosir"
+          name="wholesalePrice"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -214,8 +214,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.hargaGrosir && (
-          <Text className="text-red-500">{errors.hargaGrosir.message}</Text>
+        {errors.wholesalePrice && (
+          <Text className="text-red-500">{errors.wholesalePrice.message}</Text>
         )}
       </FormControl>
 
@@ -227,7 +227,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="hargaRoll"
+          name="rollPrice"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -240,8 +240,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.hargaRoll && (
-          <Text className="text-red-500">{errors.hargaRoll.message}</Text>
+        {errors.rollPrice && (
+          <Text className="text-red-500">{errors.rollPrice.message}</Text>
         )}
       </FormControl>
 
@@ -251,7 +251,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="warna"
+          name="color"
           render={({ field: { value, onChange } }) => (
             <Select selectedValue={value} onValueChange={onChange}>
               <SelectTrigger size="lg" variant="underlined">
@@ -272,8 +272,8 @@ const NewFabricPage = () => {
             </Select>
           )}
         />
-        {errors.warna && (
-          <Text className="text-red-500">{errors.warna.message}</Text>
+        {errors.color && (
+          <Text className="text-red-500">{errors.color.message}</Text>
         )}
       </FormControl>
 

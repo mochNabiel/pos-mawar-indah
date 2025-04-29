@@ -1,6 +1,6 @@
-import { useRouter } from "expo-router"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import { ScrollView, View } from "react-native"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import {
   FormControl,
@@ -30,75 +30,71 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import fabricSchema, { TFabricSchema } from "@/schema/fabricSchema"
 import { Fabric } from "@/types/fabric"
 
-import { isKodeKainUnique } from "@/lib/firestore/fabric"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
 
-const NewFabricPage = () => {
+const EditFabricPage = () => {
   const router = useRouter()
-  const {addFabric} = useFabricStore()
-
+  const { code } = useLocalSearchParams()
+  const { findFabricByCode, updateFabric } = useFabricStore()
   const { showToast } = useToastMessage()
+
   const [loading, setLoading] = useState<boolean>(false)
-  const [checkingKode, setCheckingKode] = useState(false)
+  const [initialData, setInitialData] = useState<Fabric | null>(null)
 
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<TFabricSchema>({
     resolver: zodResolver(fabricSchema),
+    defaultValues: undefined,
   })
+
+  // Masalah Ambiguitas tipe data string | string[]
+  const codeParam =  Array.isArray(code) ? code[0] : code
+
+  useEffect(() => {
+    const fetchFabric = () => {
+      if (!code) return
+      const fabric = findFabricByCode(codeParam)
+      if (fabric) {
+        setInitialData(fabric)
+        setValue("code", fabric.code)
+        setValue("name", fabric.name)
+        setValue("retailPrice", String(fabric.retailPrice))
+        setValue("wholesalePrice", String(fabric.wholesalePrice))
+        setValue("rollPrice", String(fabric.rollPrice))
+        setValue("color", fabric.color)
+      } else {
+        showToast("Data kain tidak ditemukan", "error")
+        router.back()
+      }
+    }
+    fetchFabric()
+  }, [code])
 
   const onSubmit = async (data: TFabricSchema) => {
     setLoading(true)
 
-    // Cek apakah kode kain sudah ada di database
-    const isUnique = await isKodeKainUnique(data.kode)
-    if (!isUnique) {
-      showToast("Kode kain sudah ada, coba gunakan kode lain", "error")
-      setLoading(false)
-      return
-    }
-
     const finalData: Fabric = {
       ...data,
       // Ubah ke number sebelum masuk ke Firestore
-      hargaEcer: Number(data.hargaEcer),
-      hargaGrosir: Number(data.hargaGrosir),
-      hargaRoll: Number(data.hargaRoll),
+      retailPrice: Number(data.retailPrice),
+      wholesalePrice: Number(data.wholesalePrice),
+      rollPrice: Number(data.rollPrice),
     }
 
     try {
-      await addFabric(finalData)
-      showToast("Data kain berhasil ditambahkan", "success")
+      await updateFabric(codeParam, finalData)
+      showToast("Data kain berhasil diupdate", "success")
       router.back()
       setLoading(false)
     } catch (error) {
-      showToast("Gagal menambahkan data kain", "error")
+      showToast("Gagal mengupdate data kain", "error")
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleCheckKode = async (kode: string) => {
-    if (!kode) {
-      showToast("Masukkan kode kain terlebih dahulu", "error")
-      return
-    }
-
-    try {
-      setCheckingKode(true)
-      const isUnique = await isKodeKainUnique(kode.trim())
-      if (isUnique) {
-        showToast("Kode tersedia dan dapat digunakan", "success")
-      } else {
-        showToast("Kode sudah dipakai, gunakan kode lain", "error")
-      }
-    } catch (err) {
-      showToast("Terjadi kesalahan saat mengecek kode", "error")
-    } finally {
-      setCheckingKode(false)
     }
   }
 
@@ -112,10 +108,9 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="kode"
+          name="code"
           render={({ field }) => (
-            <View className="flex flex-row justify-between items-center gap-5 w-full">
-              <Input size="lg" variant="underlined" className="flex-1 mr-2">
+              <Input size="lg" variant="underlined" className="flex-1 mr-2" isDisabled={true}>
                 <InputField
                   placeholder="Contoh: MLN-PUTIH"
                   autoCapitalize="characters"
@@ -124,20 +119,10 @@ const NewFabricPage = () => {
                   onBlur={field.onBlur}
                 />
               </Input>
-              <Button
-                onPress={() => handleCheckKode(field.value)}
-                disabled={checkingKode}
-                className="h-full rounded-full"
-              >
-                <ButtonText>
-                  {checkingKode ? <Spinner /> : "Cek Kode"}
-                </ButtonText>
-              </Button>
-            </View>
           )}
         />
-        {errors.kode && (
-          <Text className="text-red-500">{errors.kode.message}</Text>
+        {errors.code && (
+          <Text className="text-red-500">{errors.code.message}</Text>
         )}
       </FormControl>
 
@@ -149,7 +134,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="nama"
+          name="name"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -162,8 +147,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.nama && (
-          <Text className="text-red-500">{errors.nama.message}</Text>
+        {errors.name && (
+          <Text className="text-red-500">{errors.name.message}</Text>
         )}
       </FormControl>
 
@@ -175,7 +160,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="hargaEcer"
+          name="retailPrice"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -188,8 +173,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.hargaEcer && (
-          <Text className="text-red-500">{errors.hargaEcer.message}</Text>
+        {errors.retailPrice && (
+          <Text className="text-red-500">{errors.retailPrice.message}</Text>
         )}
       </FormControl>
 
@@ -201,7 +186,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="hargaGrosir"
+          name="wholesalePrice"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -214,8 +199,8 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.hargaGrosir && (
-          <Text className="text-red-500">{errors.hargaGrosir.message}</Text>
+        {errors.wholesalePrice && (
+          <Text className="text-red-500">{errors.wholesalePrice.message}</Text>
         )}
       </FormControl>
 
@@ -227,7 +212,7 @@ const NewFabricPage = () => {
         </FormControlLabel>
         <Controller
           control={control}
-          name="hargaRoll"
+          name="rollPrice"
           render={({ field }) => (
             <Input size="lg" variant="underlined">
               <InputField
@@ -240,22 +225,22 @@ const NewFabricPage = () => {
             </Input>
           )}
         />
-        {errors.hargaRoll && (
-          <Text className="text-red-500">{errors.hargaRoll.message}</Text>
+        {errors.rollPrice && (
+          <Text className="text-red-500">{errors.rollPrice.message}</Text>
         )}
       </FormControl>
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">Warna</FormControlLabelText>
+          <FormControlLabelText className="text-lg">color</FormControlLabelText>
         </FormControlLabel>
         <Controller
           control={control}
-          name="warna"
+          name="color"
           render={({ field: { value, onChange } }) => (
             <Select selectedValue={value} onValueChange={onChange}>
               <SelectTrigger size="lg" variant="underlined">
-                <SelectInput placeholder="Pilih warna" />
+                <SelectInput placeholder="Pilih Warna" />
                 <SelectIcon className="ml-auto" as={ChevronDownIcon} />
               </SelectTrigger>
               <SelectPortal>
@@ -272,8 +257,8 @@ const NewFabricPage = () => {
             </Select>
           )}
         />
-        {errors.warna && (
-          <Text className="text-red-500">{errors.warna.message}</Text>
+        {errors.color && (
+          <Text className="text-red-500">{errors.color.message}</Text>
         )}
       </FormControl>
 
@@ -301,7 +286,7 @@ const NewFabricPage = () => {
               <Spinner />
             </ButtonText>
           ) : (
-            <ButtonText>Tambah Kain</ButtonText>
+            <ButtonText>Edit Data</ButtonText>
           )}
         </Button>
       </View>
@@ -309,4 +294,4 @@ const NewFabricPage = () => {
   )
 }
 
-export default NewFabricPage
+export default EditFabricPage

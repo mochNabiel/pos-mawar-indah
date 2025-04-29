@@ -7,7 +7,6 @@ export default function FabricsLayout() {
       screenOptions={{
         headerShown: true,
         headerBackVisible: false,
-        
       }}
     >
       <Stack.Screen
@@ -25,11 +24,11 @@ export default function FabricsLayout() {
         }}
       />
       <Stack.Screen
-        name="[kode]/index"
+        name="[code]/index"
         options={{ title: "Detail Kain", headerLeft: () => <BackButton /> }}
       />
       <Stack.Screen
-        name="[kode]/edit"
+        name="[code]/edit"
         options={{ title: "Edit Kain", headerLeft: () => <BackButton /> }}
       />
     </Stack>
