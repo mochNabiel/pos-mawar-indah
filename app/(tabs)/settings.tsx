@@ -12,7 +12,7 @@ const Setting = () => {
   };
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View className="flex-1 bg-white items-center justify-center">
       <Text className="text-xl font-bold mb-4">Pengaturan</Text>
       <Button
         onPress={handleLogout}

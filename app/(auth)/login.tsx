@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/utils/firebase"; // pastikan path benar
+import { auth } from "@/utils/firebase"; 
 
 import { Button, ButtonText } from "@/components/ui/button";
 import { FormControl } from "@/components/ui/form-control";

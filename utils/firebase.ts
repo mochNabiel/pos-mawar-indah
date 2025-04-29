@@ -1,17 +1,17 @@
 //@ts-ignore
-import { getReactNativePersistence } from '@firebase/auth/dist/rn/index.js';
+import { getReactNativePersistence } from "@firebase/auth/dist/rn/index.js";
 import { initializeApp } from "firebase/app";
 import { initializeAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
+  apiKey: "AIzaSyCnSNmNPoTUkW9i1Ut2qdiYssPICKaI6kA",
+  authDomain: "pos-mawar-indah-123.firebaseapp.com",
+  projectId: "pos-mawar-indah-123",
+  storageBucket: "pos-mawar-indah-123.firebasestorage.app",
+  messagingSenderId: "345379184996",
+  appId: "1:345379184996:web:fcd301f4109fbcf0db1a71"
 };
 
 const app = initializeApp(firebaseConfig);
