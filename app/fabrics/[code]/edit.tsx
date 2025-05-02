@@ -89,7 +89,7 @@ const EditFabricPage = () => {
     try {
       await updateFabric(codeParam, finalData)
       showToast("Data kain berhasil diupdate", "success")
-      router.back()
+      router.push("/fabrics")
       setLoading(false)
     } catch (error) {
       showToast("Gagal mengupdate data kain", "error")

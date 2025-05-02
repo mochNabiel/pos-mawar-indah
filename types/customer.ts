@@ -6,7 +6,7 @@ export type Customer = {
 export type CustomerWithId = Customer & { id: string }
 
 export type CustomerStore = {
-  Customers: CustomerWithId[]
+  customers: CustomerWithId[]
   isLoading: boolean
   fetchAllCustomers: () => Promise<void>
   findCustomerByName: (name: string) => CustomerWithId | undefined

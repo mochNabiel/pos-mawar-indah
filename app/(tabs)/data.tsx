@@ -28,6 +28,21 @@ const Data = () => {
           </View>
         </Card>
       </Pressable>
+      <Pressable onPress={() => router.push("/customers")} className="w-full">
+        <Card
+          size="lg"
+          variant="outline"
+          className="flex flex-row items-center gap-5 m-3"
+        >
+          <Feather name="user" size={24} color="black" />
+          <View>
+            <Heading size="lg" className="mb-1">
+              Data Customer
+            </Heading>
+            <Text size="sm">Klik untuk melihat data customer</Text>
+          </View>
+        </Card>
+      </Pressable>
     </View>
   )
 }

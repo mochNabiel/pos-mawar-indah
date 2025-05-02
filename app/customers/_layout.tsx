@@ -1,7 +1,7 @@
 import BackButton from "@/components/BackButton"
 import { Stack } from "expo-router"
 
-export default function FabricsLayout() {
+export default function CustomersLayout() {
   return (
     <Stack
       screenOptions={{
@@ -12,29 +12,29 @@ export default function FabricsLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "List Data Kain",
+          title: "List Data Customer",
           headerLeft: () => <BackButton path="/" />,
         }}
       />
       <Stack.Screen
         name="new"
         options={{
-          title: "Tambah Kain Baru",
+          title: "Tambah Customer Baru",
           headerLeft: () => <BackButton path="/" />,
         }}
       />
       <Stack.Screen
-        name="[code]/index"
+        name="[name]/index"
         options={{
-          title: "Detail Kain",
-          headerLeft: () => <BackButton path="/fabrics" />,
+          title: "Detail Customer",
+          headerLeft: () => <BackButton path="/customers" />,
         }}
       />
       <Stack.Screen
-        name="[code]/edit"
+        name="[name]/edit"
         options={{
-          title: "Edit Kain",
-          headerLeft: () => <BackButton path="/fabrics" />,
+          title: "Edit Customer",
+          headerLeft: () => <BackButton path="/customers" />,
         }}
       />
     </Stack>
