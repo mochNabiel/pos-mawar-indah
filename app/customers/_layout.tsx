@@ -13,7 +13,7 @@ export default function CustomersLayout() {
         name="index"
         options={{
           title: "List Data Customer",
-          headerLeft: () => <BackButton path="/" />,
+          headerLeft: () => <BackButton path="/(tabs)/data" />,
         }}
       />
       <Stack.Screen

@@ -13,7 +13,7 @@ export default function FabricsLayout() {
         name="index"
         options={{
           title: "List Data Kain",
-          headerLeft: () => <BackButton path="/" />,
+          headerLeft: () => <BackButton path="/(tabs)/data" />,
         }}
       />
       <Stack.Screen
