@@ -13,7 +13,8 @@ import { Customer, CustomerWithId } from "@/types/customer"
 
 const customersRef = collection(db, "customers")
 
-export const createCustomer = async (data: Customer) => addDoc(customersRef, data)
+export const createCustomer = async (data: Customer) =>
+  addDoc(customersRef, data)
 
 export const getAllCustomers = async (): Promise<CustomerWithId[]> => {
   const snapshot = await getDocs(customersRef)
@@ -23,7 +24,10 @@ export const getAllCustomers = async (): Promise<CustomerWithId[]> => {
   }))
 }
 
-export const updateCustomerInDb = async (name: string, data: Partial<Customer>) => {
+export const updateCustomerInDb = async (
+  name: string,
+  data: Partial<Customer>
+) => {
   const q = query(customersRef, where("name", "==", name))
   const snapshot = await getDocs(q)
 

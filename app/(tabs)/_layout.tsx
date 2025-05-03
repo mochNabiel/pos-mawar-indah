@@ -1,10 +1,10 @@
-import { Tabs } from "expo-router";
-import { Feather } from "@expo/vector-icons";
-import { Pressable } from "react-native";
-import { useQuickActions } from "@/components/QuickActionSheet";
+import { Tabs } from "expo-router"
+import { Feather } from "@expo/vector-icons"
+import { Pressable } from "react-native"
+import { useQuickActions } from "@/components/QuickActionSheet"
 
 export default function TabsLayout() {
-  const { openSheet, sheet } = useQuickActions();
+  const { openSheet, sheet } = useQuickActions()
 
   return (
     <>
@@ -90,5 +90,5 @@ export default function TabsLayout() {
       </Tabs>
       {sheet}
     </>
-  );
+  )
 }

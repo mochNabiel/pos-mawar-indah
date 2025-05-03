@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import * as SplashScreen from "expo-splash-screen"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/utils/firebase"
-import { View } from "react-native"
+import { getCurrentUserData } from "@/lib/firebase/user"
 
 // Cegah splash screen menghilang otomatis
 SplashScreen.preventAutoHideAsync()
@@ -13,41 +13,55 @@ SplashScreen.preventAutoHideAsync()
 export default function RootLayout() {
   const router = useRouter()
   const segments = useSegments()
-  const [isAuthChecked, setIsAuthChecked] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  // Cek apakah pengguna sedang login
+  const [isReady, setIsReady] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [role, setRole] = useState<"admin" | "superadmin" | null>(null)
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user)
-      setIsAuthChecked(true)
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const data = await getCurrentUserData()
+        setRole(data?.role ?? null)
+        setIsLoggedIn(true)
+      } else {
+        setIsLoggedIn(false)
+        setRole(null)
+      }
+      setIsReady(true)
     })
 
-    return () => unsubscribe()
+    return unsubscribe
   }, [])
 
-  // Redirect user jika belum login
   useEffect(() => {
-    if (!isAuthChecked) return
+    if (!isReady) return
 
-    const inAuthGroup = segments[0] === "(auth)"
-    if (!isLoggedIn && !inAuthGroup) {
-      router.replace("/(auth)/login")
-    } else if (isLoggedIn && inAuthGroup) {
-      router.replace("/(tabs)")
+    const group = segments[0] // contoh: "(auth)", "(protected)", "customers", etc.
+
+    if (!isLoggedIn) {
+      // Belum login, hanya boleh akses (auth)
+      if (group !== "(auth)") {
+        router.replace("/(auth)/login")
+      }
+    } else {
+      // Sudah login, tidak boleh kembali ke login
+      if (group === "(auth)") {
+        router.replace("/(tabs)")
+      }
+
+      // Jika admin akses (protected), tolak
+      if (group === "(protected)" && role !== "superadmin") {
+        router.replace("/(tabs)")
+      }
     }
-  }, [isLoggedIn, isAuthChecked, segments])
+  }, [isLoggedIn, isReady, role, segments])
 
-  // Sembunyikan splash screen setelah auth check selesai
   useEffect(() => {
-    if (isAuthChecked) {
-      SplashScreen.hideAsync()
-    }
-  }, [isAuthChecked])
+    if (isReady) SplashScreen.hideAsync()
+  }, [isReady])
 
-  if (!isAuthChecked) {
-    return null
-  }
+  if (!isReady) return null
 
   return (
     <GluestackUIProvider mode="light">

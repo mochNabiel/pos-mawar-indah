@@ -1,41 +1,41 @@
-import React from "react";
-import { useRouter } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/utils/firebase"; 
+import React from "react"
+import { useRouter } from "expo-router"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/utils/firebase"
 
-import { Button, ButtonText } from "@/components/ui/button";
-import { FormControl } from "@/components/ui/form-control";
-import { Heading } from "@/components/ui/heading";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import { EyeIcon, EyeOffIcon } from "@/components/ui/icon";
+import { Button, ButtonText } from "@/components/ui/button"
+import { FormControl } from "@/components/ui/form-control"
+import { Heading } from "@/components/ui/heading"
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
+import { Text } from "@/components/ui/text"
+import { VStack } from "@/components/ui/vstack"
+import { EyeIcon, EyeOffIcon } from "@/components/ui/icon"
 
 const Login = () => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [error, setError] = React.useState("")
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const handleTogglePassword = () => setShowPassword(prev => !prev);
+  const handleTogglePassword = () => setShowPassword((prev) => !prev)
 
   const handleLogin = async () => {
-    setError("");
+    setError("")
     if (!email || !password) {
-      setError("Email dan password wajib diisi.");
-      return;
+      setError("Email dan password wajib diisi.")
+      return
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.replace("/(tabs)"); // redirect ke beranda/tab utama
+      await signInWithEmailAndPassword(auth, email, password)
+      router.replace("/(tabs)") // redirect ke beranda/tab utama
     } catch (err: any) {
-      console.log("Login Error:", err.message);
-      setError("Email atau password salah.");
+      console.log("Login Error:", err.message)
+      setError("Email atau password salah.")
     }
-  };
+  }
 
   return (
     <FormControl className="p-4 border rounded-lg border-outline-300 mt-20 mx-4">
@@ -69,16 +69,14 @@ const Login = () => {
           </Input>
         </VStack>
 
-        {error ? (
-          <Text className="text-red-500 text-sm">{error}</Text>
-        ) : null}
+        {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
 
         <Button className="ml-auto mt-2" onPress={handleLogin}>
           <ButtonText className="text-white">Login</ButtonText>
         </Button>
       </VStack>
     </FormControl>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

@@ -9,10 +9,16 @@ import { Pressable } from "@/components/ui/pressable"
 
 import { Feather } from "@expo/vector-icons"
 
+import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
+
 const Data = () => {
   const router = useRouter()
+  const { user, loading } = useCurrentUser()
+
+  if (loading) return null
+
   return (
-    <View className="flex-1 bg-white justify-center items-center p-5">
+    <View className="flex-1 bg-white p-5">
       <Pressable onPress={() => router.push("/fabrics")} className="w-full">
         <Card
           size="lg"
@@ -43,6 +49,48 @@ const Data = () => {
           </View>
         </Card>
       </Pressable>
+
+      {user?.role === "superadmin" && (
+        <>
+          <Pressable
+            onPress={() => router.push("/(protected)/logs" as any)}
+            className="w-full"
+          >
+            <Card
+              size="lg"
+              variant="outline"
+              className="flex-row items-center gap-5 m-3"
+            >
+              <Feather name="list" size={24} color="black" />
+              <View>
+                <Heading size="lg" className="mb-1">
+                  Data Logs
+                </Heading>
+                <Text size="sm">Klik untuk melihat log aktivitas</Text>
+              </View>
+            </Card>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push("/(protected)/admins" as any)}
+            className="w-full"
+          >
+            <Card
+              size="lg"
+              variant="outline"
+              className="flex-row items-center gap-5 m-3"
+            >
+              <Feather name="key" size={24} color="black" />
+              <View>
+                <Heading size="lg" className="mb-1">
+                  Data Admin
+                </Heading>
+                <Text size="sm">Klik untuk melihat daftar admin</Text>
+              </View>
+            </Card>
+          </Pressable>
+        </>
+      )}
     </View>
   )
 }
