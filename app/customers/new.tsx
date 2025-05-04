@@ -23,7 +23,7 @@ import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 import { countryCodes } from "@/constants/countryCodes"
 import { Feather } from "@expo/vector-icons"
 
-const NewCustomerPage = () => {
+const NewCustomerScreen = () => {
   const router = useRouter()
   const { addCustomer } = useCustomerStore()
 
@@ -240,4 +240,4 @@ const NewCustomerPage = () => {
   )
 }
 
-export default NewCustomerPage
+export default NewCustomerScreen

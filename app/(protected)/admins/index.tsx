@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const AdminsPage = () => {
+const AdminScreen = () => {
   return (
     <View>
       <Text>Halaman Admin dan hanya superadmin yang bisa akses</Text>
@@ -9,4 +9,4 @@ const AdminsPage = () => {
   )
 }
 
-export default AdminsPage
+export default AdminScreen

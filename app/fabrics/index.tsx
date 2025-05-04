@@ -13,7 +13,7 @@ import { Heading } from "@/components/ui/heading"
 import { Pressable } from "@/components/ui/pressable"
 import { Spinner } from "@/components/ui/spinner"
 
-const FabricListPage = () => {
+const FabricListScreen = () => {
   const router = useRouter()
   const [search, setSearch] = useState("")
   const debouncedSearch = useDebouncedValue(search, 500)
@@ -86,4 +86,4 @@ const FabricListPage = () => {
   )
 }
 
-export default FabricListPage
+export default FabricListScreen

@@ -25,7 +25,7 @@ import { countryCodes } from "@/constants/countryCodes"
 import { Feather } from "@expo/vector-icons"
 import { isCustomerNameUnique } from "@/lib/firestore/customer"
 
-const EditCustomerPage = () => {
+const EditCustomerScreen = () => {
   const router = useRouter()
   const { name } = useLocalSearchParams()
   const { findCustomerByName, updateCustomer } = useCustomerStore()
@@ -263,4 +263,4 @@ const EditCustomerPage = () => {
   )
 }
 
-export default EditCustomerPage
+export default EditCustomerScreen

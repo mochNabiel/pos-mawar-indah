@@ -13,7 +13,7 @@ import { Heading } from "@/components/ui/heading"
 import { Pressable } from "@/components/ui/pressable"
 import { Spinner } from "@/components/ui/spinner"
 
-const CustomerListPage = () => {
+const CustomerListScreen = () => {
   const router = useRouter()
   const [search, setSearch] = useState("")
   const debouncedSearch = useDebouncedValue(search, 500)
@@ -82,4 +82,4 @@ const CustomerListPage = () => {
   )
 }
 
-export default CustomerListPage
+export default CustomerListScreen

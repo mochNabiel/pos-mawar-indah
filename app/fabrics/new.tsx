@@ -34,7 +34,7 @@ import { isFabricCodeUnique } from "@/lib/firestore/fabric"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
 
-const NewFabricPage = () => {
+const NewFabricScreen = () => {
   const router = useRouter()
   const { addFabric } = useFabricStore()
 
@@ -309,4 +309,4 @@ const NewFabricPage = () => {
   )
 }
 
-export default NewFabricPage
+export default NewFabricScreen

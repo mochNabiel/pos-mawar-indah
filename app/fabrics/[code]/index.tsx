@@ -19,7 +19,7 @@ import { Heading } from "@/components/ui/heading"
 import { CloseIcon, Icon } from "@/components/ui/icon"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 
-const FabricDetailPage = () => {
+const FabricDetailScreen = () => {
   const router = useRouter()
   const { code } = useLocalSearchParams()
   const { fabrics, fetchAllFabrics, deleteFabric } = useFabricStore()
@@ -165,4 +165,4 @@ const FabricDetailPage = () => {
   )
 }
 
-export default FabricDetailPage
+export default FabricDetailScreen

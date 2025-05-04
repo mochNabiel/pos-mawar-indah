@@ -19,7 +19,7 @@ import { Heading } from "@/components/ui/heading"
 import { CloseIcon, Icon } from "@/components/ui/icon"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 
-const CustomerDetailPage = () => {
+const CustomerDetailScreen = () => {
   const router = useRouter()
   const { name } = useLocalSearchParams()
   const { customers, fetchAllCustomers, deleteCustomer } = useCustomerStore()
@@ -149,4 +149,4 @@ const CustomerDetailPage = () => {
   )
 }
 
-export default CustomerDetailPage
+export default CustomerDetailScreen

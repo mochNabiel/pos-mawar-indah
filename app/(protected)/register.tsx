@@ -2,7 +2,7 @@ import { Text, ScrollView } from "react-native"
 import React, { useState } from "react"
 import { useRouter } from "expo-router"
 
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { createUserWithEmailAndPassword } from "firebase/auth"
 import { doc, setDoc } from "firebase/firestore"
 import { auth, db } from "@/utils/firebase"
 
@@ -35,7 +35,7 @@ import { Pressable } from "@/components/ui/pressable"
 import { Feather } from "@expo/vector-icons"
 import { ChevronDownIcon } from "@/components/ui/icon"
 
-const RegisterPage = () => {
+const RegisterScreen = () => {
   const router = useRouter()
   const { showToast } = useToastMessage()
   const [showPassword, setShowPassword] = useState(false)
@@ -45,8 +45,6 @@ const RegisterPage = () => {
     control,
     handleSubmit,
     formState: { errors },
-    register,
-    setValue,
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -229,4 +227,4 @@ const RegisterPage = () => {
   )
 }
 
-export default RegisterPage
+export default RegisterScreen

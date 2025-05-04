@@ -33,7 +33,7 @@ import { Fabric } from "@/types/fabric"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
 
-const EditFabricPage = () => {
+const EditFabricScreen = () => {
   const router = useRouter()
   const { code } = useLocalSearchParams()
   const { findFabricByCode, updateFabric } = useFabricStore()
@@ -294,4 +294,4 @@ const EditFabricPage = () => {
   )
 }
 
-export default EditFabricPage
+export default EditFabricScreen
