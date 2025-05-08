@@ -1,6 +1,5 @@
-import { ScrollView, Text, View } from "react-native"
-import React, { useEffect, useState } from "react"
-import { Feather } from "@expo/vector-icons"
+import { Text, View } from "react-native"
+import React, { useEffect } from "react"
 
 import {
   Control,
@@ -13,8 +12,13 @@ import {
 import { Fabric } from "@/types/fabric"
 
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input, InputField } from "./ui/input"
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Input, InputField } from "@/components/ui/input"
+import SearchDropdown from "@/components/SearchDropdown"
+import { Center } from "./ui/center"
+import { TrashIcon } from "./ui/icon"
+import { Feather } from "@expo/vector-icons"
 
 export interface TransactionCardData {
   id: number
@@ -50,30 +54,11 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   onRemove,
   isRemovable,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filteredFabrics, setFilteredFabrics] = useState<Fabric[]>(fabrics)
-  const [showFabricDropdown, setShowFabricDropdown] = useState(false)
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false)
-
   const fabricName = watch(`cards.${index}.fabricName`)
   const quantityType = watch(`cards.${index}.quantityType`)
   const weight = watch(`cards.${index}.weight`)
   const useDiscount = watch(`cards.${index}.useDiscount`)
   const discountPerKg = watch(`cards.${index}.discountPerKg`)
-
-  // Filter fabrics based on search term
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredFabrics(fabrics)
-    } else {
-      const lowercasedSearch = searchTerm.toLowerCase()
-      setFilteredFabrics(
-        fabrics.filter((fabric) =>
-          fabric.name.toLowerCase().includes(lowercasedSearch)
-        )
-      )
-    }
-  }, [searchTerm, fabrics])
 
   // Update price per kg when fabric name or quantity type changes
   useEffect(() => {
@@ -149,72 +134,166 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   const quantityTypes = ["Ecer", "Grosir", "Roll"]
 
   return (
-    <Card variant="outline" className="mb-4">
-      <Text className="text-center text-2xl font-semibold">Item {index + 1}</Text>
-      {isRemovable && (
-        <Button
-          onPress={onRemove}
-          className="h-8 w-8 items-center justify-center"
-        >
-          <Feather name="trash" size={18} color="#BF40BF" />
-        </Button>
-      )}
+    <Card variant="outline" className="mb-4 flex gap-3">
+      <View className="flex flex-row justify-between items-center">
+        <Text className="text-2xl font-semibold">Item {index + 1}</Text>
+
+        {isRemovable && (
+          <Button
+            onPress={onRemove}
+            variant="solid"
+            action="negative"
+            className="p-2 rounded-lg"
+          >
+            <Feather name="x" size={24} color="white" />
+          </Button>
+        )}
+      </View>
 
       <View>
-        <Text className="mb-1">Nama Kain</Text>
+        <Text className="mb-1 text-lg font-semibold">Nama Kain</Text>
         <Controller
           name={`cards.${index}.fabricName`}
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <View className="relative">
-              <Button
-                onPress={() => {
-                  setShowFabricDropdown(!showFabricDropdown)
-                  setShowTypeDropdown(false)
-                }}
-                size="lg"
-                className="bg-white border border-secondary-200 rounded-xl p-3 flex-row justify-between items-center"
-              >
-                <Text className="text-neutral-800">
-                  {field.value || "Select fabric"}
-                </Text>
-                <Feather name="chevron-down" size={16} color="#888" />
-              </Button>
-
-              {showFabricDropdown && (
-                <View className="absolute top-12 left-0 right-0 z-10 shadow-md bg-white border border-neutral-200 rounded-xl">
-                  <View className="p-2">
-                    <Input variant="outline" size="lg" className="bg-white">
-                      <InputField
-                        placeholder="Search fabrics..."
-                        value={searchTerm}
-                        onChangeText={setSearchTerm}
-                        className="text-sm"
-                      />
-                      <Feather name="search" size={16} color="#888" />
-                    </Input>
-                  </View>
-                  <ScrollView className="max-h-60">
-                    {filteredFabrics.map((fabric) => (
-                      <Button
-                        key={fabric.code}
-                        size="lg"
-                        className="bg-white py-2 px-3 border-b border-neutral-100"
-                        onPress={() => {
-                          field.onChange(fabric.name)
-                          setShowFabricDropdown(false)
-                        }}
-                      >
-                        <Text className="text-neutral-800">{fabric.name}</Text>
-                      </Button>
-                    ))}
-                  </ScrollView>
-                </View>
-              )}
-            </View>
+            <SearchDropdown
+              size="sm"
+              data={fabrics.map((fabric) => ({
+                label: fabric.name,
+                value: fabric.name,
+              }))}
+              search
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Pilih Kain"
+              searchPlaceholder="Cari Nama..."
+              value={field.value}
+              onChange={(item: any) => {
+                field.onChange(item.value)
+              }}
+            />
           )}
         />
+      </View>
+
+      <View>
+        <Text className="mb-1 text-lg font-semibold">Tipe Kuantitas</Text>
+        <Controller
+          name={`cards.${index}.quantityType`}
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <SearchDropdown
+              size="sm"
+              data={quantityTypes.map((q) => ({
+                label: q,
+                value: q,
+              }))}
+              search
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Pilih Tipe Kuantitas"
+              searchPlaceholder="Cari Tipe..."
+              value={field.value}
+              onChange={(item: any) => {
+                field.onChange(item.value)
+              }}
+            />
+          )}
+        />
+      </View>
+
+      <View className="flex flex-row gap-3 items-center">
+        <Text>Harga/Kg :</Text>
+        <Text className="font-semibold text-lg">
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+          }).format(getValues(`cards.${index}.pricePerKg`) || 0)}
+        </Text>
+      </View>
+
+      <View>
+        <Text className="mb-1 text-lg font-semibold">Berat Kain</Text>
+        <Controller
+          name={`cards.${index}.weight`}
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <Input variant="outline" size="lg" className="rounded-lg">
+              <InputField
+                keyboardType="numeric"
+                placeholder="0.00"
+                value={field.value}
+                onChangeText={field.onChange}
+              />
+            </Input>
+          )}
+        />
+      </View>
+
+      <Center className="flex flex-row items-center gap-2">
+        <Text className="mb-1 text-lg">Pakai Diskon?</Text>
+        <Controller
+          name={`cards.${index}.useDiscount`}
+          control={control}
+          render={({ field }) => (
+            <Switch
+              size="md"
+              value={field.value}
+              onValueChange={(checked) => {
+                field.onChange(checked)
+                if (!checked) {
+                  setValue(`cards.${index}.discountPerKg`, 0)
+                }
+              }}
+            />
+          )}
+        />
+      </Center>
+
+      {useDiscount && (
+        <View>
+          <Text className="mb-1 text-lg font-semibold">Diskon per Kg</Text>
+          <Controller
+            name={`cards.${index}.discountPerKg`}
+            control={control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <Input variant="outline" size="lg" className="rounded-lg">
+                <InputField
+                  keyboardType="numeric"
+                  placeholder="0.00"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                />
+              </Input>
+            )}
+          />
+        </View>
+      )}
+
+      <View className="flex flex-row justify-between items-center">
+        <Text className="font-semibold">Total Harga</Text>
+        <Text className="font-semibold text-xl text-info-600">
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+          }).format(getValues(`cards.${index}.totalPrice`) || 0)}
+        </Text>
+      </View>
+
+      <View className="flex flex-row justify-between items-center">
+        <Text className="font-semibold">Diskon</Text>
+        <Text className="font-semibold text-xl text-info-600">
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+          }).format(getValues(`cards.${index}.discount`) || 0)}
+        </Text>
       </View>
     </Card>
   )

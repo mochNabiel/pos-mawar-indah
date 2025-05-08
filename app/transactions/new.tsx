@@ -1,21 +1,24 @@
 import React, { useEffect } from "react"
-import { View, ScrollView } from "react-native"
-import SelectDropdown from "react-native-select-dropdown"
-import { Dropdown } from "react-native-element-dropdown"
+import { View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
 
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
+import { Button, ButtonText } from "@/components/ui/button"
 
 import { Feather } from "@expo/vector-icons"
 
-import { DateTimeDisplay } from "@/components/DateTimeDisplay"
+import DateTimeDisplay from "@/components/DateTimeDisplay"
+import TransactionSummary from "@/components/TransactionSummary"
+import TransactionCard from "@/components/TransactionCard"
+import SearchDropdown from "@/components/SearchDropdown"
+
 import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
+
 import useToastMessage from "@/lib/hooks/useToastMessage"
-import TransactionCard from "@/components/TransactionCard"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
@@ -30,9 +33,17 @@ const NewTransactionScreen = () => {
     fetchAllFabrics()
   }, [])
 
-  const { control, watch, setValue, getValues, handleSubmit, reset } = useForm({
+  const {
+    control,
+    watch,
+    setValue,
+    getValues,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm({
+    mode: "onChange",
     defaultValues: {
-      adminName: user?.name || "",
+      adminName: user?.name,
       customerName: "",
       cards: [
         {
@@ -103,78 +114,119 @@ const NewTransactionScreen = () => {
   }, [watchedCards])
 
   const onSubmit = (data: any) => {
-    showToast(data, "success")
+    showToast(JSON.stringify(data), "success")
+    console.log(data)
   }
 
   return (
-    <ScrollView className="flex-1 bg-white p-5">
-      {/* Section Info Admin dan Waktu */}
-      <View>
-        <Card
-          variant="outline"
-          className="flex flex-row items-center gap-3 mb-4"
-        >
-          <Feather name="user" size={24} color="#BF40BF" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={95} // Tambahkan offset bila ada header
+    >
+      <ScrollView
+        className="flex-1 bg-white p-5"
+        contentContainerStyle={{ paddingBottom: 80 }}
+      >
+        {/* Section Info Admin dan Waktu */}
+        <View>
+          <Card
+            variant="outline"
+            className="flex flex-row items-center gap-3 mb-3"
+          >
+            <Feather name="user" size={24} color="#BF40BF" />
+            <Text
+              size="lg"
+              className="flex-1 font-semibold"
+              style={{ color: "#BF40BF" }}
+            >
+              Admin {user?.name}
+            </Text>
+          </Card>
+          <DateTimeDisplay />
+        </View>
+
+        {/* Section Field Nama Customer */}
+        <View className="mb-5 flex gap-1">
+          <Text className="text-lg font-semibold" style={{ color: "#BF40BF" }}>
+            Nama Customer
+          </Text>
+          <Controller
+            control={control}
+            name="customerName"
+            rules={{ required: true }}
+            render={({ field }) => (
+              <SearchDropdown
+                size="sm"
+                data={customers.map((customer) => ({
+                  label: customer.name,
+                  value: customer.name,
+                }))}
+                search
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="Pilih Customer"
+                searchPlaceholder="Cari Nama..."
+                value={field.value}
+                onChange={(item: any) => {
+                  field.onChange(item.value)
+                }}
+              />
+            )}
+          />
+        </View>
+
+        {/* Section Card */}
+        <View className="mb-1">
           <Text
-            size="md"
-            className="flex-1 font-semibold"
+            className="text-lg font-semibold mb-1"
             style={{ color: "#BF40BF" }}
           >
-            Admin {user?.name}
+            Item Transaksi
           </Text>
-        </Card>
-        <DateTimeDisplay />
-      </View>
-
-      {/* Section Field Nama Customer */}
-      <View className="mb-3 flex gap-1">
-        <Text className="font-semibold" style={{ color: "#BF40BF" }}>
-          Nama Customer
-        </Text>
-        <Controller
-          control={control}
-          name="customerName"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <Dropdown
-              data={customers.map((customer) => ({
-                label: customer.name,
-                value: customer.name,
-              }))}
-              search
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Select customer"
-              searchPlaceholder="Search..."
-              value={field.value}
-              onChange={(item) => {
-                field.onChange(item.value)
-              }}
+          {fields.map((field, index) => (
+            <TransactionCard
+              key={field.id}
+              index={index}
+              control={control}
+              watch={watch}
+              setValue={setValue}
+              getValues={getValues}
+              cardData={field}
+              fabrics={fabrics}
+              onRemove={() => remove(index)}
+              isRemovable={fields.length > 1}
             />
-          )}
-        />
-      </View>
+          ))}
+        </View>
 
-      {/* Section Card */}
-      <Text className="font-semibold mb-1" style={{ color: "#BF40BF" }}>
-        Item Transaksi
-      </Text>
-      {fields.map((field, index) => (
-        <TransactionCard
-          key={field.id}
-          index={index}
-          control={control}
-          watch={watch}
-          setValue={setValue}
-          getValues={getValues}
-          cardData={field}
-          fabrics={fabrics}
-          onRemove={() => remove(index)}
-          isRemovable={fields.length > 1}
-        />
-      ))}
-    </ScrollView>
+        <Button
+          onPress={handleAddCard}
+          size="xl"
+          variant="link"
+          className="mb-5 rounded-lg"
+        >
+          <Feather name="plus" size={24} color="black" />
+          <ButtonText>Tambah Item</ButtonText>
+        </Button>
+
+        <TransactionSummary getValues={getValues} />
+
+        <Button
+          onPress={handleSubmit(onSubmit)}
+          size="xl"
+          variant="solid"
+          action="info"
+          disabled={!isValid}
+          className={`rounded-lg mb-5 ${
+            !isValid ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          <ButtonText>Buat Transaksi</ButtonText>
+        </Button>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

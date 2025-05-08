@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react"
+import { SafeAreaProvider } from "react-native-safe-area-context"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 import "@/global.css"
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider"
 import { Slot, useRouter, useSegments } from "expo-router"
@@ -6,7 +8,6 @@ import * as SplashScreen from "expo-splash-screen"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/utils/firebase"
 import { getCurrentUserData } from "@/lib/firebase/user"
-import { SafeAreaView } from "react-native"
 
 // Cegah splash screen menghilang otomatis
 SplashScreen.preventAutoHideAsync()
@@ -38,7 +39,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isReady) return
 
-    const group = segments[0] // contoh: "(auth)", "(protected)", "customers", etc.
+    const group = segments[0]
 
     if (!isLoggedIn) {
       // Belum login, hanya boleh akses (auth)
@@ -65,10 +66,12 @@ export default function RootLayout() {
   if (!isReady) return null
 
   return (
-    <GluestackUIProvider mode="light">
-      <SafeAreaView>
-        <Slot />
-      </SafeAreaView>
-    </GluestackUIProvider>
+    <GestureHandlerRootView className="flex-1">
+      <SafeAreaProvider>
+        <GluestackUIProvider mode="light">
+          <Slot />
+        </GluestackUIProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }

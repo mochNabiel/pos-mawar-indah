@@ -7,8 +7,8 @@ export default function BackButton({ path }: { path: any }) {
   const router = useRouter()
 
   return (
-    <Pressable onPress={() => router.push(path)} className="p-5">
-      <Feather name="chevron-left" size={24} />
+    <Pressable onPress={() => router.push(path)} >
+      <Feather name="chevron-left" size={24} className="mr-3" />
     </Pressable>
   )
 }
