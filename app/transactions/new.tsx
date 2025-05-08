@@ -1,6 +1,7 @@
+import React, { useEffect } from "react"
 import { View, ScrollView } from "react-native"
 import SelectDropdown from "react-native-select-dropdown"
-import React, { useEffect } from "react"
+import { Dropdown } from "react-native-element-dropdown"
 
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
@@ -13,9 +14,14 @@ import { Feather } from "@expo/vector-icons"
 import { DateTimeDisplay } from "@/components/DateTimeDisplay"
 import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
+import useToastMessage from "@/lib/hooks/useToastMessage"
+import TransactionCard from "@/components/TransactionCard"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
+
+  const { showToast } = useToastMessage()
+
   const { customers, fetchAllCustomers } = useCustomerStore()
   const { fabrics, fetchAllFabrics } = useFabricStore()
 
@@ -53,60 +59,121 @@ const NewTransactionScreen = () => {
     name: "cards",
   })
 
+  const handleAddCard = () => {
+    append({
+      id: Date.now(),
+      fabricName: undefined,
+      quantityType: undefined,
+      weight: "",
+      pricePerKg: 0,
+      discountPerKg: 0,
+      discount: 0,
+      totalPrice: 0,
+      useDiscount: false,
+    })
+  }
+
+  // Function to update transaction totals whenever card values change
+  const updateTransactionTotals = () => {
+    const cards = getValues("cards")
+
+    // Calculate sub total (sum of all total prices)
+    const subTotal = cards.reduce(
+      (sum, card) => sum + (card.totalPrice || 0),
+      0
+    )
+    setValue("subTotal", subTotal)
+
+    // Calculate total discount (sum of all discounts)
+    const totalDiscount = cards.reduce(
+      (sum, card) => sum + (card.discount || 0),
+      0
+    )
+    setValue("totalDiscount", totalDiscount)
+
+    // Calculate total transaction
+    setValue("totalTransaction", subTotal - totalDiscount)
+  }
+
+  // Watch for changes in cards array to update totals
+  const watchedCards = watch("cards")
+
+  useEffect(() => {
+    updateTransactionTotals()
+  }, [watchedCards])
+
+  const onSubmit = (data: any) => {
+    showToast(data, "success")
+  }
+
   return (
     <ScrollView className="flex-1 bg-white p-5">
       {/* Section Info Admin dan Waktu */}
       <View>
-        <Card variant="outline" className="flex flex-row gap-3 mb-4">
-          <Feather name="user" size={24} color="black" />
-          <Text size="md" className="flex-1 font-semibold">
-            {user?.name}
+        <Card
+          variant="outline"
+          className="flex flex-row items-center gap-3 mb-4"
+        >
+          <Feather name="user" size={24} color="#BF40BF" />
+          <Text
+            size="md"
+            className="flex-1 font-semibold"
+            style={{ color: "#BF40BF" }}
+          >
+            Admin {user?.name}
           </Text>
         </Card>
         <DateTimeDisplay />
       </View>
 
       {/* Section Field Nama Customer */}
-      <Card variant="outline" className="mb-4">
-        <Text className="mb-3">Nama Customer</Text>
+      <View className="mb-3 flex gap-1">
+        <Text className="font-semibold" style={{ color: "#BF40BF" }}>
+          Nama Customer
+        </Text>
         <Controller
           control={control}
           name="customerName"
           rules={{ required: true }}
           render={({ field }) => (
-            <SelectDropdown
-              data={customers}
-              search={true}
-              searchPlaceHolder="Cari customer"
-              defaultValue={customers.find((c) => c.name === field.value)}
-              onSelect={(selected) => field.onChange(selected.name)}
-              renderButton={(selectedItem) => (
-                <View className="border rounded-xl p-2 px-3 bg-white flex-row justify-between items-center">
-                  <Text className="text-md">
-                    {selectedItem ? selectedItem.name : "Pilih Customer"}
-                  </Text>
-                  <Feather name="chevron-down" size={16} color="gray" />
-                </View>
-              )}
-              renderItem={(item, index, isSelected) => (
-                <View
-                  key={index}
-                  className={`p-3 border-b ${
-                    isSelected ? "bg-gray-200" : "bg-white"
-                  }`}
-                >
-                  <Text className="text-md">{item.name}</Text>
-                </View>
-              )}
-              showsVerticalScrollIndicator={false}
-              disableAutoScroll={true}
-              dropdownStyle={{ width: "100%", marginTop: 4 }}
+            <Dropdown
+              data={customers.map((customer) => ({
+                label: customer.name,
+                value: customer.name,
+              }))}
+              search
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Select customer"
+              searchPlaceholder="Search..."
+              value={field.value}
+              onChange={(item) => {
+                field.onChange(item.value)
+              }}
             />
           )}
         />
-      </Card>
+      </View>
 
-      
+      {/* Section Card */}
+      <Text className="font-semibold mb-1" style={{ color: "#BF40BF" }}>
+        Item Transaksi
+      </Text>
+      {fields.map((field, index) => (
+        <TransactionCard
+          key={field.id}
+          index={index}
+          control={control}
+          watch={watch}
+          setValue={setValue}
+          getValues={getValues}
+          cardData={field}
+          fabrics={fabrics}
+          onRemove={() => remove(index)}
+          isRemovable={fields.length > 1}
+        />
+      ))}
     </ScrollView>
   )
 }

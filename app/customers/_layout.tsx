@@ -1,3 +1,4 @@
+import React from "react"
 import BackButton from "@/components/BackButton"
 import { Stack } from "expo-router"
 

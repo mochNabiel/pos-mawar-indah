@@ -1,5 +1,5 @@
-import { Text, ScrollView } from "react-native"
 import React, { useState } from "react"
+import { Text, ScrollView } from "react-native"
 import { useRouter } from "expo-router"
 
 import { createUserWithEmailAndPassword } from "firebase/auth"

@@ -1,11 +1,12 @@
+import React, { useEffect, useState } from "react"
 import "@/global.css"
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider"
 import { Slot, useRouter, useSegments } from "expo-router"
-import { useEffect, useState } from "react"
 import * as SplashScreen from "expo-splash-screen"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/utils/firebase"
 import { getCurrentUserData } from "@/lib/firebase/user"
+import { SafeAreaView } from "react-native"
 
 // Cegah splash screen menghilang otomatis
 SplashScreen.preventAutoHideAsync()
@@ -65,7 +66,9 @@ export default function RootLayout() {
 
   return (
     <GluestackUIProvider mode="light">
-      <Slot />
+      <SafeAreaView>
+        <Slot />
+      </SafeAreaView>
     </GluestackUIProvider>
   )
 }

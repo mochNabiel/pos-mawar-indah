@@ -17,9 +17,17 @@ export const DateTimeDisplay = () => {
   }, [])
 
   return (
-    <View className="flex flex-row gap-3 mb-4">
-      <Card variant="outline" className="flex-1 flex flex-row gap-3 mb-4">
-        <Feather name="calendar" size={24} color="black" />
+    <Card
+      variant="outline"
+      className="flex-1 flex flex-row justify-between items-center mb-4"
+    >
+      <View className="flex gap-2">
+        <View className="flex flex-row gap-2 items-center">
+          <Feather name="calendar" size={24} color="#BF40BF" />
+          <Text className="font-semibold" style={{ color: "#BF40BF" }}>
+            Tanggal
+          </Text>
+        </View>
         <Text className="font-semibold">
           {currentTime.toLocaleDateString("id-ID", {
             weekday: "long",
@@ -28,9 +36,14 @@ export const DateTimeDisplay = () => {
             day: "numeric",
           })}
         </Text>
-      </Card>
-      <Card variant="outline" className="flex-1 flex flex-row gap-3 mb-4">
-        <Feather name="clock" size={24} color="black" />
+      </View>
+      <View className="flex gap-2">
+        <View className="flex flex-row gap-2 items-center">
+          <Feather name="clock" size={24} color="#BF40BF" />
+          <Text className="font-semibold" style={{ color: "#BF40BF" }}>
+            Waktu
+          </Text>
+        </View>
         <Text className="font-semibold">
           {currentTime.toLocaleTimeString("id-ID", {
             hour: "2-digit",
@@ -38,7 +51,7 @@ export const DateTimeDisplay = () => {
             second: "2-digit",
           })}
         </Text>
-      </Card>
-    </View>
+      </View>
+    </Card>
   )
 }

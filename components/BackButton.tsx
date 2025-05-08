@@ -1,8 +1,9 @@
+import React from "react"
 import { Pressable } from "react-native"
 import { useRouter } from "expo-router"
 import { Feather } from "@expo/vector-icons"
 
-export default function BackButton({ path }: { path: string }) {
+export default function BackButton({ path }: { path: any }) {
   const router = useRouter()
 
   return (

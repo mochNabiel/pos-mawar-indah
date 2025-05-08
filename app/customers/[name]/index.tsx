@@ -1,5 +1,5 @@
-import { View, Text } from "react-native"
 import React, { useState, useEffect } from "react"
+import { View, Text } from "react-native"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 

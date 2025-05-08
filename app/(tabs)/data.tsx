@@ -1,6 +1,6 @@
+import React from "react"
 import { useRouter } from "expo-router"
 import { View } from "react-native"
-import React from "react"
 
 import { Heading } from "@/components/ui/heading"
 import { Card } from "@/components/ui/card"

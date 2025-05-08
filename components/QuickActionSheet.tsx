@@ -7,7 +7,7 @@ import {
   ActionsheetDragIndicator,
   ActionsheetItem,
 } from "@/components/ui/actionsheet"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Feather } from "@expo/vector-icons"
 import { View, Text } from "react-native"
 
