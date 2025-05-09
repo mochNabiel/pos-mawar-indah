@@ -19,8 +19,8 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   return (
     <Card variant="outline" size="lg" className="flex bg-secondary-100 mb-5 mt-5 gap-2">
       <View className="flex flex-row justify-between items-center">
-        <Text className="font-semibold text-xl text-info-600">Sub Total</Text>
-        <Text className="font-semibold text-2xl text-info-600">
+        <Text className="font-semibold text-xl text-self-purple">Sub Total</Text>
+        <Text className="font-semibold text-2xl text-self-purple">
           {new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
@@ -29,8 +29,8 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
       </View>
 
       <View className="flex flex-row justify-between items-center">
-        <Text className="font-semibold text-xl text-info-600">Diskon Total</Text>
-        <Text className="font-semibold text-2xl text-info-600">
+        <Text className="font-semibold text-xl text-self-purple">Diskon Total</Text>
+        <Text className="font-semibold text-2xl text-self-purple">
           {new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",

@@ -12,12 +12,12 @@ import {
 import { Fabric } from "@/types/fabric"
 
 import { Card } from "@/components/ui/card"
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Input, InputField } from "@/components/ui/input"
-import SearchDropdown from "@/components/SearchDropdown"
-import { Center } from "./ui/center"
-import { TrashIcon } from "./ui/icon"
+import { Center } from "@/components/ui/center"
+
+import DropdownSelector from "@/components/DropdownSelector"
 import { Feather } from "@expo/vector-icons"
 
 export interface TransactionCardData {
@@ -157,22 +157,15 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <SearchDropdown
-              size="sm"
-              data={fabrics.map((fabric) => ({
-                label: fabric.name,
-                value: fabric.name,
-              }))}
-              search
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
+            <DropdownSelector
+              label="Nama Kain"
+              options={fabrics.map((f) => f.name)}
+              searchable={true}
               placeholder="Pilih Kain"
-              searchPlaceholder="Cari Nama..."
-              value={field.value}
-              onChange={(item: any) => {
-                field.onChange(item.value)
-              }}
+              searchPlaceholder="Cari nama kain..."
+              value={field.value || ""}
+              addDataLink="/fabrics/new"
+              onChange={(value) => field.onChange(value)}
             />
           )}
         />
@@ -185,22 +178,13 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <SearchDropdown
-              size="sm"
-              data={quantityTypes.map((q) => ({
-                label: q,
-                value: q,
-              }))}
-              search
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Pilih Tipe Kuantitas"
-              searchPlaceholder="Cari Tipe..."
-              value={field.value}
-              onChange={(item: any) => {
-                field.onChange(item.value)
-              }}
+            <DropdownSelector
+              label="Tipe Kuantitas"
+              options={quantityTypes}
+              placeholder="Pilih Kuantitas"
+              searchPlaceholder="Cari kuantitas..."
+              value={field.value || ""}
+              onChange={(value) => field.onChange(value)}
             />
           )}
         />
@@ -278,7 +262,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 
       <View className="flex flex-row justify-between items-center">
         <Text className="font-semibold">Total Harga</Text>
-        <Text className="font-semibold text-xl text-info-600">
+        <Text className="font-semibold text-xl text-self-purple">
           {new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
@@ -288,7 +272,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 
       <View className="flex flex-row justify-between items-center">
         <Text className="font-semibold">Diskon</Text>
-        <Text className="font-semibold text-xl text-info-600">
+        <Text className="font-semibold text-xl text-self-purple">
           {new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
