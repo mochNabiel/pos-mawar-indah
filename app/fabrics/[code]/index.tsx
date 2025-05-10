@@ -23,7 +23,7 @@ const FabricDetailScreen = () => {
   const router = useRouter()
   const { code } = useLocalSearchParams()
   const { fabrics, fetchAllFabrics, deleteFabric } = useFabricStore()
-  const {showToast} = useToastMessage()
+  const { showToast } = useToastMessage()
 
   const [showModal, setShowModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)

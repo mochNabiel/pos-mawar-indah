@@ -17,6 +17,13 @@ export default function TransactionLayout() {
           headerLeft: () => <BackButton path="/" />,
         }}
       />
+      <Stack.Screen
+        name="[invCode]/index"
+        options={{
+          title: "Detail Transaksi",
+          headerLeft: () => <BackButton path="/" />,
+        }}
+      />
     </Stack>
   )
 }

@@ -1,5 +1,6 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { View, ScrollView } from "react-native"
+import { useRouter } from "expo-router"
 
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
@@ -12,25 +13,35 @@ import { Feather } from "@expo/vector-icons"
 
 import DateTimeDisplay from "@/components/DateTimeDisplay"
 import TransactionSummary from "@/components/TransactionSummary"
-import TransactionCard from "@/components/TransactionCard"
+import TransactionCardItem from "@/components/TransactionCard"
 import DropdownSelector from "@/components/DropdownSelector"
 
 import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
 
 import useToastMessage from "@/lib/hooks/useToastMessage"
+import useGenerateInvoice from "@/lib/hooks/useGenerateInvoice"
+
+import { TTransactionSchema } from "@/schema/transactionSchema"
+import { createTransaction } from "@/lib/firestore/transaction"
+import { Spinner } from "@/components/ui/spinner"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
+  const router = useRouter()
 
   const { showToast } = useToastMessage()
 
   const { customers, fetchAllCustomers } = useCustomerStore()
   const { fabrics, fetchAllFabrics } = useFabricStore()
 
+  const [invoiceCode, setInvoiceCode] = useState<string>()
+  const [loading, setLoading] = useState<boolean>(false)
+
   useEffect(() => {
     fetchAllCustomers()
     fetchAllFabrics()
+    setInvoiceCode(useGenerateInvoice())
   }, [])
 
   const {
@@ -39,17 +50,16 @@ const NewTransactionScreen = () => {
     setValue,
     getValues,
     handleSubmit,
+    reset,
     formState: { isValid },
-  } = useForm({
+  } = useForm<TTransactionSchema>({
     mode: "onChange",
     defaultValues: {
-      adminName: user?.name,
       customerName: "",
       cards: [
         {
-          id: Date.now(),
-          fabricName: undefined,
-          quantityType: undefined,
+          fabricName: "",
+          quantityType: "",
           weight: "",
           pricePerKg: 0,
           discountPerKg: 0,
@@ -65,6 +75,16 @@ const NewTransactionScreen = () => {
     },
   })
 
+  // Update form values when user is available
+  useEffect(() => {
+    if (user) {
+      reset((prevValues) => ({
+        ...prevValues,
+        adminName: user.name, // Set adminName when user is available
+      }))
+    }
+  }, [user, reset])
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "cards",
@@ -72,9 +92,8 @@ const NewTransactionScreen = () => {
 
   const handleAddCard = () => {
     append({
-      id: Date.now(),
-      fabricName: undefined,
-      quantityType: undefined,
+      fabricName: "",
+      quantityType: "",
       weight: "",
       pricePerKg: 0,
       discountPerKg: 0,
@@ -113,13 +132,39 @@ const NewTransactionScreen = () => {
     updateTransactionTotals()
   }, [watchedCards])
 
-  const onSubmit = (data: any) => {
-    showToast(JSON.stringify(data), "success")
-    console.log(data)
+  const onSubmit = async (data: TTransactionSchema) => {
+    setLoading(true)
+    const transactionData = {
+      ...data,
+      invCode: invoiceCode || "",
+      createdAt: new Date(),
+    }
+    
+    try {
+      await createTransaction(transactionData)
+      showToast("Transaksi berhasil dibuat", "success")
+      reset()
+      setLoading(false)
+      // Redirect to the transaction detail page
+      router.push(`/transactions/${invoiceCode}` as any)
+    } catch (error) {
+      showToast("Gagal membuat transaksi", "error")
+      setLoading(false)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
+      {/* Section No transaksi */}
+      <Card variant="filled" className="flex flex-row items-center gap-3 mb-3">
+        <Feather name="file" size={24} color="#BF40BF" />
+        <Text size="lg" className="flex-1 font-semibold text-self-purple">
+          {invoiceCode}
+        </Text>
+      </Card>
+
       {/* Section Info Admin dan Waktu */}
       <View>
         <Card
@@ -164,7 +209,7 @@ const NewTransactionScreen = () => {
           Item Transaksi
         </Text>
         {fields.map((field, index) => (
-          <TransactionCard
+          <TransactionCardItem
             key={field.id}
             index={index}
             control={control}
@@ -200,12 +245,20 @@ const NewTransactionScreen = () => {
         size="xl"
         variant="solid"
         action="info"
-        disabled={!isValid}
+        disabled={!isValid || loading}
         className={`rounded-lg mb-24 ${
           !isValid ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        <ButtonText>Buat Transaksi</ButtonText>
+        {
+          loading ? (
+            <ButtonText>
+              <Spinner />
+            </ButtonText>
+          ) : (
+            <ButtonText>Buat Transaksi</ButtonText>
+          )
+        }
       </Button>
     </ScrollView>
   )

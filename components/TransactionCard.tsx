@@ -1,15 +1,7 @@
 import { Text, View } from "react-native"
 import React, { useEffect } from "react"
 
-import {
-  Control,
-  Controller,
-  UseFormGetValues,
-  UseFormSetValue,
-  UseFormWatch,
-} from "react-hook-form"
-
-import { Fabric } from "@/types/fabric"
+import { Controller } from "react-hook-form"
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -19,32 +11,9 @@ import { Center } from "@/components/ui/center"
 
 import DropdownSelector from "@/components/DropdownSelector"
 import { Feather } from "@expo/vector-icons"
+import { TransactionCard, TransactionCardProps } from "@/types/transaction"
 
-export interface TransactionCardData {
-  id: number
-  fabricName: string | undefined
-  quantityType: "Ecer" | "Grosir" | "Roll" | undefined
-  weight: string
-  pricePerKg: number
-  discountPerKg: number
-  discount: number
-  totalPrice: number
-  useDiscount: boolean
-}
-
-interface TransactionCardProps {
-  index: number
-  control: Control<any>
-  watch: UseFormWatch<any>
-  setValue: UseFormSetValue<any>
-  getValues: UseFormGetValues<any>
-  cardData: TransactionCardData
-  fabrics: Fabric[]
-  onRemove: () => void
-  isRemovable: boolean
-}
-
-const TransactionCard: React.FC<TransactionCardProps> = ({
+const TransactionCardItem: React.FC<TransactionCardProps> = ({
   index,
   control,
   watch,
@@ -115,14 +84,14 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 
     // Calculate sub total (sum of all total prices)
     const subTotal = cards.reduce(
-      (sum: number, card: TransactionCardData) => sum + (card.totalPrice || 0),
+      (sum: number, card: TransactionCard) => sum + (card.totalPrice || 0),
       0
     )
     setValue("subTotal", subTotal)
 
     // Calculate total discount (sum of all discounts)
     const totalDiscount = cards.reduce(
-      (sum: number, card: TransactionCardData) => sum + (card.discount || 0),
+      (sum: number, card: TransactionCard) => sum + (card.discount || 0),
       0
     )
     setValue("totalDiscount", totalDiscount)
@@ -143,9 +112,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
             onPress={onRemove}
             variant="solid"
             action="negative"
-            className="p-2 rounded-lg"
+            className="p-2 rounded-full"
           >
-            <Feather name="x" size={24} color="white" />
+            <Feather name="x" size={20} color="white" />
           </Button>
         )}
       </View>
@@ -283,4 +252,4 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   )
 }
 
-export default TransactionCard
+export default TransactionCardItem
