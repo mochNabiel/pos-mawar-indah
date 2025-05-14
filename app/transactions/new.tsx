@@ -25,6 +25,7 @@ import useGenerateInvoice from "@/lib/hooks/useGenerateInvoice"
 import { TTransactionSchema } from "@/schema/transactionSchema"
 import { createTransaction } from "@/lib/firestore/transaction"
 import { Spinner } from "@/components/ui/spinner"
+import { Timestamp } from "firebase/firestore"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
@@ -71,7 +72,7 @@ const NewTransactionScreen = () => {
       subTotal: 0,
       totalDiscount: 0,
       totalTransaction: 0,
-      createdAt: new Date(),
+      createdAt: undefined,
     },
   })
 

@@ -8,6 +8,7 @@ import {
   query,
   where,
   getDoc,
+  serverTimestamp,
 } from "firebase/firestore"
 import { db } from "@/utils/firebase"
 import { Transaction, TransactionWithId } from "@/types/transaction" // Adjust the import based on your types
@@ -21,11 +22,16 @@ export const createTransaction = async (data: Transaction) => {
 
 // Get all transactions
 export const getAllTransactions = async (): Promise<TransactionWithId[]> => {
-  const snapshot = await getDocs(transactionsRef)
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Transaction),
-  }))
+  const snapshot = await getDocs(collection(db, "transactions"))
+  return snapshot.docs.map((doc) => {
+    const data = doc.data()
+    return {
+      id: doc.id,
+      ...data,
+      // Convert Firestore Timestamp to JavaScript Date
+      createdAt: data.createdAt?.toDate?.() ?? new Date(data.createdAt),
+    }
+  }) as TransactionWithId[]
 }
 
 // Get transaction by Invoice Code

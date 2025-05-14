@@ -8,6 +8,7 @@ import * as SplashScreen from "expo-splash-screen"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/utils/firebase"
 import { getCurrentUserData } from "@/lib/firebase/user"
+import { SafeAreaView } from "react-native"
 
 // Cegah splash screen menghilang otomatis
 SplashScreen.preventAutoHideAsync()
@@ -69,7 +70,9 @@ export default function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <GluestackUIProvider mode="light">
-          <Slot />
+          <SafeAreaView className="flex-1">
+            <Slot />
+          </SafeAreaView>
         </GluestackUIProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -21,7 +21,7 @@ export default function TransactionLayout() {
         name="[invCode]/index"
         options={{
           title: "Detail Transaksi",
-          headerLeft: () => <BackButton path="/" />,
+          headerLeft: () => <BackButton path="/(tabs)/history" />,
         }}
       />
     </Stack>

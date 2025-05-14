@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/actionsheet"
 import React, { useState } from "react"
 import { Feather } from "@expo/vector-icons"
-import { View, Text } from "react-native"
+import { Text } from "react-native"
+
+import { Card } from "@/components/ui/card"
 
 export function useQuickActions() {
   const [open, setOpen] = useState(false)
@@ -28,32 +30,32 @@ export function useQuickActions() {
           </ActionsheetDragIndicatorWrapper>
           {/* Tambah Transaksi */}
           <ActionsheetItem onPress={() => router.push("/transactions/new")}>
-            <View className="flex-row items-center bg-white p-4 py-8 border border-gray-200 rounded-xl w-full">
-              <Feather name="file-plus" size={32} color="#f97316" />
+            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-1">
+              <Feather name="file-plus" size={32} color="#BF40BF" />
               <Text className="ml-3 text-xl font-semibold text-gray-900">
                 Transaksi Baru
               </Text>
-            </View>
+            </Card>
           </ActionsheetItem>
 
           {/* Tambah Kain */}
           <ActionsheetItem onPress={() => router.push("/fabrics/new")}>
-            <View className="flex-row items-center bg-white p-4 py-8 border border-gray-200 rounded-xl w-full">
-              <Feather name="layers" size={32} color="#3b82f6" />
+            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-1">
+              <Feather name="layers" size={32} color="#40BFBF" />
               <Text className="ml-3 text-xl font-semibold text-gray-900">
                 Tambah Data Kain
               </Text>
-            </View>
+            </Card>
           </ActionsheetItem>
 
           {/* Tambah Pelanggan */}
           <ActionsheetItem onPress={() => router.push("/customers/new")}>
-            <View className="flex-row items-center bg-white p-4 py-8 border border-gray-200 rounded-xl w-full">
-              <Feather name="user-plus" size={32} color="#8b5cf6" />
+            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-1">
+              <Feather name="user-plus" size={32} color="#FFB740" />
               <Text className="ml-3 text-xl font-semibold text-gray-900">
                 Tambah Data Customer
               </Text>
-            </View>
+            </Card>
           </ActionsheetItem>
         </ActionsheetContent>
       </Actionsheet>

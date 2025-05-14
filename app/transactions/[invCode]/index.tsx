@@ -9,16 +9,16 @@ import { Spinner } from "@/components/ui/spinner";
 const TransactionDetailScreen = () => {
   const { invCode } = useLocalSearchParams();
 
+  const [loading, setLoading] = useState(true); 
   const invCodeParam = Array.isArray(invCode) ? invCode[0] : invCode;
   const [transaction, setTransaction] = useState<TransactionWithId | null>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchTransaction = async () => {
-      setLoading(true); // Set loading to true before fetching
-      const transactionData = await getTransactionByInvCode(invCodeParam); // Await the async function
+      setLoading(true); 
+      const transactionData = await getTransactionByInvCode(invCodeParam); 
       setTransaction(transactionData);
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false); 
     };
 
     fetchTransaction();
