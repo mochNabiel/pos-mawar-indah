@@ -16,7 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 const CustomerListScreen = () => {
   const router = useRouter()
   const [search, setSearch] = useState("")
-  const debouncedSearch = useDebouncedValue(search, 500)
+  const debouncedSearch = useDebouncedValue(search, 700)
 
   const { customers, isLoading, fetchAllCustomers } = useCustomerStore()
   const [filtered, setFiltered] = useState<Customer[]>([])

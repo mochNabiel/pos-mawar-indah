@@ -7,31 +7,56 @@ import {
   doc,
   query,
   where,
-  getDoc,
-  serverTimestamp,
+  QueryDocumentSnapshot,
+  DocumentData,
+  orderBy,
+  limit,
+  startAfter,
 } from "firebase/firestore"
 import { db } from "@/utils/firebase"
-import { Transaction, TransactionWithId } from "@/types/transaction" // Adjust the import based on your types
+import { Transaction, TransactionWithId } from "@/types/transaction"
 
 const transactionsRef = collection(db, "transactions")
+
+let lastVisibleDoc: QueryDocumentSnapshot<DocumentData> | null = null
+const pageLimit = 10
+
+export const resetPagination = () => {
+  lastVisibleDoc = null
+}
+
+export const getPaginatedTransactions = async () => {
+  let q = query(
+    collection(db, "transactions"),
+    orderBy("createdAt", "desc"),
+    limit(pageLimit)
+  )
+
+  if (lastVisibleDoc) {
+    q = query(q, startAfter(lastVisibleDoc))
+  }
+
+  const snapshot = await getDocs(q)
+
+  if (!snapshot.empty) {
+    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1]
+  }
+
+  const data = snapshot.docs.map((doc) => {
+    const t = doc.data()
+    return {
+      id: doc.id,
+      ...t,
+      createdAt: t.createdAt?.toDate?.() ?? new Date(t.createdAt),
+    }
+  }) as TransactionWithId[]
+
+  return { data, lastDoc: lastVisibleDoc }
+}
 
 // Create a new transaction
 export const createTransaction = async (data: Transaction) => {
   return addDoc(transactionsRef, data)
-}
-
-// Get all transactions
-export const getAllTransactions = async (): Promise<TransactionWithId[]> => {
-  const snapshot = await getDocs(collection(db, "transactions"))
-  return snapshot.docs.map((doc) => {
-    const data = doc.data()
-    return {
-      id: doc.id,
-      ...data,
-      // Convert Firestore Timestamp to JavaScript Date
-      createdAt: data.createdAt?.toDate?.() ?? new Date(data.createdAt),
-    }
-  }) as TransactionWithId[]
 }
 
 // Get transaction by Invoice Code

@@ -42,7 +42,7 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({
 
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const debouncedSearchTerm = useDebouncedValue(searchTerm, 500)
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 700)
 
   const filteredOptions = searchable
     ? options.filter((option) =>

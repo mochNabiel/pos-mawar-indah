@@ -16,7 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 const FabricListScreen = () => {
   const router = useRouter()
   const [search, setSearch] = useState("")
-  const debouncedSearch = useDebouncedValue(search, 500)
+  const debouncedSearch = useDebouncedValue(search, 700)
 
   const { fabrics, isLoading, fetchAllFabrics } = useFabricStore()
   const [filtered, setFiltered] = useState<Fabric[]>([])
