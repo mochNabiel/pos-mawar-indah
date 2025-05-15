@@ -35,6 +35,7 @@ export default function History() {
   const transactions = useTransactionStore((state) => state.transactions)
   const loading = useTransactionStore((state) => state.loading)
   const hasMore = useTransactionStore((state) => state.hasMore)
+  const currentPage = useTransactionStore((state) => state.currentPage)
   const fetchTransactions = useTransactionStore(
     (state) => state.fetchTransactions
   )
@@ -50,7 +51,7 @@ export default function History() {
   const debouncedQuery = useDebouncedValue(searchQuery, 700)
 
   useEffect(() => {
-    fetchTransactions(true)
+    fetchTransactions(1)
   }, [])
 
   const filteredInvoices = useMemo(() => {
@@ -125,7 +126,7 @@ export default function History() {
     setEndDate(null)
     setSearchQuery("")
     resetTransactions()
-    fetchTransactions(true)
+    fetchTransactions(1)
   }
 
   const flatListData = useMemo(() => {
@@ -197,9 +198,15 @@ export default function History() {
 
   const keyExtractor = (item: { id: string }) => item.id
 
-  const handleEndReached = () => {
-    if (!loading && hasMore) {
-      fetchTransactions()
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      fetchTransactions(currentPage - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (hasMore) {
+      fetchTransactions(currentPage + 1)
     }
   }
 
@@ -298,13 +305,43 @@ export default function History() {
             data={flatListData}
             renderItem={flattenedRenderItem}
             keyExtractor={keyExtractor}
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.5}
             ListFooterComponent={
-              loading && transactions.length > 0 ? <Spinner /> : null
+              loading ? (
+                <Spinner />
+              ) : (
+                <View className="flex flex-row justify-center items-center gap-4 py-4 mb-20">
+                  <Button
+                    onPress={handlePrevPage}
+                    disabled={currentPage === 1 || loading}
+                    variant="outline"
+                    size="md"
+                    className="flex-1 rounded-lg"
+                  >
+                    <ButtonText>
+                      <Feather name="chevron-left" size={24} />
+                    </ButtonText>
+                  </Button>
+                  <Text className="text-lg font-semibold px-2">
+                    Halaman {currentPage}
+                  </Text>
+                  <Button
+                    onPress={handleNextPage}
+                    disabled={!hasMore || loading}
+                    variant="outline"
+                    size="md"
+                    className="flex-1 rounded-lg"
+                  >
+                    <ButtonText>
+                      <Feather name="chevron-right" size={24} />
+                    </ButtonText>
+                  </Button>
+                </View>
+              )
             }
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 20 }}
           />
+
+          {/* Pagination Buttons */}
         </>
       )}
     </View>

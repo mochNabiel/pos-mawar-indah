@@ -9,7 +9,8 @@ interface TransactionStore {
   transactions: TransactionWithId[]
   loading: boolean
   hasMore: boolean
-  fetchTransactions: (reset?: boolean) => Promise<void>
+  currentPage: number
+  fetchTransactions: (page: number) => Promise<void>
   resetTransactions: () => void
 }
 
@@ -17,26 +18,23 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
   transactions: [],
   loading: false,
   hasMore: true,
+  currentPage: 1,
 
-  fetchTransactions: async (reset = false) => {
-    if (get().loading || (!get().hasMore && !reset)) return
+  fetchTransactions: async (page = 1) => {
+    if (get().loading) return
 
     set({ loading: true })
 
     try {
-      if (reset) {
-        resetPagination()
-        set({ transactions: [], hasMore: true })
-      }
-
-      const { data } = await getPaginatedTransactions()
+      const { data } = await getPaginatedTransactions(page)
       if (data.length === 0) {
         set({ hasMore: false })
+      } else {
+        set({
+          transactions: data,
+          currentPage: page,
+        })
       }
-
-      set((state) => ({
-        transactions: [...state.transactions, ...data],
-      }))
     } catch (error) {
       console.error("Fetch paginated transactions failed:", error)
     } finally {
@@ -46,6 +44,6 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
 
   resetTransactions: () => {
     resetPagination()
-    set({ transactions: [], hasMore: true })
+    set({ transactions: [], hasMore: true, currentPage: 1 })
   },
 }))

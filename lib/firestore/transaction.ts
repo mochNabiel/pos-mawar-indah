@@ -25,33 +25,40 @@ export const resetPagination = () => {
   lastVisibleDoc = null
 }
 
-export const getPaginatedTransactions = async () => {
+// Get all transactions with infinite scroll
+export const getPaginatedTransactions = async (page: number) => {
+  // If page is 1, we need to reset the lastVisibleDoc
+  if (page === 1) {
+    resetPagination();
+  }
+
   let q = query(
     collection(db, "transactions"),
     orderBy("createdAt", "desc"),
     limit(pageLimit)
-  )
+  );
 
+  // If not the first page, start after the last visible document
   if (lastVisibleDoc) {
-    q = query(q, startAfter(lastVisibleDoc))
+    q = query(q, startAfter(lastVisibleDoc));
   }
 
-  const snapshot = await getDocs(q)
+  const snapshot = await getDocs(q);
 
   if (!snapshot.empty) {
-    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1]
+    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
   }
 
   const data = snapshot.docs.map((doc) => {
-    const t = doc.data()
+    const t = doc.data();
     return {
       id: doc.id,
       ...t,
       createdAt: t.createdAt?.toDate?.() ?? new Date(t.createdAt),
-    }
-  }) as TransactionWithId[]
+    };
+  }) as TransactionWithId[];
 
-  return { data, lastDoc: lastVisibleDoc }
+  return { data, lastDoc: lastVisibleDoc };
 }
 
 // Create a new transaction
@@ -67,21 +74,12 @@ export const getTransactionByInvCode = async (
   const q = query(transactionsRef, where("invCode", "==", invCode))
   const querySnapshot = await getDocs(q)
   if (!querySnapshot.empty) {
-    const doc = querySnapshot.docs[0] // Get the first matching document
-    const data = doc.data() as Omit<TransactionWithId, "id"> // Exclude 'id' from the data
-    return { id: doc.id, ...data } // Now you can safely add the id
+    const doc = querySnapshot.docs[0] 
+    const data = doc.data() as Omit<TransactionWithId, "id">
+    return { id: doc.id, ...data } 
   } else {
-    return null // No document found
+    return null 
   }
-}
-
-// Update a transaction by ID
-export const updateTransactionInDb = async (
-  id: string,
-  data: Partial<Transaction>
-) => {
-  const docRef = doc(db, "transactions", id)
-  return updateDoc(docRef, data)
 }
 
 // Delete a transaction by ID
