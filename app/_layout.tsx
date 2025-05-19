@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { SafeAreaProvider } from "react-native-safe-area-context"
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import "@/global.css"
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider"
@@ -8,7 +8,6 @@ import * as SplashScreen from "expo-splash-screen"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/utils/firebase"
 import { getCurrentUserData } from "@/lib/firebase/user"
-import { SafeAreaView } from "react-native"
 
 // Cegah splash screen menghilang otomatis
 SplashScreen.preventAutoHideAsync()
@@ -67,10 +66,10 @@ export default function RootLayout() {
   if (!isReady) return null
 
   return (
-    <GestureHandlerRootView className="flex-1">
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <GluestackUIProvider mode="light">
-          <SafeAreaView className="flex-1">
+          <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
             <Slot />
           </SafeAreaView>
         </GluestackUIProvider>

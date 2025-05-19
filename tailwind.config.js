@@ -18,6 +18,7 @@ module.exports = {
           purple: "#BF40BF",
           cyan: "#40BFBF",
           orange: "#FFB740",
+          army: "#3D8B37",
         },
         primary: {
           0: "rgb(var(--color-primary-0)/<alpha-value>)",

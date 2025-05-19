@@ -1,16 +1,323 @@
-import React from 'react'
-import { View, Text } from 'react-native'
-import { useCurrentUser } from '@/lib/hooks/useCurrentUser'
+import React from "react"
+import { ScrollView, View } from "react-native"
+import { Feather } from "@expo/vector-icons"
 
-const Home = () => {
-  const {user} = useCurrentUser()
+import { LineChart } from "react-native-chart-kit"
+
+import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
+
+import { Heading } from "@/components/ui/heading"
+import { Text } from "@/components/ui/text"
+import { Card } from "@/components/ui/card"
+
+import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
+
+const dummyData = {
+  daily: {
+    transactions: 360,
+    totalFabricSold: 210.22,
+    totalRevenue: 19000000,
+  },
+  weekly: {
+    transactions: 1200,
+    totalFabricSold: 500.75,
+    totalRevenue: 57000000,
+  },
+  monthly: {
+    transactions: 5000,
+    totalFabricSold: 2100.5,
+    totalRevenue: 250000000,
+  },
+}
+
+const fabricReportMonthly = [
+  { month: "Jan", weightTotal: 1432 },
+  { month: "Feb", weightTotal: 2034 },
+  { month: "Mar", weightTotal: 1922 },
+  { month: "Apr", weightTotal: 845 },
+  { month: "May", weightTotal: 500 },
+]
+
+const topCustomers = {
+  byWeight: [
+    { name: "Budi Santoso", value: 210.5 },
+    { name: "Siti Aminah", value: 198.2 },
+    { name: "Agus Salim", value: 175.8 },
+    { name: "Maria Yosephine", value: 160.4 },
+    { name: "Rudi Hartono", value: 150.0 },
+  ],
+  byTransaction: [
+    { name: "Budi Santoso", value: 35300000 },
+    { name: "Siti Aminah", value: 21500000 },
+    { name: "Rudi Hartono", value: 12730000 },
+    { name: "Agus Salim", value: 8920000 },
+    { name: "Maria Yosephine", value: 6390000 },
+  ],
+}
+
+const topFabrics = {
+  weekly: [
+    { name: "Katun Hitam", value: 120.3 },
+    { name: "Sutra Merah", value: 98.7 },
+    { name: "Denim Biru", value: 84.1 },
+    { name: "Wol Abu", value: 72.5 },
+    { name: "Linen Putih", value: 68.0 },
+  ],
+  monthly: [
+    { name: "Katun Hitam", value: 540.0 },
+    { name: "Sutra Merah", value: 489.5 },
+    { name: "Denim Biru", value: 455.2 },
+    { name: "Linen Putih", value: 410.7 },
+    { name: "Wol Abu", value: 398.4 },
+  ],
+}
+
+export default function Dashboard() {
+  const { user } = useCurrentUser()
+
+  const tabData: TabItem[] = [
+    {
+      key: "daily",
+      title: "Harian",
+      content: <TabContent data={dummyData.daily} />,
+    },
+    {
+      key: "weekly",
+      title: "Mingguan",
+      content: <TabContent data={dummyData.weekly} />,
+    },
+    {
+      key: "monthly",
+      title: "Bulanan",
+      content: <TabContent data={dummyData.monthly} />,
+    },
+  ]
+
   return (
-    <View className='flex-1 bg-white p-5'>
-      <Text>Hello {user?.name}</Text>
-      <Text>Your role {user?.role}</Text>
-      <Text>Your Email {user?.email}</Text>
+    <ScrollView className="p-5 bg-white flex-1">
+      {/* Greeting */}
+      <View className="mb-6">
+        <Heading size="2xl" className="mb-1 text-self-purple">
+          Selamat datang, {user?.name ?? "Admin"}!
+        </Heading>
+        <View className="flex-row items-center gap-2">
+          <Feather name="calendar" size={20} color="gray" />
+          <Text className="text-lg font-medium">
+            {new Date().toLocaleDateString("id-ID", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </Text>
+        </View>
+      </View>
+
+      {/* Rekap Penjualan */}
+      <Heading className="text-2xl mb-2">Rekap Penjualan</Heading>
+      <SegmentedTabs tabs={tabData} defaultTabKey="monthly" />
+
+      {/* Grafik Penjualan Kain Bulanan */}
+      <Card variant="outline" size="lg" className="mb-6">
+        <Heading className="text-2xl mb-4">Penjualan Kain Bulanan</Heading>
+        <LineChart
+          data={{
+            labels: fabricReportMonthly.map((item) => item.month),
+            datasets: [
+              {
+                data: fabricReportMonthly.map((item) => item.weightTotal),
+                color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+              },
+            ],
+          }}
+          width={240} 
+          height={200}
+          yAxisSuffix=" kg"
+          chartConfig={{
+            backgroundColor: "#ffffff",
+            backgroundGradientFrom: "#ffffff",
+            backgroundGradientTo: "#ffffff",
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+          }}
+          bezier
+        />
+      </Card>
+
+      {/* Top 5 Customers */}
+      <Card variant="outline" size="lg" className="mb-6">
+        <View className="flex-row gap-3 items-center mb-1">
+          <Feather name="user" size={20} />
+          <Heading className="text-2xl">5 Customer Teratas</Heading>
+        </View>
+        <Text className="text-secondary-900 mb-4">
+          Berdasarkan berat kain terjual dan total transaksi
+        </Text>
+        <SegmentedTabs
+          defaultTabKey="berat"
+          tabs={[
+            {
+              key: "berat",
+              title: "Berat Kain",
+              content: (
+                <CustomerTopList data={topCustomers.byWeight} metric="kg" />
+              ),
+            },
+            {
+              key: "transaksi",
+              title: "Total Transaksi",
+              content: (
+                <CustomerTopList
+                  data={topCustomers.byTransaction}
+                  metric="rupiah"
+                />
+              ),
+            },
+          ]}
+        />
+      </Card>
+
+      {/* Top 5 Kain */}
+      <Card variant="outline" size="lg" className="mb-20">
+        <View className="flex-row gap-3 items-center mb-1">
+          <Feather name="calendar" size={20} />
+          <Heading className="text-2xl">5 Kain Terlaris</Heading>
+        </View>
+        <Text className="text-secondary-900 mb-4">
+          Berdasarkan kuantitas terjual mingguan dan bulanan
+        </Text>
+        <SegmentedTabs
+          defaultTabKey="mingguan"
+          tabs={[
+            {
+              key: "mingguan",
+              title: "Mingguan",
+              content: <FabricTopList data={topFabrics.weekly} />,
+            },
+            {
+              key: "bulanan",
+              title: "Bulanan",
+              content: <FabricTopList data={topFabrics.monthly} />,
+            },
+          ]}
+        />
+      </Card>
+    </ScrollView>
+  )
+}
+
+// Tab Penjualan
+const TabContent = ({ data }: { data: any }) => {
+  return (
+    <View className="flex gap-3 mb-6">
+      <Card
+        variant="outline"
+        size="lg"
+        className="flex-row justify-between items-start"
+      >
+        <View>
+          <Text className="text-self-cyan text-xl font-semibold mb-3">
+            Jumlah Transaksi
+          </Text>
+          <Heading size="3xl" className="text-self-cyan">
+            {data.transactions}
+          </Heading>
+          <Text>transaksi</Text>
+        </View>
+        <Feather name="shopping-bag" size={24} color="gray" />
+      </Card>
+      <Card
+        variant="outline"
+        size="lg"
+        className="flex-row justify-between items-start"
+      >
+        <View>
+          <Text className="text-self-orange text-xl font-semibold mb-3">
+            Total Kain Terjual (kg)
+          </Text>
+          <Heading size="3xl" className="text-self-orange">
+            {data.totalFabricSold}
+          </Heading>
+          <Text>kilogram</Text>
+        </View>
+        <Feather name="trending-up" size={24} color="gray" />
+      </Card>
+      <Card
+        variant="outline"
+        size="lg"
+        className="flex-row justify-between items-start"
+      >
+        <View>
+          <Text className="text-self-army text-xl font-semibold mb-3">
+            Total Omset (Rp)
+          </Text>
+          <Heading size="3xl" className="text-self-army">
+            {data.totalRevenue.toLocaleString("id-ID")}
+          </Heading>
+          <Text>rupiah</Text>
+        </View>
+        <Feather name="award" size={24} color="gray" />
+      </Card>
     </View>
   )
 }
 
-export default Home
+// List Customer
+const CustomerTopList = ({
+  data,
+  metric,
+}: {
+  data: { name: string; value: number }[]
+  metric: "kg" | "rupiah"
+}) => {
+  return (
+    <View className="gap-3">
+      {data.map((customer, index) => (
+        <Card
+          key={index}
+          variant="outline"
+          className="flex-row justify-between items-center px-4 py-3"
+        >
+          <Text className="font-medium text-base">{customer.name}</Text>
+          {metric === "kg" ? (
+            <Text className="text-right font-semibold text-lg">
+              {customer.value} {metric}
+            </Text>
+          ) : (
+            <Text className="text-right font-semibold text-lg">
+              Rp {customer.value.toLocaleString("id-ID")}
+            </Text>
+          )}
+        </Card>
+      ))}
+    </View>
+  )
+}
+
+// List Kain
+const FabricTopList = ({
+  data,
+}: {
+  data: { name: string; value: number }[]
+}) => {
+  return (
+    <View className="gap-3">
+      {data.map((fabric, index) => (
+        <Card
+          key={index}
+          variant="outline"
+          className="flex-row justify-between items-center px-4 py-3"
+        >
+          <Text className="font-medium text-base">{fabric.name}</Text>
+          <Text className="text-right font-semibold text-lg">
+            {fabric.value} kg
+          </Text>
+        </Card>
+      ))}
+    </View>
+  )
+}

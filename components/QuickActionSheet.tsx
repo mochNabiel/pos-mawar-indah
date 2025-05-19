@@ -30,9 +30,9 @@ export function useQuickActions() {
           </ActionsheetDragIndicatorWrapper>
           {/* Tambah Transaksi */}
           <ActionsheetItem onPress={() => router.push("/transactions/new")}>
-            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-1">
+            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-3">
               <Feather name="file-plus" size={32} color="#BF40BF" />
-              <Text className="ml-3 text-xl font-semibold text-gray-900">
+              <Text className="text-xl font-semibold text-gray-900">
                 Transaksi Baru
               </Text>
             </Card>
@@ -40,19 +40,19 @@ export function useQuickActions() {
 
           {/* Tambah Kain */}
           <ActionsheetItem onPress={() => router.push("/fabrics/new")}>
-            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-1">
+            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-3">
               <Feather name="layers" size={32} color="#40BFBF" />
-              <Text className="ml-3 text-xl font-semibold text-gray-900">
+              <Text className="text-xl font-semibold text-gray-900">
                 Tambah Data Kain
               </Text>
             </Card>
           </ActionsheetItem>
 
           {/* Tambah Pelanggan */}
-          <ActionsheetItem onPress={() => router.push("/customers/new")}>
-            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-1">
+          <ActionsheetItem onPress={() => router.push("/customers/new")} className="mb-6">
+            <Card size="lg" variant="outline" className="w-full flex-row items-center rounded-xl gap-3">
               <Feather name="user-plus" size={32} color="#FFB740" />
-              <Text className="ml-3 text-xl font-semibold text-gray-900">
+              <Text className="text-xl font-semibold text-gray-900">
                 Tambah Data Customer
               </Text>
             </Card>
