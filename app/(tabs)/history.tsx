@@ -80,10 +80,14 @@ export default function History() {
         </View>
         <View className="flex items-end justify-end">
           <Text className="text-xl font-semibold">
-            {dayjs(item.createdAt).format("DD MMMM YYYY")}
+            {new Date(item.createdAt).toLocaleDateString("id-ID", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
           </Text>
           <Text className="text-lg text-typography-700">
-            {new Date(item.createdAt).toLocaleTimeString("en-US", {
+            {new Date(item.createdAt).toLocaleTimeString("id-ID", {
               hour: "numeric",
               minute: "2-digit",
               hour12: true,

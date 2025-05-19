@@ -77,7 +77,10 @@ export const getPaginatedTransactions = async (
 
     // Pagination client side
     const startIndex = (page - 1) * pageLimit
-    const paginated = filteredTransactions.slice(startIndex, startIndex + pageLimit)
+    const paginated = filteredTransactions.slice(
+      startIndex,
+      startIndex + pageLimit
+    )
 
     return { data: paginated, lastDoc: null }
   }
@@ -90,7 +93,11 @@ export const getPaginatedTransactions = async (
   )
 
   if (startDate && endDate) {
-    q = query(q, where("createdAt", ">=", startDate), where("createdAt", "<=", endDate))
+    q = query(
+      q,
+      where("createdAt", ">=", startDate),
+      where("createdAt", "<=", endDate)
+    )
   }
 
   if (lastVisibleDoc) {
@@ -115,8 +122,6 @@ export const getPaginatedTransactions = async (
   return { data, lastDoc: lastVisibleDoc }
 }
 
-
-
 // Buat transaksi baru
 export const createTransaction = async (data: Transaction) => {
   return addDoc(transactionsRef, data)
@@ -129,10 +134,16 @@ export const getTransactionByInvCode = async (
   const transactionsRef = collection(db, "transactions")
   const q = query(transactionsRef, where("invCode", "==", invCode))
   const querySnapshot = await getDocs(q)
+
   if (!querySnapshot.empty) {
     const doc = querySnapshot.docs[0]
-    const data = doc.data() as Omit<TransactionWithId, "id">
-    return { id: doc.id, ...data }
+    const data = doc.data()
+
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt?.toDate?.() ?? new Date(data.createdAt),
+    } as TransactionWithId
   } else {
     return null
   }
