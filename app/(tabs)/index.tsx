@@ -1,41 +1,23 @@
-import React from "react"
-import { ScrollView, View } from "react-native"
+import React, { useEffect } from "react"
+import { Dimensions, ScrollView, View } from "react-native"
 import { Feather } from "@expo/vector-icons"
-
 import { LineChart } from "react-native-chart-kit"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
+import { useSalesRecapStore } from "@/lib/zustand/useSalesRecapStore"
 
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
-
 import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
-
-const dummyData = {
-  daily: {
-    transactions: 360,
-    totalFabricSold: 210.22,
-    totalRevenue: 19000000,
-  },
-  weekly: {
-    transactions: 1200,
-    totalFabricSold: 500.75,
-    totalRevenue: 57000000,
-  },
-  monthly: {
-    transactions: 5000,
-    totalFabricSold: 2100.5,
-    totalRevenue: 250000000,
-  },
-}
+import { Spinner } from "@/components/ui/spinner"
 
 const fabricReportMonthly = [
-  { month: "Jan", weightTotal: 2432 },
+  { month: "Jan", weightTotal: 1432 },
   { month: "Feb", weightTotal: 2034 },
   { month: "Mar", weightTotal: 1922 },
-  { month: "Apr", weightTotal: 2845 },
-  { month: "May", weightTotal: 3500 },
+  { month: "Apr", weightTotal: 845 },
+  { month: "May", weightTotal: 500 },
 ]
 
 const topCustomers = {
@@ -55,43 +37,43 @@ const topCustomers = {
   ],
 }
 
-const topFabrics = {
-  weekly: [
-    { name: "Katun Hitam", value: 120.3 },
-    { name: "Sutra Merah", value: 98.7 },
-    { name: "Denim Biru", value: 84.1 },
-    { name: "Wol Abu", value: 72.5 },
-    { name: "Linen Putih", value: 68.0 },
-  ],
-  monthly: [
-    { name: "Katun Hitam", value: 540.0 },
-    { name: "Sutra Merah", value: 489.5 },
-    { name: "Denim Biru", value: 455.2 },
-    { name: "Linen Putih", value: 410.7 },
-    { name: "Wol Abu", value: 398.4 },
-  ],
-}
+const topFabrics = [
+  { name: "Katun Hitam", value: 540.0 },
+  { name: "Sutra Merah", value: 489.5 },
+  { name: "Denim Biru", value: 455.2 },
+  { name: "Linen Putih", value: 410.7 },
+  { name: "Wol Abu", value: 398.4 },
+]
 
 export default function Dashboard() {
   const { user } = useCurrentUser()
+  const { daily, weekly, monthly, loading, fetchSalesRecap } =
+    useSalesRecapStore()
+
+  useEffect(() => {
+    fetchSalesRecap()
+  }, [])
 
   const tabData: TabItem[] = [
     {
       key: "daily",
       title: "Harian",
-      content: <TabContent data={dummyData.daily} />,
+      content: <TabContent data={daily} isLoading={loading} />,
     },
     {
       key: "weekly",
       title: "Mingguan",
-      content: <TabContent data={dummyData.weekly} />,
+      content: <TabContent data={weekly} isLoading={loading} />,
     },
     {
       key: "monthly",
       title: "Bulanan",
-      content: <TabContent data={dummyData.monthly} />,
+      content: <TabContent data={monthly} isLoading={loading} />,
     },
   ]
+
+  const screenWidth = Dimensions.get("window").width
+  const chartWidth = screenWidth - 80
 
   return (
     <ScrollView className="p-5 bg-white flex-1">
@@ -130,7 +112,7 @@ export default function Dashboard() {
               },
             ],
           }}
-          width={240} 
+          width={chartWidth || 200}
           height={200}
           yAxisSuffix=" kg"
           chartConfig={{
@@ -188,30 +170,24 @@ export default function Dashboard() {
           <Heading className="text-2xl">5 Kain Terlaris</Heading>
         </View>
         <Text className="text-secondary-900 mb-4">
-          Berdasarkan kuantitas terjual mingguan dan bulanan
+          Berdasarkan kuantitas terjual bulanan
         </Text>
-        <SegmentedTabs
-          defaultTabKey="mingguan"
-          tabs={[
-            {
-              key: "mingguan",
-              title: "Mingguan",
-              content: <FabricTopList data={topFabrics.weekly} />,
-            },
-            {
-              key: "bulanan",
-              title: "Bulanan",
-              content: <FabricTopList data={topFabrics.monthly} />,
-            },
-          ]}
-        />
+        <FabricTopList data={topFabrics} />
       </Card>
     </ScrollView>
   )
 }
 
-// Tab Penjualan
-const TabContent = ({ data }: { data: any }) => {
+// TabContent untuk Rekap Penjualan
+const TabContent = ({ data, isLoading }: { data: any; isLoading: boolean }) => {
+  if (isLoading || !data) {
+    return (
+      <View className="my-6">
+        <Spinner size="large" color="#bf40bf" />
+      </View>
+    )
+  }
+
   return (
     <View className="flex gap-3 mb-6">
       <Card
@@ -230,6 +206,7 @@ const TabContent = ({ data }: { data: any }) => {
         </View>
         <Feather name="shopping-bag" size={24} color="gray" />
       </Card>
+
       <Card
         variant="outline"
         size="lg"
@@ -246,6 +223,7 @@ const TabContent = ({ data }: { data: any }) => {
         </View>
         <Feather name="trending-up" size={24} color="gray" />
       </Card>
+
       <Card
         variant="outline"
         size="lg"
@@ -266,7 +244,7 @@ const TabContent = ({ data }: { data: any }) => {
   )
 }
 
-// List Customer
+// Komponen Daftar Customer Teratas
 const CustomerTopList = ({
   data,
   metric,
@@ -298,7 +276,7 @@ const CustomerTopList = ({
   )
 }
 
-// List Kain
+// Komponen Daftar Kain Terlaris
 const FabricTopList = ({
   data,
 }: {
