@@ -2,49 +2,21 @@ import React, { useEffect } from "react"
 import { Dimensions, ScrollView, View } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { LineChart } from "react-native-chart-kit"
+import AnimatedNumbers from "react-native-animated-numbers"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
-import { useSalesRecapStore } from "@/lib/zustand/useSalesRecapStore"
 
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
-import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
 import { Spinner } from "@/components/ui/spinner"
+
+import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
+
+import { useSalesRecapStore } from "@/lib/zustand/useSalesRecapStore"
 import { useTopCustomersStore } from "@/lib/zustand/useTopCustomersStore"
-
-const fabricReportMonthly = [
-  { month: "Jan", weightTotal: 1432 },
-  { month: "Feb", weightTotal: 2034 },
-  { month: "Mar", weightTotal: 1922 },
-  { month: "Apr", weightTotal: 845 },
-  { month: "May", weightTotal: 500 },
-]
-
-const topCustomers = {
-  byWeight: [
-    { name: "Budi Santoso", value: 210.5 },
-    { name: "Siti Aminah", value: 198.2 },
-    { name: "Agus Salim", value: 175.8 },
-    { name: "Maria Yosephine", value: 160.4 },
-    { name: "Rudi Hartono", value: 150.0 },
-  ],
-  byTransaction: [
-    { name: "Budi Santoso", value: 35300000 },
-    { name: "Siti Aminah", value: 21500000 },
-    { name: "Rudi Hartono", value: 12730000 },
-    { name: "Agus Salim", value: 8920000 },
-    { name: "Maria Yosephine", value: 6390000 },
-  ],
-}
-
-const topFabrics = [
-  { name: "Katun Hitam", value: 540.0 },
-  { name: "Sutra Merah", value: 489.5 },
-  { name: "Denim Biru", value: 455.2 },
-  { name: "Linen Putih", value: 410.7 },
-  { name: "Wol Abu", value: 398.4 },
-]
+import { useTopFabricStore } from "@/lib/zustand/useTopFabricsStore"
+import { useMonthlySalesStore } from "@/lib/zustand/useMonthlySalesStore"
 
 export default function Dashboard() {
   const { user } = useCurrentUser()
@@ -63,15 +35,29 @@ export default function Dashboard() {
     fetchTopCustomers,
   } = useTopCustomersStore()
 
+  const {
+    topFabrics,
+    loading: loadingTopFabrics,
+    fetchTopFabrics,
+  } = useTopFabricStore()
+
+  const {
+    monthlySales,
+    loading: loadingMonthlySales,
+    fetchMonthlySales,
+  } = useMonthlySalesStore()
+
   useEffect(() => {
     fetchSalesRecap()
     fetchTopCustomers()
+    fetchTopFabrics()
+    fetchMonthlySales()
   }, [])
 
   const salesRecapData: TabItem[] = [
     {
       key: "daily",
-      title: "Hari ini",
+      title: "Harian",
       content: (
         <SalesRecapContent
           data={daily}
@@ -81,7 +67,7 @@ export default function Dashboard() {
     },
     {
       key: "weekly",
-      title: "7 Hari Terakhir",
+      title: "Mingguan",
       content: (
         <SalesRecapContent
           data={weekly}
@@ -91,7 +77,7 @@ export default function Dashboard() {
     },
     {
       key: "monthly",
-      title: "Bulan ini",
+      title: "Bulanan",
       content: (
         <SalesRecapContent
           data={monthly}
@@ -125,38 +111,46 @@ export default function Dashboard() {
       </View>
 
       {/* Rekap Penjualan */}
-      <Heading className="text-2xl mb-2">Rekap Penjualan</Heading>
-      <SegmentedTabs tabs={salesRecapData} defaultTabKey="monthly" />
+      <View>
+        <Heading className="text-2xl mb-2">Rekap Penjualan</Heading>
+        <SegmentedTabs tabs={salesRecapData} activeTabColor="bg-self-purple" defaultTabKey="monthly" />
+      </View>
 
       {/* Grafik Penjualan Kain Bulanan */}
       <Card variant="outline" size="lg" className="mb-6">
         <Heading className="text-2xl mb-4">Penjualan Kain Bulanan</Heading>
-        <LineChart
-          data={{
-            labels: fabricReportMonthly.map((item) => item.month),
-            datasets: [
-              {
-                data: fabricReportMonthly.map((item) => item.weightTotal),
-                color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
-              },
-            ],
-          }}
-          width={chartWidth || 200}
-          height={200}
-          yAxisSuffix=" kg"
-          chartConfig={{
-            backgroundColor: "#ffffff",
-            backgroundGradientFrom: "#ffffff",
-            backgroundGradientTo: "#ffffff",
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-          }}
-          bezier
-        />
+        {loadingMonthlySales ? (
+          <View className="items-center py-8">
+            <Spinner size="large" color="#bf40bf" />
+          </View>
+        ) : monthlySales.length === 0 ? (
+          <Text className="text-center py-8">Tidak Ada Data</Text>
+        ) : (
+          <LineChart
+            data={{
+              labels: monthlySales.map((m) => m.month),
+              datasets: [
+                {
+                  data: monthlySales.map((m) => m.totalWeight),
+                  color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+                },
+              ],
+            }}
+            width={chartWidth || 200}
+            height={200}
+            yAxisSuffix=" kg"
+            chartConfig={{
+              backgroundColor: "#ffffff",
+              backgroundGradientFrom: "#ffffff",
+              backgroundGradientTo: "#ffffff",
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: { borderRadius: 16 },
+            }}
+            bezier
+          />
+        )}
       </Card>
 
       {/* Top 5 Customers */}
@@ -168,37 +162,44 @@ export default function Dashboard() {
         <Text className="text-secondary-900 mb-4">
           Berdasarkan berat kain terjual dan total transaksi
         </Text>
-        <SegmentedTabs
-          defaultTabKey="berat"
-          tabs={[
-            {
-              key: "berat",
-              title: "Berat Kain",
-              content: (
-                <CustomerTopList
-                  data={byWeight.map((c) => ({
-                    name: c.name,
-                    value: parseFloat(c.totalWeight.toFixed(2)),
-                  }))}
-                  metric="kg"
-                />
-              ),
-            },
-            {
-              key: "transaksi",
-              title: "Total Transaksi",
-              content: (
-                <CustomerTopList
-                  data={byTransaction.map((c) => ({
-                    name: c.name,
-                    value: c.totalTransaction,
-                  }))}
-                  metric="rupiah"
-                />
-              ),
-            },
-          ]}
-        />
+        {loadingTopCustomers ? (
+          <View className="items-center py-8">
+            <Spinner size="large" color="#bf40bf" />
+          </View>
+        ) : (
+          <SegmentedTabs
+            defaultTabKey="berat"
+            activeTabColor="bg-self-purple"
+            tabs={[
+              {
+                key: "berat",
+                title: "Berat Kain",
+                content: (
+                  <CustomerTopList
+                    data={byWeight.map((c) => ({
+                      name: c.name,
+                      value: parseFloat(c.totalWeight.toFixed(2)),
+                    }))}
+                    metric="kg"
+                  />
+                ),
+              },
+              {
+                key: "transaksi",
+                title: "Total Transaksi",
+                content: (
+                  <CustomerTopList
+                    data={byTransaction.map((c) => ({
+                      name: c.name,
+                      value: c.totalTransaction,
+                    }))}
+                    metric="rupiah"
+                  />
+                ),
+              },
+            ]}
+          />
+        )}
       </Card>
 
       {/* Top 5 Kain */}
@@ -210,7 +211,28 @@ export default function Dashboard() {
         <Text className="text-secondary-900 mb-4">
           Berdasarkan kuantitas terjual bulanan
         </Text>
-        <FabricTopList data={topFabrics} />
+        {loadingTopFabrics ? (
+          <View className="items-center py-8">
+            <Spinner size="large" color="#bf40bf" />
+          </View>
+        ) : (
+          <View className="gap-3">
+            {topFabrics.map((fabric, index) => (
+              <Card
+                key={index}
+                variant="outline"
+                className="flex-row justify-between items-center px-4 py-3"
+              >
+                <Text className="font-medium text-base">
+                  {fabric.fabricName}
+                </Text>
+                <Text className="text-right font-semibold text-lg">
+                  {fabric.totalWeight.toFixed(2)} kg
+                </Text>
+              </Card>
+            ))}
+          </View>
+        )}
       </Card>
     </ScrollView>
   )
@@ -233,7 +255,7 @@ const SalesRecapContent = ({
   }
 
   return (
-    <View className="flex gap-3 mb-6">
+    <View className="flex gap-3 mb-2">
       <Card
         variant="outline"
         size="lg"
@@ -243,9 +265,12 @@ const SalesRecapContent = ({
           <Text className="text-self-cyan text-xl font-semibold mb-3">
             Jumlah Transaksi
           </Text>
-          <Heading size="3xl" className="text-self-cyan">
-            {data.transactions}
-          </Heading>
+          <AnimatedNumbers
+            includeComma
+            animationDuration={700}
+            animateToNumber={data.transactions}
+            fontStyle={{ fontSize: 42, fontWeight: "800", color: "#00BFFF" }}
+          />
           <Text>transaksi</Text>
         </View>
         <Feather name="shopping-bag" size={24} color="gray" />
@@ -260,9 +285,12 @@ const SalesRecapContent = ({
           <Text className="text-self-orange text-xl font-semibold mb-3">
             Total Kain Terjual (kg)
           </Text>
-          <Heading size="3xl" className="text-self-orange">
-            {data.totalFabricSold}
-          </Heading>
+          <AnimatedNumbers
+            includeComma
+            animationDuration={700}
+            animateToNumber={data.totalFabricSold}
+            fontStyle={{ fontSize: 42, fontWeight: "800", color: "#FFA500" }}
+            />
           <Text>kilogram</Text>
         </View>
         <Feather name="trending-up" size={24} color="gray" />
@@ -277,9 +305,12 @@ const SalesRecapContent = ({
           <Text className="text-self-army text-xl font-semibold mb-3">
             Total Omset (Rp)
           </Text>
-          <Heading size="3xl" className="text-self-army">
-            {data.totalRevenue.toLocaleString("id-ID")}
-          </Heading>
+          <AnimatedNumbers
+            includeComma
+            animationDuration={700}
+            animateToNumber={data.totalRevenue}
+            fontStyle={{ fontSize: 42, fontWeight: "800", color: "#228B22" }}
+          />
           <Text>rupiah</Text>
         </View>
         <Feather name="award" size={24} color="gray" />
@@ -314,30 +345,6 @@ const CustomerTopList = ({
               Rp {customer.value.toLocaleString("id-ID")}
             </Text>
           )}
-        </Card>
-      ))}
-    </View>
-  )
-}
-
-// Komponen Daftar Kain Terlaris
-const FabricTopList = ({
-  data,
-}: {
-  data: { name: string; value: number }[]
-}) => {
-  return (
-    <View className="gap-3">
-      {data.map((fabric, index) => (
-        <Card
-          key={index}
-          variant="outline"
-          className="flex-row justify-between items-center px-4 py-3"
-        >
-          <Text className="font-medium text-base">{fabric.name}</Text>
-          <Text className="text-right font-semibold text-lg">
-            {fabric.value} kg
-          </Text>
         </Card>
       ))}
     </View>

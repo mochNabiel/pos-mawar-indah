@@ -25,7 +25,7 @@ export function PaginationFooter({
         onPress={onPrev}
         isDisabled={currentPage === 1 || loading}
         size="lg"
-        className="rounded-lg"
+        className="rounded-lg bg-self-purple"
       >
         <ButtonText>
           <Feather name="arrow-left" size={24} />
@@ -36,7 +36,7 @@ export function PaginationFooter({
         onPress={onNext}
         isDisabled={!hasMore || loading}
         size="lg"
-        className="rounded-lg"
+        className="rounded-lg bg-self-purple"
       >
         <ButtonText>
           <Feather name="arrow-right" size={24} />

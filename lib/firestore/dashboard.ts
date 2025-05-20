@@ -1,6 +1,13 @@
 import { TransactionWithId } from "@/types/transaction"
 import { db } from "@/utils/firebase"
-import { collection, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore"
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore"
 
 // Mengambil semua transaksi dari Firestore
 export const getAllTransactions = async (): Promise<TransactionWithId[]> => {
@@ -22,21 +29,41 @@ export const getAllTransactions = async (): Promise<TransactionWithId[]> => {
 }
 
 // Fungsi untuk mendapatkan rentang tanggal berdasarkan tipe (daily, weekly, monthly)
-const getDateRange = (type: "daily" | "weekly" | "monthly") => {
-  const now = new Date()
+const getDateRange = (
+  type: "daily" | "weekly" | "monthly",
+  date = new Date()
+) => {
   let startDate: Date
+  let endDate: Date
 
   if (type === "daily") {
-    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()) // hari ini mulai dari pukul 00:00
-  } else if (type === "weekly") {
-    startDate = new Date(now)
-    startDate.setDate(now.getDate() - 6)
+    startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
     startDate.setHours(0, 0, 0, 0)
+
+    endDate = new Date(date)
+    endDate.setHours(23, 59, 59, 999)
+  } else if (type === "weekly") {
+    startDate = new Date(date)
+    startDate.setDate(date.getDate() - 6)
+    startDate.setHours(0, 0, 0, 0)
+
+    endDate = new Date(date)
+    endDate.setHours(23, 59, 59, 999)
   } else {
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1) // awal bulan ini
+    // monthly
+    startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+    startDate.setHours(0, 0, 0, 0)
+
+    endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    endDate.setHours(23, 59, 59, 999)
   }
 
-  return { start: Timestamp.fromDate(startDate), end: Timestamp.fromDate(now) }
+  return {
+    start: Timestamp.fromDate(startDate),
+    end: Timestamp.fromDate(endDate),
+    startDate,
+    endDate,
+  }
 }
 
 // Fungsi untuk mendapatkan rekap penjualan berdasarkan tipe (daily, weekly, monthly)
@@ -59,7 +86,10 @@ export const getSalesRecap = async (type: "daily" | "weekly" | "monthly") => {
     const data = doc.data() as TransactionWithId
     totalTransactions += 1
     totalRevenue += data.totalTransaction
-    totalWeight += data.cards.reduce((sum, card) => sum + parseFloat(card.weight), 0)
+    totalWeight += data.cards.reduce(
+      (sum, card) => sum + parseFloat(card.weight),
+      0
+    )
   })
 
   return {
@@ -102,9 +132,10 @@ export const getTopCustomers = async () => {
 
     // Hitung total berat dan transaksi
     const totalWeight = customerTransactions.reduce((total, tx) => {
-      const weightSum = tx.cards?.reduce((sum: number, card: any) => {
-        return sum + parseFloat(card.weight || "0")
-      }, 0) || 0
+      const weightSum =
+        tx.cards?.reduce((sum: number, card: any) => {
+          return sum + parseFloat(card.weight || "0")
+        }, 0) || 0
       return total + weightSum
     }, 0)
 
@@ -136,88 +167,103 @@ export const getTopCustomers = async () => {
   }
 }
 
+// Top 5 kain terlaris berdasarkan berat
+type FabricSummary = {
+  fabricName: string
+  totalWeight: number
+}
 
-// Top 5 kain terlaris berdasarkan berat (weekly/monthly)
-export const getTopFabricsByWeight = async (
-  filterBy: "weekly" | "monthly"
-) => {
-  const transactions = await getAllTransactions()
-  const now = new Date()
+export const getTopFabrics = async () => {
+  // Ambil range tanggal bulan ini
+  const { start, end } = getDateRange("monthly")
 
-  const filtered = transactions.filter((trx) => {
-    const date = trx.createdAt
-    if (filterBy === "weekly") {
-      const last7 = new Date(now)
-      last7.setDate(now.getDate() - 7)
-      return date >= last7
-    } else {
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      return date >= firstDayOfMonth
-    }
-  })
+  // Ambil semua transaksi bulan ini
+  const transactionSnapshot = await getDocs(
+    query(
+      collection(db, "transactions"),
+      where("createdAt", ">=", start),
+      where("createdAt", "<", end)
+    )
+  )
 
+  const transactions = transactionSnapshot.docs.map((doc) => doc.data())
+
+  // Ambil semua cards dari seluruh transaksi
+  const allCards = transactions.flatMap((tx) => tx.cards || [])
+
+  // Kelompokkan berdasarkan fabricName
   const fabricMap: Record<string, number> = {}
 
-  for (const trx of filtered) {
-    for (const card of trx.cards) {
-      const weight = parseFloat(card.weight)
-      fabricMap[card.fabricName] =
-        (fabricMap[card.fabricName] || 0) + weight
-    }
-  }
+  allCards.forEach((card: any) => {
+    const name = card.fabricName
+    const weight = parseFloat(card.weight || "0")
 
-  return Object.entries(fabricMap)
-    .map(([fabricName, totalWeight]) => ({ fabricName, totalWeight }))
+    if (!fabricMap[name]) {
+      fabricMap[name] = 0
+    }
+
+    fabricMap[name] += weight
+  })
+
+  // Ubah jadi array dan sort
+  const fabricSummaries: FabricSummary[] = Object.entries(fabricMap).map(
+    ([fabricName, totalWeight]) => ({
+      fabricName,
+      totalWeight,
+    })
+  )
+
+  const topFabrics = fabricSummaries
     .sort((a, b) => b.totalWeight - a.totalWeight)
     .slice(0, 5)
+
+  return topFabrics
+}
+
+export type MonthlyFabricSales = {
+  month: string
+  totalWeight: number
 }
 
 // Grafik penjualan kain bulanan berdasarkan tahun (berat total per bulan)
-export const getMonthlyFabricSales = async (
-  year: number
-): Promise<
-  | { label: string; totalWeight: number }[]
-  | { message: "Tidak Ada Data" }
-> => {
-  const transactions = await getAllTransactions()
+export const getMonthlyFabricSales = async () => {
+  const snapshot = await getDocs(collection(db, "transactions"))
+  const transactions: TransactionWithId[] = []
 
-  const filtered = transactions.filter(
-    (trx) => trx.createdAt.getFullYear() === year
-  )
-
-  if (filtered.length === 0) {
-    return { message: "Tidak Ada Data" }
-  }
-
-  // Inisialisasi total per bulan
-  const monthlyTotals: { [month: number]: number } = {}
-  for (let i = 0; i < 12; i++) {
-    monthlyTotals[i] = 0
-  }
-
-  for (const trx of filtered) {
-    const month = trx.createdAt.getMonth() // 0 = Jan, 11 = Dec
-    for (const card of trx.cards) {
-      const weight = parseFloat(card.weight)
-      monthlyTotals[month] += weight
+  snapshot.forEach((doc) => {
+    const data = doc.data() as any
+    const createdAt = data.createdAt?.toDate?.() ?? new Date(data.createdAt)
+    const transaction: TransactionWithId = {
+      id: doc.id,
+      ...data,
+      createdAt,
     }
-  }
+    transactions.push(transaction)
+  })
 
-  // Ambil hingga bulan terakhir yang ada datanya
-  const lastMonthIndex = Math.max(
-    ...filtered.map((t) => t.createdAt.getMonth())
-  )
+  const now = new Date()
+  const year = now.getFullYear()
+  const currentMonth = now.getMonth()
+  const result: MonthlyFabricSales[] = []
 
-  const result = []
-  const monthLabels = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ]
+  for (let i = 0; i <= currentMonth; i++) {
+    const { startDate, endDate } = getDateRange("monthly", new Date(year, i))
 
-  for (let i = 0; i <= lastMonthIndex; i++) {
+    const filtered = transactions.filter(
+      (t) => t.createdAt >= startDate && t.createdAt <= endDate
+    )
+
+    const totalWeight = filtered.reduce((acc, t) => {
+      const sum = t.cards.reduce(
+        (cardAcc, card) => cardAcc + parseFloat(card.weight),
+        0
+      )
+      return acc + sum
+    }, 0)
+
     result.push({
-      label: monthLabels[i],
-      totalWeight: monthlyTotals[i],
+      month: startDate.toLocaleString("id", { month: "short" }), // Jan, Feb, dst
+      totalWeight,
     })
   }
 

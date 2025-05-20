@@ -12,9 +12,14 @@ export type TabItem = {
 type TabsProps = {
   tabs: TabItem[]
   defaultTabKey?: string
+  activeTabColor?: string
 }
 
-const SegmentedTabs: React.FC<TabsProps> = ({ tabs, defaultTabKey }) => {
+const SegmentedTabs: React.FC<TabsProps> = ({
+  tabs,
+  defaultTabKey,
+  activeTabColor = "bg-black",
+}) => {
   const [activeTab, setActiveTab] = useState<string>(
     defaultTabKey || tabs[0]?.key
   )
@@ -50,7 +55,7 @@ const SegmentedTabs: React.FC<TabsProps> = ({ tabs, defaultTabKey }) => {
             size="sm"
             onPress={() => setActiveTab(tab.key)}
             className={`flex-1 rounded-lg ${
-              activeTab === tab.key ? "bg-black" : "bg-white"
+              activeTab === tab.key ? `${activeTabColor}` : "bg-white"
             }`}
           >
             <Text

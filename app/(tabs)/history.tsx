@@ -228,7 +228,7 @@ export default function History() {
             </Input>
             <Button
               size="xl"
-              className="rounded-lg p-3 px-4"
+              className="rounded-lg p-3 px-4 bg-self-purple"
               onPress={() => setShowDateModal(true)}
             >
               <ButtonText>
