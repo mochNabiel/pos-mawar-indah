@@ -25,7 +25,7 @@ export const resetPagination = () => {
   lastVisibleDoc = null
 }
 
-// Ambil transaksi yang dipaginasikan dengan filter opsional
+// Fungsi untuk mengambil transaksi yang dipaginasikan dengan filter opsional
 export const getPaginatedTransactions = async (
   page: number,
   searchQuery?: string,

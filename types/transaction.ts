@@ -4,7 +4,7 @@ import {
   UseFormSetValue,
   UseFormWatch,
 } from "react-hook-form"
-import { Fabric } from "./fabric"
+import { Fabric } from "@/types/fabric"
 
 export type TransactionCard = {
   fabricName: string
@@ -15,17 +15,6 @@ export type TransactionCard = {
   discount: number
   totalPrice: number
   useDiscount: boolean
-}
-export interface TransactionCardProps {
-  index: number
-  control: Control<any>
-  watch: UseFormWatch<any>
-  setValue: UseFormSetValue<any>
-  getValues: UseFormGetValues<any>
-  cardData: TransactionCard
-  fabrics: Fabric[]
-  onRemove: () => void
-  isRemovable: boolean
 }
 
 export type Transaction = {
@@ -41,4 +30,16 @@ export type Transaction = {
 
 export interface TransactionWithId extends Transaction {
   id: string
+}
+
+export interface TransactionCardProps {
+  index: number
+  control: Control<any>
+  watch: UseFormWatch<any>
+  setValue: UseFormSetValue<any>
+  getValues: UseFormGetValues<any>
+  cardData: TransactionCard
+  fabrics: Fabric[]
+  onRemove: () => void
+  isRemovable: boolean
 }

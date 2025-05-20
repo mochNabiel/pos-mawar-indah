@@ -31,11 +31,11 @@ const dummyData = {
 }
 
 const fabricReportMonthly = [
-  { month: "Jan", weightTotal: 1432 },
+  { month: "Jan", weightTotal: 2432 },
   { month: "Feb", weightTotal: 2034 },
   { month: "Mar", weightTotal: 1922 },
-  { month: "Apr", weightTotal: 845 },
-  { month: "May", weightTotal: 500 },
+  { month: "Apr", weightTotal: 2845 },
+  { month: "May", weightTotal: 3500 },
 ]
 
 const topCustomers = {
