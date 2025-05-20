@@ -69,44 +69,73 @@ export const getSalesRecap = async (type: "daily" | "weekly" | "monthly") => {
   }
 }
 
-// Top 5 Customer berdasarkan total berat
-export const getTopCustomersByWeight = async () => {
-  const transactions = await getAllTransactions()
-  const customerMap: Record<string, number> = {}
+type CustomerSummary = {
+  name: string
+  totalWeight: number
+  totalTransaction: number
+}
 
-  for (const trx of transactions) {
-    let totalWeight = 0
-    for (const card of trx.cards) {
-      totalWeight += parseFloat(card.weight)
+export const getTopCustomers = async () => {
+  // Ambil range tanggal bulan ini
+  const { start, end } = getDateRange("monthly")
+
+  // Ambil semua transaksi bulan ini
+  const transactionSnapshot = await getDocs(
+    query(
+      collection(db, "transactions"),
+      where("createdAt", ">=", start),
+      where("createdAt", "<", end)
+    )
+  )
+
+  const transactions = transactionSnapshot.docs.map((doc) => doc.data())
+
+  // Ambil semua customer
+  const customersSnapshot = await getDocs(collection(db, "customers"))
+  const customers = customersSnapshot.docs.map((doc) => doc.data())
+
+  const summaries: CustomerSummary[] = customers.map((customer) => {
+    // Filter transaksi yang cocok dengan nama customer
+    const customerTransactions = transactions.filter(
+      (tx) => tx.customerName === customer.name
+    )
+
+    // Hitung total berat dan transaksi
+    const totalWeight = customerTransactions.reduce((total, tx) => {
+      const weightSum = tx.cards?.reduce((sum: number, card: any) => {
+        return sum + parseFloat(card.weight || "0")
+      }, 0) || 0
+      return total + weightSum
+    }, 0)
+
+    const totalTransaction = customerTransactions.reduce(
+      (sum, tx) => sum + (tx.totalTransaction || 0),
+      0
+    )
+
+    return {
+      name: customer.name,
+      totalWeight,
+      totalTransaction,
     }
-    customerMap[trx.customerName] =
-      (customerMap[trx.customerName] || 0) + totalWeight
-  }
+  })
 
-  return Object.entries(customerMap)
-    .map(([customerName, totalWeight]) => ({ customerName, totalWeight }))
+  // Ambil top 5 berdasarkan total berat
+  const byWeight = [...summaries]
     .sort((a, b) => b.totalWeight - a.totalWeight)
     .slice(0, 5)
-}
 
-// Top 5 Customer berdasarkan total transaksi
-export const getTopCustomersByTransaction = async () => {
-  const transactions = await getAllTransactions()
-  const customerMap: Record<string, number> = {}
-
-  for (const trx of transactions) {
-    customerMap[trx.customerName] =
-      (customerMap[trx.customerName] || 0) + trx.totalTransaction
-  }
-
-  return Object.entries(customerMap)
-    .map(([customerName, totalTransaction]) => ({
-      customerName,
-      totalTransaction,
-    }))
+  // Ambil top 5 berdasarkan total transaksi
+  const byTransaction = [...summaries]
     .sort((a, b) => b.totalTransaction - a.totalTransaction)
     .slice(0, 5)
+
+  return {
+    byWeight,
+    byTransaction,
+  }
 }
+
 
 // Top 5 kain terlaris berdasarkan berat (weekly/monthly)
 export const getTopFabricsByWeight = async (

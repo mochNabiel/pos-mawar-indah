@@ -11,6 +11,7 @@ import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
 import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
 import { Spinner } from "@/components/ui/spinner"
+import { useTopCustomersStore } from "@/lib/zustand/useTopCustomersStore"
 
 const fabricReportMonthly = [
   { month: "Jan", weightTotal: 1432 },
@@ -47,28 +48,56 @@ const topFabrics = [
 
 export default function Dashboard() {
   const { user } = useCurrentUser()
-  const { daily, weekly, monthly, loading, fetchSalesRecap } =
-    useSalesRecapStore()
+  const {
+    daily,
+    weekly,
+    monthly,
+    loading: loadingSalesRecap,
+    fetchSalesRecap,
+  } = useSalesRecapStore()
+
+  const {
+    byWeight,
+    byTransaction,
+    loading: loadingTopCustomers,
+    fetchTopCustomers,
+  } = useTopCustomersStore()
 
   useEffect(() => {
     fetchSalesRecap()
+    fetchTopCustomers()
   }, [])
 
-  const tabData: TabItem[] = [
+  const salesRecapData: TabItem[] = [
     {
       key: "daily",
       title: "Hari ini",
-      content: <TabContent data={daily} isLoading={loading} />,
+      content: (
+        <SalesRecapContent
+          data={daily}
+          isLoadingSalesRecap={loadingSalesRecap}
+        />
+      ),
     },
     {
       key: "weekly",
       title: "7 Hari Terakhir",
-      content: <TabContent data={weekly} isLoading={loading} />,
+      content: (
+        <SalesRecapContent
+          data={weekly}
+          isLoadingSalesRecap={loadingSalesRecap}
+        />
+      ),
     },
     {
       key: "monthly",
       title: "Bulan ini",
-      content: <TabContent data={monthly} isLoading={loading} />,
+      content: (
+        <SalesRecapContent
+          data={monthly}
+          isLoadingSalesRecap={loadingSalesRecap}
+        />
+      ),
     },
   ]
 
@@ -97,7 +126,7 @@ export default function Dashboard() {
 
       {/* Rekap Penjualan */}
       <Heading className="text-2xl mb-2">Rekap Penjualan</Heading>
-      <SegmentedTabs tabs={tabData} defaultTabKey="monthly" />
+      <SegmentedTabs tabs={salesRecapData} defaultTabKey="monthly" />
 
       {/* Grafik Penjualan Kain Bulanan */}
       <Card variant="outline" size="lg" className="mb-6">
@@ -146,7 +175,13 @@ export default function Dashboard() {
               key: "berat",
               title: "Berat Kain",
               content: (
-                <CustomerTopList data={topCustomers.byWeight} metric="kg" />
+                <CustomerTopList
+                  data={byWeight.map((c) => ({
+                    name: c.name,
+                    value: parseFloat(c.totalWeight.toFixed(2)),
+                  }))}
+                  metric="kg"
+                />
               ),
             },
             {
@@ -154,7 +189,10 @@ export default function Dashboard() {
               title: "Total Transaksi",
               content: (
                 <CustomerTopList
-                  data={topCustomers.byTransaction}
+                  data={byTransaction.map((c) => ({
+                    name: c.name,
+                    value: c.totalTransaction,
+                  }))}
                   metric="rupiah"
                 />
               ),
@@ -179,8 +217,14 @@ export default function Dashboard() {
 }
 
 // TabContent untuk Rekap Penjualan
-const TabContent = ({ data, isLoading }: { data: any; isLoading: boolean }) => {
-  if (isLoading || !data) {
+const SalesRecapContent = ({
+  data,
+  isLoadingSalesRecap,
+}: {
+  data: any
+  isLoadingSalesRecap: boolean
+}) => {
+  if (isLoadingSalesRecap || !data) {
     return (
       <View className="my-6">
         <Spinner size="large" color="#bf40bf" />
