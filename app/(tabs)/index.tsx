@@ -57,17 +57,17 @@ export default function Dashboard() {
   const tabData: TabItem[] = [
     {
       key: "daily",
-      title: "Harian",
+      title: "Hari ini",
       content: <TabContent data={daily} isLoading={loading} />,
     },
     {
       key: "weekly",
-      title: "Mingguan",
+      title: "7 Hari Terakhir",
       content: <TabContent data={weekly} isLoading={loading} />,
     },
     {
       key: "monthly",
-      title: "Bulanan",
+      title: "Bulan ini",
       content: <TabContent data={monthly} isLoading={loading} />,
     },
   ]

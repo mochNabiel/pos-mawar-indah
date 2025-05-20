@@ -27,18 +27,19 @@ const getDateRange = (type: "daily" | "weekly" | "monthly") => {
   let startDate: Date
 
   if (type === "daily") {
-    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()) // today at 00:00
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()) // hari ini mulai dari pukul 00:00
   } else if (type === "weekly") {
     startDate = new Date(now)
     startDate.setDate(now.getDate() - 6)
     startDate.setHours(0, 0, 0, 0)
   } else {
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1) // first day of the month
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1) // awal bulan ini
   }
 
   return { start: Timestamp.fromDate(startDate), end: Timestamp.fromDate(now) }
 }
 
+// Fungsi untuk mendapatkan rekap penjualan berdasarkan tipe (daily, weekly, monthly)
 export const getSalesRecap = async (type: "daily" | "weekly" | "monthly") => {
   const { start, end } = getDateRange(type)
 

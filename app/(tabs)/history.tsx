@@ -90,7 +90,6 @@ export default function History() {
             {new Date(item.createdAt).toLocaleTimeString("id-ID", {
               hour: "numeric",
               minute: "2-digit",
-              hour12: true,
             })}
           </Text>
         </View>
