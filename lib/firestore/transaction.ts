@@ -149,8 +149,17 @@ export const getTransactionByInvCode = async (
   }
 }
 
-// Hapus transaksi berdasarkan ID
-export const deleteTransactionInDb = async (id: string) => {
-  const docRef = doc(db, "transactions", id)
+// Hapus transaksi berdasarkan InvCode
+export const deleteTransactionInDb = async (invCode: string) => {
+  const q = query(transactionsRef, where("invCode", "==", invCode))
+  const snapshot = await getDocs(q)
+
+  if (snapshot.empty) {
+    throw new Error("Dokumen dengan InvCode tersebut tidak ditemukan")
+  }
+
+  // Mengambil dokumen pertama dari hasil query dan menghapus berdasarkan ID
+  const transactionDoc = snapshot.docs[0]
+  const docRef = doc(db, "transactions", transactionDoc.id)
   return deleteDoc(docRef)
 }

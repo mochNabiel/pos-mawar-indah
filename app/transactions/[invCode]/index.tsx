@@ -1,15 +1,34 @@
 import React, { useEffect, useState } from "react"
 import { View, Text, ScrollView, Alert } from "react-native"
-import { useLocalSearchParams } from "expo-router"
-import { TransactionWithId } from "@/types/transaction"
-import { getTransactionByInvCode } from "@/lib/firestore/transaction"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import * as Print from "expo-print"
+
+import { TransactionWithId } from "@/types/transaction"
+import {
+  deleteTransactionInDb,
+  getTransactionByInvCode,
+} from "@/lib/firestore/transaction"
+import useToastMessage from "@/lib/hooks/useToastMessage"
+
 import { Button, ButtonText } from "@/components/ui/button"
-import ReceiptPrintTemplate from "@/components/ReceiptPrintTemplate"
 import { Card } from "@/components/ui/card"
+import {
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+} from "@/components/ui/modal"
+
+import ReceiptPrintTemplate from "@/components/ReceiptPrintTemplate"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function TransactionDetail() {
   const { invCode } = useLocalSearchParams<{ invCode: string }>()
+  const { showToast } = useToastMessage()
+  const router = useRouter()
+
+  const [showModal, setShowModal] = useState<boolean>(false)
   const [transaction, setTransaction] = useState<TransactionWithId | null>(null)
 
   // Ambil data transaksi berdasarkan invCode saat komponen dimount
@@ -20,7 +39,7 @@ export default function TransactionDetail() {
         const data = await getTransactionByInvCode(invCode)
         setTransaction(data)
       } catch (error) {
-        Alert.alert("Error", "Gagal mengambil data transaksi")
+        showToast("Gagal memuat data transaksi, hubungi developer", "error")
       }
     }
     fetchDetail()
@@ -33,14 +52,32 @@ export default function TransactionDetail() {
       const html = ReceiptPrintTemplate({ transaction })
       await Print.printAsync({ html })
     } catch (error) {
-      Alert.alert("Error", "Gagal mencetak struk")
+      showToast("Gagal mencetak transaksi", "error")
     }
   }
 
+  // Fungsi untuk menghapus transaksi
+  const handleDelete = async () => {
+    if (!transaction) return
+    try {
+      await deleteTransactionInDb(invCode)
+      showToast("Transaksi berhasil dihapus", "success")
+      router.push("/(tabs)/history")
+    } catch (error) {
+      showToast("Gagal menghapus transaksi", "error")
+    } finally {
+      setShowModal(false)
+    }
+  }
+
+  // Apabila data transaksi belum ada, tampilkan loading
   if (!transaction) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <Text className="text-lg">Memuat data transaksi...</Text>
+        <View className="flex-row gap-3 items-center">
+          <Spinner size="large" />
+          <Text className="text-lg">Memuat data transaksi...</Text>
+        </View>
       </View>
     )
   }
@@ -160,9 +197,55 @@ export default function TransactionDetail() {
       </Card>
 
       {/* Tombol Cetak PDF */}
-      <Button onPress={handlePrint} className="rounded-lg mt-4">
+      <Button onPress={handlePrint} size="lg" className="rounded-lg mt-4">
         <ButtonText>Cetak PDF</ButtonText>
       </Button>
+
+      {/* Tombol Hapus Transaksi */}
+      <Button
+        onPress={() => setShowModal(true)}
+        size="lg"
+        variant="outline"
+        action="negative"
+        className="rounded-lg mt-4"
+      >
+        <ButtonText className="text-red-500">Hapus Transaksi</ButtonText>
+      </Button>
+
+      {/* Modal Konfirmasi Hapus */}
+      <Modal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false)
+        }}
+      >
+        <ModalBackdrop />
+        <ModalContent>
+          <ModalBody>
+            <Text className="text-center text-lg">
+              Apakah Anda yakin ingin menghapus transaksi ini?
+            </Text>
+          </ModalBody>
+          <ModalFooter className="flex-row gap-3 justify-between">
+            <Button
+              onPress={() => setShowModal(false)}
+              size="lg"
+              className="flex-1 rounded-lg"
+            >
+              <ButtonText>Batal</ButtonText>
+            </Button>
+            <Button
+              onPress={handleDelete}
+              variant="outline"
+              action="negative"
+              size="lg"
+              className="flex-1 rounded-lg"
+            >
+              <ButtonText className="text-red-500">Hapus</ButtonText>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </ScrollView>
   )
 }
