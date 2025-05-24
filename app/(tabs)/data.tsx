@@ -53,7 +53,7 @@ const Data = () => {
       {user?.role === "superadmin" && (
         <>
           <Pressable
-            onPress={() => router.push("/(protected)/logs" as any)}
+            onPress={() => router.push("/logs" as any)}
             className="w-full"
           >
             <Card
@@ -72,7 +72,7 @@ const Data = () => {
           </Pressable>
 
           <Pressable
-            onPress={() => router.push("/(protected)/admins" as any)}
+            onPress={() => router.push("/admins" as any)}
             className="w-full"
           >
             <Card
@@ -80,7 +80,7 @@ const Data = () => {
               variant="outline"
               className="flex-row items-center gap-5 m-3"
             >
-              <Feather name="key" size={32} color="#3D8B37" />
+              <Feather name="users" size={32} color="#3D8B37" />
               <View>
                 <Heading size="lg" className="mb-1">
                   Data Admin

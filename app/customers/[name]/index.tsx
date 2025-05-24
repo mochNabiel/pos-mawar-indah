@@ -104,7 +104,7 @@ const CustomerDetailScreen = () => {
         <ModalContent>
           <ModalHeader>
             <Heading size="md" className="text-typography-950">
-              Beneran Hapus Data Customer Ini?
+              Yakin ingin menghapus Data Customer ini?
             </Heading>
             <ModalCloseButton>
               <Icon
@@ -117,7 +117,7 @@ const CustomerDetailScreen = () => {
           <ModalBody>
             <Text className="text-typography-500">
               Dengan menghapus data customer ini, semua data yang terkait dengan customer ini
-              akan dihapus secara permanen. Apakah Anda yakin ingin melanjutkan?
+              akan dihapus secara permanen.
             </Text>
           </ModalBody>
           <ModalFooter>

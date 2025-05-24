@@ -17,19 +17,6 @@ const Setting = () => {
   return (
     <View className="flex-1 bg-white items-center justify-center">
       <Text className="text-xl font-bold mb-4">Pengaturan</Text>
-      {/* Coba dulu tanpa auth superadmin */}
-      {
-        user?.role === "superadmin" && (
-          <Button
-            onPress={() => router.push("/(protected)/register")}
-            variant="solid"
-            action="info"
-            className="rounded-full mb-4"
-          >
-            <ButtonText>Register Admin Baru</ButtonText>
-          </Button>
-        )
-      }
       <Button onPress={handleLogout} variant="link" action="negative">
         <ButtonText>Logout</ButtonText>
       </Button>

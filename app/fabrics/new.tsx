@@ -82,21 +82,24 @@ const NewFabricScreen = () => {
   }
 
   const handleCheckCode = async (code: string) => {
+    setCheckingCode(true)
     if (!code) {
       showToast("Masukkan code kain terlebih dahulu", "error")
+      setCheckingCode(false)
       return
     }
 
     try {
-      setCheckingCode(true)
       const isUnique = await isFabricCodeUnique(code.trim())
       if (isUnique) {
-        showToast("code tersedia dan dapat digunakan", "success")
+        showToast("Code tersedia dan dapat digunakan", "success")
       } else {
-        showToast("code sudah dipakai, gunakan code lain", "error")
+        showToast("Code sudah dipakai, gunakan code lain", "error")
       }
+      setCheckingCode(false)
     } catch (err) {
       showToast("Terjadi kesalahan saat mengecek code", "error")
+      setCheckingCode(false)
     } finally {
       setCheckingCode(false)
     }

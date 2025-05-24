@@ -41,12 +41,12 @@ const Login = () => {
     <FormControl className="p-4 border rounded-lg border-outline-300 mt-20 mx-4">
       <VStack space="xl">
         <Heading className="text-typography-900">Login</Heading>
-
         <VStack space="xs">
           <Text className="text-typography-500">Email</Text>
           <Input className="min-w-[250px]">
             <InputField
               type="text"
+              autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
               placeholder="email"
@@ -59,6 +59,7 @@ const Login = () => {
           <Input className="text-center">
             <InputField
               type={showPassword ? "text" : "password"}
+              autoCapitalize="none"
               value={password}
               onChangeText={setPassword}
               placeholder="password"

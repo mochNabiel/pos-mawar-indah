@@ -1,7 +1,6 @@
-// lib/validation.ts
 import { z } from "zod"
 
-export const registerSchema = z
+export const userSchema = z
   .object({
     name: z.string().min(1, { message: "Nama harus diisi" }),
     email: z
@@ -19,4 +18,4 @@ export const registerSchema = z
     path: ["confirmPassword"],
   })
 
-export type RegisterSchema = z.infer<typeof registerSchema>
+export type UserSchema = z.infer<typeof userSchema>

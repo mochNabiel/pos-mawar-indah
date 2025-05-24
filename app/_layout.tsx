@@ -24,22 +24,22 @@ export default function RootLayout() {
   const [role, setRole] = useState<"admin" | "superadmin" | null>(null)
 
   // Hide bottom bar
-  const hideNavBar = async () => {
-    if (Platform.OS === 'android') {
-       await NavigationBar.setPositionAsync("absolute");
-       await NavigationBar.setVisibilityAsync("hidden");
-       await NavigationBar.setBehaviorAsync("overlay-swipe");
-     }
-  }
+  // const hideNavBar = async () => {
+  //   if (Platform.OS === 'android') {
+  //      await NavigationBar.setPositionAsync("absolute");
+  //      await NavigationBar.setVisibilityAsync("hidden");
+  //      await NavigationBar.setBehaviorAsync("overlay-swipe");
+  //    }
+  // }
 
-  useEffect(() => {
-    const initialize = async () => {
-      await hideNavBar()
-      setIsReady(true)
-    }
+  // useEffect(() => {
+  //   const initialize = async () => {
+  //     await hideNavBar()
+  //     setIsReady(true)
+  //   }
 
-    initialize()
-  }, [])
+  //   initialize()
+  // }, [])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

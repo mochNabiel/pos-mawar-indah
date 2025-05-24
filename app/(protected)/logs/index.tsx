@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const LogsPage = () => {
+const LogsScreen = () => {
   return (
     <View>
       <Text>Halaman Logs dan hanya superadmin yg bisa akses</Text>
@@ -9,4 +9,4 @@ const LogsPage = () => {
   )
 }
 
-export default LogsPage
+export default LogsScreen

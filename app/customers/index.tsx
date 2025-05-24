@@ -38,9 +38,7 @@ const CustomerListScreen = () => {
 
   const renderItem = ({ item }: { item: Customer }) => (
     <Pressable
-      onPress={() =>
-        router.push(`/customers/${item.name}`)
-      }
+      onPress={() => router.push(`/customers/${item.name}`)}
       className="mb-3"
     >
       <Card size="lg" variant="outline" className="shadow-md bg-white">

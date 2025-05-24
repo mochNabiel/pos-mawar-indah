@@ -25,7 +25,6 @@ import useGenerateInvoice from "@/lib/hooks/useGenerateInvoice"
 import { TTransactionSchema } from "@/schema/transactionSchema"
 import { createTransaction } from "@/lib/firestore/transaction"
 import { Spinner } from "@/components/ui/spinner"
-import { Timestamp } from "firebase/firestore"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
@@ -182,7 +181,7 @@ const NewTransactionScreen = () => {
 
       {/* Section Field Nama Customer */}
       <View className="mb-5 flex gap-1">
-        <Text className="text-lg font-semibold" style={{ color: "#BF40BF" }}>
+        <Text className="text-lg font-semibold text-self-purple">
           Nama Customer
         </Text>
         <Controller
