@@ -14,6 +14,11 @@ import {
 } from "firebase/firestore"
 import { db } from "@/utils/firebase"
 import { Transaction, TransactionWithId } from "@/types/transaction"
+import { addLog } from "@/lib/firestore/logs"
+import { getCurrentAdmin } from "@/lib/hooks/getCurrentAdmin"
+
+// Mengambil data admin yang login untuk membuat logs
+const { id: adminId, name: adminName } = getCurrentAdmin()
 
 const transactionsRef = collection(db, "transactions")
 
@@ -124,7 +129,18 @@ export const getPaginatedTransactions = async (
 
 // Buat transaksi baru
 export const createTransaction = async (data: Transaction) => {
-  return addDoc(transactionsRef, data)
+  const docRef = await addDoc(transactionsRef, data)
+
+  await addLog({
+    adminId: adminId,
+    adminName: adminName,
+    action: "create",
+    target: "transaction",
+    targetId: docRef.id,
+    description: `Menambahkan transaksi baru untuk ${data.customerName} dengan kode faktur ${data.invCode}`,
+  })
+
+  return docRef
 }
 
 // Ambil transaksi berdasarkan kode faktur
@@ -150,7 +166,7 @@ export const getTransactionByInvCode = async (
 }
 
 // Hapus transaksi berdasarkan InvCode
-export const deleteTransactionInDb = async (invCode: string) => {
+export const deleteTransaction = async (invCode: string) => {
   const q = query(transactionsRef, where("invCode", "==", invCode))
   const snapshot = await getDocs(q)
 
@@ -161,5 +177,14 @@ export const deleteTransactionInDb = async (invCode: string) => {
   // Mengambil dokumen pertama dari hasil query dan menghapus berdasarkan ID
   const transactionDoc = snapshot.docs[0]
   const docRef = doc(db, "transactions", transactionDoc.id)
-  return deleteDoc(docRef)
+  await deleteDoc(docRef)
+
+  await addLog({
+    adminId: adminId,
+    adminName: adminName,
+    action: "delete",
+    target: "transaction",
+    targetId: transactionDoc.id,
+    description: `Menghapus transaksi dengan kode faktur ${invCode}`,
+  })
 }

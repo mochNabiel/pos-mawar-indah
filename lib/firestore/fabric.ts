@@ -10,10 +10,28 @@ import {
 } from "firebase/firestore"
 import { db } from "@/utils/firebase"
 import { Fabric, FabricWithId } from "@/types/fabric"
+import { addLog } from "@/lib/firestore/logs"
+import { getCurrentAdmin } from "@/lib/hooks/getCurrentAdmin"
+
+// Mengambil data admin yang login untuk membuat logs
+const { id: adminId, name: adminName } = getCurrentAdmin()
 
 const fabricsRef = collection(db, "fabrics")
 
-export const createFabric = async (data: Fabric) => addDoc(fabricsRef, data)
+export const createFabric = async (data: Fabric) => {
+  const docRef = await addDoc(fabricsRef, data)
+
+  await addLog({
+    adminId: adminId,
+    adminName: adminName,
+    action: "create",
+    target: "fabric",
+    targetId: docRef.id,
+    description: `Menambahkan kain baru dengan kode ${data.code}`,
+  })
+
+  return docRef
+}
 
 export const getAllFabrics = async (): Promise<FabricWithId[]> => {
   const snapshot = await getDocs(fabricsRef)
@@ -33,7 +51,16 @@ export const updateFabricInDb = async (code: string, data: Partial<Fabric>) => {
 
   const fabricDoc = snapshot.docs[0]
   const docRef = doc(db, "fabrics", fabricDoc.id)
-  return updateDoc(docRef, data)
+  await updateDoc(docRef, data)
+
+  await addLog({
+    adminId: adminId,
+    adminName: adminName,
+    action: "update",
+    target: "fabric",
+    targetId: fabricDoc.id,
+    description: `Memperbarui data kain dengan kode ${code}`,
+  })
 }
 
 export const deleteFabricInDb = async (code: string) => {
@@ -47,7 +74,16 @@ export const deleteFabricInDb = async (code: string) => {
   // Mengambil dokumen pertama dari hasil query dan menghapus berdasarkan ID
   const fabricDoc = snapshot.docs[0]
   const docRef = doc(db, "fabrics", fabricDoc.id)
-  return deleteDoc(docRef)
+  await deleteDoc(docRef)
+
+  await addLog({
+    adminId: adminId,
+    adminName: adminName,
+    action: "delete",
+    target: "fabric",
+    targetId: fabricDoc.id,
+    description: `Menghapus kain dengan kode ${code}`,
+  })
 }
 
 export const isFabricCodeUnique = async (code: string) => {

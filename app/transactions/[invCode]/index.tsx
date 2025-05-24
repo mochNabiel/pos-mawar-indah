@@ -5,7 +5,7 @@ import * as Print from "expo-print"
 
 import { TransactionWithId } from "@/types/transaction"
 import {
-  deleteTransactionInDb,
+  deleteTransaction,
   getTransactionByInvCode,
 } from "@/lib/firestore/transaction"
 import useToastMessage from "@/lib/hooks/useToastMessage"
@@ -60,7 +60,7 @@ export default function TransactionDetail() {
   const handleDelete = async () => {
     if (!transaction) return
     try {
-      await deleteTransactionInDb(invCode)
+      await deleteTransaction(invCode)
       showToast("Transaksi berhasil dihapus", "success")
       router.push("/(tabs)/history")
     } catch (error) {
