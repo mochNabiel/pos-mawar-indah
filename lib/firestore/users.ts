@@ -56,20 +56,30 @@ export const getAllUsers = async () => {
   return allUsers
 }
 
-export const updateUserInDb = async (id: string, data: Partial<User>) => {
-  const q = query(usersRef, where("id", "==", id))
-  const snapshot = await getDocs(q)
+export const getUserByEmail = async (email: string): Promise<UserWithId | null> => {
+  const q = query(collection(db, "users"), where("email", "==", email))
+  const querySnapshot = await getDocs(q)
 
-  if (snapshot.empty) {
-    throw new Error("User dengan email tersebut tidak ditemukan")
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0]
+    return { id: doc.id, ...doc.data() } as UserWithId
   }
 
-  const UserDoc = snapshot.docs[0]
-  const docRef = doc(db, "users", UserDoc.id)
-  return updateDoc(docRef, data)
+  return null
 }
 
-export const deleteUserInDb = async (email: string) => {
+export const updateUser = async (
+  id: string,
+  data: Partial<{
+    name: string
+    role: "admin" | "superadmin"
+  }>
+) => {
+  const userRef = doc(db, "users", id)
+  await updateDoc(userRef, data)
+}
+
+export const deleteUser = async (email: string) => {
   const q = query(usersRef, where("email", "==", email))
   const snapshot = await getDocs(q)
 

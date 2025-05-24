@@ -3,7 +3,7 @@ import { FlatList, Pressable, View } from "react-native"
 import { useRouter } from "expo-router"
 import { Feather } from "@expo/vector-icons"
 
-import { deleteUserInDb, getAllUsers } from "@/lib/firestore/users"
+import { deleteUser, getAllUsers, getUserByEmail } from "@/lib/firestore/users"
 
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
@@ -26,6 +26,7 @@ import {
 import GradientCard from "@/components/GradientCard"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { UserWithId } from "@/types/user"
+import EditUserModal from "@/components/EditUserModal"
 
 const AdminScreen = () => {
   const router = useRouter()
@@ -35,29 +36,43 @@ const AdminScreen = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
 
+  const [selectedUser, setSelectedUser] = useState<UserWithId | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
+
   const { showToast } = useToastMessage()
 
-  useEffect(() => {
+  const fetchUsers = async () => {
     setLoading(true)
     try {
-      const fetchUsers = async () => {
-        const data = await getAllUsers()
-        setUsers(data)
-        setLoading(false)
-      }
-      fetchUsers()
+      const data = await getAllUsers()
+      setUsers(data)
     } catch (error) {
       showToast("Error Fetch Data User, Hubungi Developer", "error")
-      setLoading(false)
     } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    fetchUsers()
   }, [])
+
+  const handleOpenEdit = async (email: string) => {
+    try {
+      const user = await getUserByEmail(email)
+      if (user) {
+        setSelectedUser(user)
+        setShowEditModal(true)
+      }
+    } catch (error) {
+      showToast("Gagal mengambil data user", "error")
+    }
+  }
 
   const handleDeleteUser = async (email: string) => {
     setIsDeleting(true)
     try {
-      await deleteUserInDb(email)
+      await deleteUser(email)
       showToast("Data User Tersebut Berhasil Dihapus", "success")
       setUsers((prev) => prev.filter((user) => user.email !== email))
       setIsDeleting(false)
@@ -74,11 +89,7 @@ const AdminScreen = () => {
 
   const renderItem = ({ item }: { item: (typeof users)[0] }) => (
     <>
-      <Card
-        size="sm"
-        variant="outline"
-        className="rounded-lg mb-5"
-      >
+      <Card size="sm" variant="outline" className="rounded-lg mb-5">
         <View>
           <View className="flex-row items-start justify-between">
             <View className="flex-row gap-2 items-center mb-3">
@@ -126,7 +137,10 @@ const AdminScreen = () => {
             })}
           </Text>
           <View className="flex-row items-center gap-3 mt-3">
-            <Button className="flex-1 rounded-lg">
+            <Button
+              onPress={() => handleOpenEdit(item.email)}
+              className="flex-1 rounded-lg"
+            >
               <Feather name="edit" color="white" />
               <ButtonText>Edit</ButtonText>
             </Button>
@@ -232,6 +246,7 @@ const AdminScreen = () => {
               </GradientCard>
             </Pressable>
           </View>
+
           <FlatList
             data={users}
             renderItem={renderItem}
@@ -242,6 +257,15 @@ const AdminScreen = () => {
             }}
             showsVerticalScrollIndicator={false}
           />
+
+          {selectedUser && (
+            <EditUserModal
+              isOpen={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              user={selectedUser}
+              onUpdated={fetchUsers}
+            />
+          )}
         </>
       )}
     </View>
