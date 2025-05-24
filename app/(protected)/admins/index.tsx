@@ -24,9 +24,10 @@ import {
 } from "@/components/ui/modal"
 
 import GradientCard from "@/components/GradientCard"
+import EditUserModal from "@/components/EditUserModal"
+
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { UserWithId } from "@/types/user"
-import EditUserModal from "@/components/EditUserModal"
 
 const AdminScreen = () => {
   const router = useRouter()
@@ -217,7 +218,7 @@ const AdminScreen = () => {
   const keyExtractor = (item: (typeof users)[0]) => item.id
 
   return (
-    <View className="flex-1 bg-white p-5 gap-3">
+    <View className="flex-1 bg-white p-5">
       {loading ? (
         <View className="flex-1 flex-row gap-3 items-center justify-center">
           <Spinner size="large" color="#BF40BF" />
@@ -235,7 +236,7 @@ const AdminScreen = () => {
                 <Text>Kelola akun admin sistem</Text>
               </View>
             </Center>
-            <Pressable onPress={() => router.push("/(protected)/admins/new")}>
+            <Pressable onPress={() => router.push("/(protected)/admins/new")} className="mb-5">
               <GradientCard>
                 <View className="flex-row items-center justify-center gap-2">
                   <Feather name="plus" size={16} color="white" />

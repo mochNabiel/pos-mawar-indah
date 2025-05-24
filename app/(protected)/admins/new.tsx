@@ -110,6 +110,7 @@ const RegisterScreen = () => {
               <Input variant="outline" size="lg" className="flex-1 rounded-lg">
                 <InputField
                   placeholder="Masukkan email admin"
+                  autoCapitalize="none"
                   value={field.value}
                   onChangeText={field.onChange}
                   onBlur={field.onBlur}
@@ -166,6 +167,7 @@ const RegisterScreen = () => {
             <Input variant="outline" size="lg" className="rounded-lg">
               <InputField
                 placeholder="Masukkan Password"
+                autoCapitalize="none"
                 secureTextEntry={!showPassword}
                 value={field.value}
                 onChangeText={field.onChange}
@@ -196,6 +198,7 @@ const RegisterScreen = () => {
             <Input variant="outline" size="lg" className="rounded-lg">
               <InputField
                 placeholder="Masukkan Konfirmasi Password"
+                autoCapitalize="none"
                 secureTextEntry={!showConfirm}
                 value={field.value}
                 onChangeText={field.onChange}
