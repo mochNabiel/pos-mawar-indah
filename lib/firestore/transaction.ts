@@ -15,10 +15,7 @@ import {
 import { db } from "@/utils/firebase"
 import { Transaction, TransactionWithId } from "@/types/transaction"
 import { addLog } from "@/lib/firestore/logs"
-import { getCurrentAdmin } from "@/lib/hooks/getCurrentAdmin"
-
-// Mengambil data admin yang login untuk membuat logs
-const { id: adminId, name: adminName } = getCurrentAdmin()
+import { getCurrentUserData } from "@/lib/firebase/user"
 
 const transactionsRef = collection(db, "transactions")
 
@@ -129,15 +126,17 @@ export const getPaginatedTransactions = async (
 
 // Buat transaksi baru
 export const createTransaction = async (data: Transaction) => {
+  const user = await getCurrentUserData()
+
   const docRef = await addDoc(transactionsRef, data)
 
   await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: "create",
-    target: "transaction",
+    adminName: user?.name,
+    adminRole: user?.role,
+    action: "tambah",
+    target: "transaksi",
     targetId: docRef.id,
-    description: `Menambahkan transaksi baru untuk ${data.customerName} dengan kode faktur ${data.invCode}`,
+    description: `Transaksi baru "${data.invCode}" untuk customer "${data.customerName}" telah dibuat`,
   })
 
   return docRef
@@ -167,6 +166,8 @@ export const getTransactionByInvCode = async (
 
 // Hapus transaksi berdasarkan InvCode
 export const deleteTransaction = async (invCode: string) => {
+  const user = await getCurrentUserData()
+
   const q = query(transactionsRef, where("invCode", "==", invCode))
   const snapshot = await getDocs(q)
 
@@ -176,15 +177,23 @@ export const deleteTransaction = async (invCode: string) => {
 
   // Mengambil dokumen pertama dari hasil query dan menghapus berdasarkan ID
   const transactionDoc = snapshot.docs[0]
+
+  const transactionData = transactionDoc.data() // Ambil datanya dulu
+
+  // Kirim log sebelum data dihapus
+  try {
+    await addLog({
+      adminName: user?.name,
+      adminRole: user?.role,
+      action: "hapus",
+      target: "transaksi",
+      targetId: transactionDoc.id,
+      description: `Transaksi "${invCode}" untuk customer "${transactionData.customerName}" telah dihapus`,
+    })
+  } catch (err) {
+    console.error("Gagal mencatat log sebelum hapus transaksi:", err)
+  }
+
   const docRef = doc(db, "transactions", transactionDoc.id)
   await deleteDoc(docRef)
-
-  await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: "delete",
-    target: "transaction",
-    targetId: transactionDoc.id,
-    description: `Menghapus transaksi dengan kode faktur ${invCode}`,
-  })
 }

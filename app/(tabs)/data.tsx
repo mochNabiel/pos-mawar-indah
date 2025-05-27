@@ -61,7 +61,7 @@ const Data = () => {
               variant="outline"
               className="flex-row items-center gap-5 m-3"
             >
-              <Feather name="list" size={32} color="#FFB740" />
+              <Feather name="bell" size={32} color="#FFB740" />
               <View>
                 <Heading size="lg" className="mb-1">
                   Data Logs

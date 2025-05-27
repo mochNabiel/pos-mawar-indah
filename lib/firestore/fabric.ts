@@ -11,23 +11,22 @@ import {
 import { db } from "@/utils/firebase"
 import { Fabric, FabricWithId } from "@/types/fabric"
 import { addLog } from "@/lib/firestore/logs"
-import { getCurrentAdmin } from "@/lib/hooks/getCurrentAdmin"
-
-// Mengambil data admin yang login untuk membuat logs
-const { id: adminId, name: adminName } = getCurrentAdmin()
+import { getCurrentUserData } from "@/lib/firebase/user"
 
 const fabricsRef = collection(db, "fabrics")
 
 export const createFabric = async (data: Fabric) => {
   const docRef = await addDoc(fabricsRef, data)
 
+  const user = await getCurrentUserData()
+
   await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: "create",
-    target: "fabric",
+    adminName: user?.name,
+    adminRole: user?.role,
+    action: "tambah",
+    target: "kain",
     targetId: docRef.id,
-    description: `Menambahkan kain baru dengan kode ${data.code}`,
+    description: `Kain baru "${data.name}" dengan kode "${data.code}" telah ditambahkan`,
   })
 
   return docRef
@@ -42,6 +41,8 @@ export const getAllFabrics = async (): Promise<FabricWithId[]> => {
 }
 
 export const updateFabricInDb = async (code: string, data: Partial<Fabric>) => {
+  const user = await getCurrentUserData()
+
   const q = query(fabricsRef, where("code", "==", code))
   const snapshot = await getDocs(q)
 
@@ -50,20 +51,29 @@ export const updateFabricInDb = async (code: string, data: Partial<Fabric>) => {
   }
 
   const fabricDoc = snapshot.docs[0]
+
+  const fabricData = fabricDoc.data() // Ambil Datanya sebelum di update
+
+  try {
+    await addLog({
+      adminName: user?.name,
+      adminRole: user?.role,
+      action: "update",
+      target: "kain",
+      targetId: fabricDoc.id,
+      description: `Data Kain "${data.code}" dengan nama "${fabricData.name}" telah diupdate`,
+    })
+  } catch (err) {
+    console.error("Gagal mencatat log sebelum update data kain:", err)
+  }
+
   const docRef = doc(db, "fabrics", fabricDoc.id)
   await updateDoc(docRef, data)
-
-  await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: "update",
-    target: "fabric",
-    targetId: fabricDoc.id,
-    description: `Memperbarui data kain dengan kode ${code}`,
-  })
 }
 
 export const deleteFabricInDb = async (code: string) => {
+  const user = await getCurrentUserData()
+
   const q = query(fabricsRef, where("code", "==", code))
   const snapshot = await getDocs(q)
 
@@ -73,17 +83,24 @@ export const deleteFabricInDb = async (code: string) => {
 
   // Mengambil dokumen pertama dari hasil query dan menghapus berdasarkan ID
   const fabricDoc = snapshot.docs[0]
+
+  const fabricData = fabricDoc.data() // Ambil data sebelum dihapus
+
+  try {
+    await addLog({
+      adminName: user?.name,
+      adminRole: user?.role,
+      action: "hapus",
+      target: "kain",
+      targetId: fabricDoc.id,
+      description: `Data Kain "${code}" dengan nama "${fabricData.name}" telah dihapus`,
+    })
+  } catch (err) {
+    console.error("Gagal mencatat log sebelum hapus data kain:", err)
+  }
+
   const docRef = doc(db, "fabrics", fabricDoc.id)
   await deleteDoc(docRef)
-
-  await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: "delete",
-    target: "fabric",
-    targetId: fabricDoc.id,
-    description: `Menghapus kain dengan kode ${code}`,
-  })
 }
 
 export const isFabricCodeUnique = async (code: string) => {

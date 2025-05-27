@@ -11,28 +11,26 @@ import {
 import { db } from "@/utils/firebase"
 import { Customer, CustomerWithId } from "@/types/customer"
 import { addLog } from "@/lib/firestore/logs"
-import { getCurrentAdmin } from "@/lib/hooks/getCurrentAdmin"
-
-// Mengambil data admin yang login untuk membuat logs
-const { id: adminId, name: adminName } = getCurrentAdmin()
+import { getCurrentUserData } from "@/lib/firebase/user"
 
 const customersRef = collection(db, "customers")
 
 export const createCustomer = async (data: Customer) => {
+  const user = await getCurrentUserData()
+
   const docRef = await addDoc(customersRef, data)
 
   await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: 'create',
-    target: 'customer',
+    adminName: user?.name,
+    adminRole: user?.role,
+    action: "tambah",
+    target: "customer",
     targetId: docRef.id,
-    description: `Menambahkan customer baru dengan nama ${data.name}`,
+    description: `Customer baru "${data.name}" telah ditambahkan`,
   })
 
   return docRef
 }
-  
 
 export const getAllCustomers = async (): Promise<CustomerWithId[]> => {
   const snapshot = await getDocs(customersRef)
@@ -46,6 +44,8 @@ export const updateCustomerInDb = async (
   name: string,
   data: Partial<Customer>
 ) => {
+  const user = await getCurrentUserData()
+
   const q = query(customersRef, where("name", "==", name))
   const snapshot = await getDocs(q)
 
@@ -58,16 +58,18 @@ export const updateCustomerInDb = async (
   await updateDoc(docRef, data)
 
   await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: 'update',
-    target: 'customer',
+    adminName: user?.name,
+    adminRole: user?.role,
+    action: "update",
+    target: "customer",
     targetId: customerDoc.id,
-    description: `Memperbarui data customer ${name}`,
+    description: `Data customer "${name}" telah diupdate`,
   })
 }
 
 export const deleteCustomerInDb = async (name: string) => {
+  const user = await getCurrentUserData()
+
   const q = query(customersRef, where("name", "==", name))
   const snapshot = await getDocs(q)
 
@@ -81,12 +83,12 @@ export const deleteCustomerInDb = async (name: string) => {
   await deleteDoc(docRef)
 
   await addLog({
-    adminId: adminId,
-    adminName: adminName,
-    action: 'delete',
-    target: 'customer',
+    adminName: user?.name,
+    adminRole: user?.role,
+    action: "hapus",
+    target: "customer",
     targetId: customerDoc.id,
-    description: `Menghapus customer dengan nama ${name}`,
+    description: `Data customer "${name}" telah dihapus`,
   })
 }
 
