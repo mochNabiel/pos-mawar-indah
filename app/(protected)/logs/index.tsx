@@ -25,11 +25,102 @@ import GradientCard from "@/components/GradientCard"
 import { CloseIcon, Icon } from "@/components/ui/icon"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 
+type LogDetailModalProps = {
+  log: Log | null
+  isOpen: boolean
+  onClose: () => void
+  onDelete: (id: string) => void
+}
+
+const LogDetailModal = ({
+  log,
+  isOpen,
+  onClose,
+  onDelete,
+}: LogDetailModalProps) => {
+  if (!log) return null
+
+  const actionMap: Record<string, "success" | "info" | "error" | undefined> = {
+    customer: "success",
+    kain: "info",
+    transaksi: "error",
+  }
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="md">
+      <ModalBackdrop />
+      <ModalContent>
+        <ModalHeader>
+          <Heading size="xl">Detail Log</Heading>
+          <ModalCloseButton>
+            <Icon as={CloseIcon} size="md" />
+          </ModalCloseButton>
+        </ModalHeader>
+        <ModalBody>
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-semibold">Admin:</Text>
+            <Text>{log.adminName}</Text>
+          </View>
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-semibold">Role:</Text>
+            <Text>{log.adminRole}</Text>
+          </View>
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-semibold">Aksi:</Text>
+            <Badge
+              variant="outline"
+              action={actionMap[log.target]}
+              className="rounded-full"
+            >
+              <BadgeText>
+                {log.action} {log.target}
+              </BadgeText>
+            </Badge>
+          </View>
+          <View className="mb-2">
+            <Text className="font-semibold mb-1">Detail:</Text>
+            <Card variant="filled" className="rounded-lg">
+              <Text>{log.description}</Text>
+            </Card>
+          </View>
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-semibold">Waktu:</Text>
+            <Text>
+              {new Date(log.timestamp).toLocaleDateString("id-ID", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+              })}{" "}
+              pukul{" "}
+              {new Date(log.timestamp).toLocaleTimeString("id-ID", {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </Text>
+          </View>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="solid"
+            action="negative"
+            size="md"
+            onPress={() => onDelete(log.id)}
+            className="w-full rounded-lg flex-row gap-3 items-center justify-center"
+          >
+            <Feather name="trash" size={24} color="white" />
+            <ButtonText>Hapus Log</ButtonText>
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  )
+}
+
 const LogsScreen = () => {
   const [logs, setLogs] = useState<Log[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [showLogModal, setShowLogModal] = useState<boolean>(false)
-
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [selectedLog, setSelectedLog] = useState<Log | null>(null)
   const { showToast } = useToastMessage()
 
   const fetchLogs = async () => {
@@ -51,16 +142,8 @@ const LogsScreen = () => {
   const handleMarkAllAsRead = async () => {
     try {
       const unreadLogs = logs.filter((log) => !log.read)
-
       await Promise.all(unreadLogs.map((log) => markAsRead(log.id)))
-
-      setLogs((prev) =>
-        prev.map((log) => ({
-          ...log,
-          read: true,
-        }))
-      )
-
+      setLogs((prev) => prev.map((log) => ({ ...log, read: true })))
       showToast("Semua log telah ditandai sebagai dibaca", "success")
     } catch (err) {
       showToast("Gagal menandai semua dibaca", "error")
@@ -71,157 +154,78 @@ const LogsScreen = () => {
     try {
       await deleteLog(id)
       setLogs((prev) => prev.filter((log) => log.id !== id))
-      setShowLogModal(false)
+      setShowModal(false)
+      setSelectedLog(null)
       showToast("Berhasil menghapus log", "success")
     } catch (err) {
       showToast("Gagal menghapus log", "error")
     }
   }
 
+  const handleSelectLog = async (log: Log) => {
+    if (!log.read) {
+      await markAsRead(log.id)
+      setLogs((prev) =>
+        prev.map((l) => (l.id === log.id ? { ...l, read: true } : l))
+      )
+    }
+    setSelectedLog(log)
+    setShowModal(true)
+  }
+
   const renderItem = ({ item }: { item: Log }) => {
     const isUnread = item.read === false
 
-    return (
-      <>
-        <Pressable
-          onPress={() => {
-            // Open detail logs modal
-            setShowLogModal(true)
+    const actionMap: Record<string, "success" | "info" | "error" | undefined> =
+      {
+        customer: "success",
+        kain: "info",
+        transaksi: "error",
+      }
 
-            // Mark as read
-            if (item.read === false) {
-              markAsRead(item.id).then(() => {
-                setLogs((prev) =>
-                  prev.map((log) =>
-                    log.id === item.id ? { ...log, read: true } : log
-                  )
-                )
-              })
-            }
-          }}
-          className="mb-3"
-        >
-          <Card
-            size="md"
-            variant="outline"
-            className={`rounded-lg flex-row items-center gap-2 ${
-              isUnread ? "bg-self-orange/10 border-self-orange" : ""
-            }`}
-          >
-            {isUnread ? (
-              <MaterialCommunityIcons name="bell-badge" size={24} />
-            ) : (
-              <MaterialCommunityIcons name="bell" size={24} />
-            )}
-            <View className="flex-1 gap-2">
-              <View className="flex-row gap-2">
-                <Heading>{item.adminName}</Heading>
-                <Badge
-                  variant="outline"
-                  action="success"
-                  className="rounded-full"
-                >
-                  <BadgeText>
-                    {item.action} {item.target}
-                  </BadgeText>
-                </Badge>
-              </View>
-              <Text>{item.description}</Text>
-              <Text className="text-sm">
-                {new Date(item.timestamp).toLocaleDateString("id-ID", {
-                  year: "numeric",
-                  month: "short",
-                  day: "2-digit"
-                })}
-                {" "}
-                pukul
-                {" "}
-                {new Date(item.timestamp).toLocaleTimeString("id-ID", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </Text>
-            </View>
-          </Card>
-        </Pressable>
-        <Modal
-          isOpen={showLogModal}
-          onClose={() => {
-            setShowLogModal(false)
-          }}
+    return (
+      <Pressable onPress={() => handleSelectLog(item)} className="mb-3">
+        <Card
           size="md"
+          variant="outline"
+          className={`rounded-lg flex-row items-center gap-2 ${
+            isUnread ? "bg-self-orange/10 border-self-orange" : ""
+          }`}
         >
-          <ModalBackdrop />
-          <ModalContent>
-            <ModalHeader>
-              <Heading size="xl">Detail Log</Heading>
-              <ModalCloseButton>
-                <Icon
-                  as={CloseIcon}
-                  size="md"
-                />
-              </ModalCloseButton>
-            </ModalHeader>
-            <ModalBody>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="font-semibold">Admin:</Text>
-                <Text>{item.adminName}</Text>
-              </View>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="font-semibold">Role:</Text>
-                <Text>{item.adminRole}</Text>
-              </View>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="font-semibold">Aksi:</Text>
-                <Badge
-                  variant="outline"
-                  action="success"
-                  className="rounded-full"
-                >
-                  <BadgeText>
-                    {item.action} {item.target}
-                  </BadgeText>
-                </Badge>
-              </View>
-              <View className="mb-2">
-                <Text className="font-semibold mb-1">Detail:</Text>
-                <Card variant="filled" className="rounded-lg">
-                  <Text>{item.description}</Text>
-                </Card>
-              </View>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="font-semibold">Waktu:</Text>
-                <Text>
-                  {new Date(item.timestamp).toLocaleDateString("id-ID", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                  })}
-                  {" "}
-                  pukul
-                  {" "}
-                  {new Date(item.timestamp).toLocaleTimeString("id-ID", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </Text>
-              </View>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                variant="solid"
-                action="negative"
-                size="md"
-                onPress={() => handleDeleteLog(item.id)}
-                className="w-full rounded-lg flex-row gap-3 items-center justify-center"
+          {isUnread ? (
+            <MaterialCommunityIcons name="bell-badge" size={24} />
+          ) : (
+            <MaterialCommunityIcons name="bell" size={24} />
+          )}
+          <View className="flex-1 gap-2">
+            <View className="flex-row gap-2">
+              <Heading>{item.adminName}</Heading>
+              <Badge
+                variant="outline"
+                action={actionMap[item.target]}
+                className="rounded-full"
               >
-                <Feather name="trash" size={24} color="white" />
-                <ButtonText>Hapus Log</ButtonText>
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </>
+                <BadgeText>
+                  {item.action} {item.target}
+                </BadgeText>
+              </Badge>
+            </View>
+            <Text>{item.description}</Text>
+            <Text className="text-sm">
+              {new Date(item.timestamp).toLocaleDateString("id-ID", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+              })}{" "}
+              pukul{" "}
+              {new Date(item.timestamp).toLocaleTimeString("id-ID", {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </Text>
+          </View>
+        </Card>
+      </Pressable>
     )
   }
 
@@ -268,6 +272,13 @@ const LogsScreen = () => {
           />
         )}
       </View>
+
+      <LogDetailModal
+        log={selectedLog}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onDelete={handleDeleteLog}
+      />
     </View>
   )
 }
