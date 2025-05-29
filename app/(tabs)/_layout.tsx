@@ -1,11 +1,64 @@
-import React from "react"
-import { Tabs } from "expo-router"
+import React, { useEffect, useRef } from "react"
+import { Tabs, useRouter } from "expo-router"
 import { Feather } from "@expo/vector-icons"
 import { Pressable } from "react-native"
+import * as Notifications from "expo-notifications"
 import { useQuickActions } from "@/components/QuickActionSheet"
+import { registerForPushNotificationsAsync } from "@/lib/helper/notification"
+import { saveExpoPushToken } from "@/lib/helper/saveExpoPushToken"
+
+// Notification handler terbaru wajib mengembalikan semua properti ini:
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+})
 
 export default function TabsLayout() {
   const { openSheet, sheet } = useQuickActions()
+  const router = useRouter()
+
+  // tipe listener harus Notifications.Subscription atau null
+  const notificationListener = useRef<Notifications.EventSubscription | null>(null)
+  const responseListener = useRef<Notifications.EventSubscription | null>(null)
+
+  useEffect(() => {
+  registerForPushNotificationsAsync()
+    .then((token) => {
+      if (token) saveExpoPushToken(token)
+      else console.warn("Token push notification kosong")
+    })
+    .catch((err) => {
+      console.warn("Gagal register push notification:", err)
+    })
+
+  // Pasang kedua listener dalam satu blok
+  notificationListener.current = Notifications.addNotificationReceivedListener(
+    (notification) => {
+      console.log("Notification received:", notification)
+    }
+  )
+
+  responseListener.current = Notifications.addNotificationResponseReceivedListener(
+    (response) => {
+      console.log("User interacted with notification:", response)
+      const screen = response.notification.request.content.data.screen
+      if (screen === "logs") {
+        router.push("/(protected)/logs")
+      }
+    }
+  )
+
+  return () => {
+    notificationListener.current?.remove()
+    responseListener.current?.remove()
+  }
+}, [])
+
 
   return (
     <>
@@ -20,8 +73,6 @@ export default function TabsLayout() {
           tabBarStyle: {
             height: 70,
             paddingTop: 5,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
           },
         }}
       >
@@ -57,7 +108,10 @@ export default function TabsLayout() {
                   width: 65,
                   height: 65,
                   borderRadius: 35,
-                  boxShadow: "0 10px 20px rgba(0, 0, 0, 0.25)",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
                   elevation: 8,
                 }}
               >

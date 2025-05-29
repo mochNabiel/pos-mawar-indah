@@ -10,6 +10,7 @@ import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icon"
+import { View } from "react-native"
 
 const Login = () => {
   const [email, setEmail] = React.useState("")
@@ -38,45 +39,47 @@ const Login = () => {
   }
 
   return (
-    <FormControl className="p-4 border rounded-lg border-outline-300 mt-20 mx-4">
-      <VStack space="xl">
-        <Heading className="text-typography-900">Login</Heading>
-        <VStack space="xs">
-          <Text className="text-typography-500">Email</Text>
-          <Input className="min-w-[250px]">
-            <InputField
-              type="text"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="email"
-            />
-          </Input>
+    <View className="flex-1 bg-white">
+      <FormControl className="p-4 border rounded-lg border-outline-300 mt-20 mx-4">
+        <VStack space="xl">
+          <Heading className="text-typography-900">Login</Heading>
+          <VStack space="xs">
+            <Text className="text-typography-500">Email</Text>
+            <Input className="min-w-[250px]">
+              <InputField
+                type="text"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="email"
+              />
+            </Input>
+          </VStack>
+
+          <VStack space="xs">
+            <Text className="text-typography-500">Password</Text>
+            <Input className="text-center">
+              <InputField
+                type={showPassword ? "text" : "password"}
+                autoCapitalize="none"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="password"
+              />
+              <InputSlot className="pr-3" onPress={handleTogglePassword}>
+                <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
+              </InputSlot>
+            </Input>
+          </VStack>
+
+          {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
+
+          <Button className="ml-auto mt-2" onPress={handleLogin}>
+            <ButtonText className="text-white">Login</ButtonText>
+          </Button>
         </VStack>
-
-        <VStack space="xs">
-          <Text className="text-typography-500">Password</Text>
-          <Input className="text-center">
-            <InputField
-              type={showPassword ? "text" : "password"}
-              autoCapitalize="none"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="password"
-            />
-            <InputSlot className="pr-3" onPress={handleTogglePassword}>
-              <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
-            </InputSlot>
-          </Input>
-        </VStack>
-
-        {error ? <Text className="text-red-500 text-sm">{error}</Text> : null}
-
-        <Button className="ml-auto mt-2" onPress={handleLogin}>
-          <ButtonText className="text-white">Login</ButtonText>
-        </Button>
-      </VStack>
-    </FormControl>
+      </FormControl>
+    </View>
   )
 }
 

@@ -39,3 +39,6 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+google-services.json
+pos-mawar-indah-123-firebase-adminsdk-fbsvc-c317637b0c.json

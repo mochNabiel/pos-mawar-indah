@@ -11,7 +11,8 @@ import {
 import { db } from "@/utils/firebase"
 import { Fabric, FabricWithId } from "@/types/fabric"
 import { addLog } from "@/lib/firestore/logs"
-import { getCurrentUserData } from "@/lib/firebase/user"
+import { getCurrentUserData } from "@/lib/helper/getCurrentUserData"
+import { notifySuperadmins } from "@/lib/helper/notifySuperAdmins"
 
 const fabricsRef = collection(db, "fabrics")
 
@@ -27,6 +28,11 @@ export const createFabric = async (data: Fabric) => {
     target: "kain",
     targetId: docRef.id,
     description: `Kain baru "${data.name}" dengan kode "${data.code}" telah ditambahkan`,
+  })
+
+  await notifySuperadmins({
+    title: "Data Kain Baru",
+    body: `Admin ${user?.name} telah menambahkan data kain baru.`,
   })
 
   return docRef
@@ -63,6 +69,11 @@ export const updateFabricInDb = async (code: string, data: Partial<Fabric>) => {
       targetId: fabricDoc.id,
       description: `Data Kain "${data.code}" dengan nama "${fabricData.name}" telah diupdate`,
     })
+
+    await notifySuperadmins({
+      title: "Data Kain Diupdate",
+      body: `Admin ${user?.name} telah mengupdate data kain.`,
+    })
   } catch (err) {
     console.error("Gagal mencatat log sebelum update data kain:", err)
   }
@@ -95,6 +106,12 @@ export const deleteFabricInDb = async (code: string) => {
       targetId: fabricDoc.id,
       description: `Data Kain "${code}" dengan nama "${fabricData.name}" telah dihapus`,
     })
+
+    await notifySuperadmins({
+      title: "Data Kain Dihapus",
+      body: `Admin ${user?.name} telah menghapus data kain.`,
+    })
+
   } catch (err) {
     console.error("Gagal mencatat log sebelum hapus data kain:", err)
   }

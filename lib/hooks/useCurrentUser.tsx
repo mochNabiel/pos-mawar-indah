@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getCurrentUserData, AppUser } from "@/lib/firebase/user"
+import { getCurrentUserData, AppUser } from "@/lib/helper/getCurrentUserData"
 
 export function useCurrentUser() {
   const [user, setUser] = useState<AppUser | null>(null)

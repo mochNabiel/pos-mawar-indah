@@ -15,7 +15,8 @@ import {
 import { db } from "@/utils/firebase"
 import { Transaction, TransactionWithId } from "@/types/transaction"
 import { addLog } from "@/lib/firestore/logs"
-import { getCurrentUserData } from "@/lib/firebase/user"
+import { getCurrentUserData } from "@/lib/helper/getCurrentUserData"
+import { notifySuperadmins } from "@/lib/helper/notifySuperAdmins"
 
 const transactionsRef = collection(db, "transactions")
 
@@ -139,6 +140,11 @@ export const createTransaction = async (data: Transaction) => {
     description: `Transaksi baru "${data.invCode}" untuk customer "${data.customerName}" telah dibuat`,
   })
 
+  await notifySuperadmins({
+    title: "Data Transaksi Baru",
+    body: `Admin ${user?.name} telah menambahkan data transaksi baru.`,
+  })
+
   return docRef
 }
 
@@ -189,6 +195,11 @@ export const deleteTransaction = async (invCode: string) => {
       target: "transaksi",
       targetId: transactionDoc.id,
       description: `Transaksi "${invCode}" untuk customer "${transactionData.customerName}" telah dihapus`,
+    })
+
+    await notifySuperadmins({
+      title: "Data Transaksi Dihapus",
+      body: `Admin ${user?.name} telah menghapus data transaksi.`,
     })
   } catch (err) {
     console.error("Gagal mencatat log sebelum hapus transaksi:", err)

@@ -5,14 +5,13 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider"
 import { Slot, useRouter, useSegments } from "expo-router"
 
 import * as SplashScreen from "expo-splash-screen"
-import * as NavigationBar from "expo-navigation-bar"
-
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/utils/firebase"
-import { getCurrentUserData } from "@/lib/firebase/user"
-import { Platform } from "react-native"
 
-// Cegah splash screen menghilang otomatis
+import { getCurrentUserData } from "@/lib/helper/getCurrentUserData"
+import SplashLoader from "@/components/SplashLoader"
+
+// Prevent splash screen from auto hiding
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
@@ -22,24 +21,6 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [role, setRole] = useState<"admin" | "superadmin" | null>(null)
-
-  // Hide bottom bar
-  // const hideNavBar = async () => {
-  //   if (Platform.OS === 'android') {
-  //      await NavigationBar.setPositionAsync("absolute");
-  //      await NavigationBar.setVisibilityAsync("hidden");
-  //      await NavigationBar.setBehaviorAsync("overlay-swipe");
-  //    }
-  // }
-
-  // useEffect(() => {
-  //   const initialize = async () => {
-  //     await hideNavBar()
-  //     setIsReady(true)
-  //   }
-
-  //   initialize()
-  // }, [])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -51,7 +32,7 @@ export default function RootLayout() {
         setIsLoggedIn(false)
         setRole(null)
       }
-      setIsReady(true)
+      setIsReady(true) // Mark ready after auth state is resolved
     })
 
     return unsubscribe
@@ -62,18 +43,12 @@ export default function RootLayout() {
 
     const group = segments[0]
 
-    if (!isLoggedIn) {
-      if (group !== "(auth)") {
-        router.replace("/(auth)/login")
-      }
-    } else {
-      if (group === "(auth)") {
-        router.replace("/(tabs)")
-      }
-
-      if (group === "(protected)" && role !== "superadmin") {
-        router.replace("/(tabs)")
-      }
+    if (!isLoggedIn && group !== "(auth)") {
+      router.replace("/(auth)/login")
+    } else if (isLoggedIn && group === "(auth)") {
+      router.replace("/(tabs)")
+    } else if (isLoggedIn && group === "(protected)" && role !== "superadmin") {
+      router.replace("/(tabs)")
     }
   }, [isLoggedIn, isReady, role, segments])
 
@@ -83,7 +58,23 @@ export default function RootLayout() {
     }
   }, [isReady])
 
-  if (!isReady) return null
+  // Prevent UI from rendering until redirect decision is complete
+  const shouldBlockRender = () => {
+    if (!isReady) return true
+
+    const group = segments[0]
+
+    if (!isLoggedIn && group !== "(auth)") return true
+    if (isLoggedIn && group === "(auth)") return true
+    if (isLoggedIn && group === "(protected)" && role !== "superadmin")
+      return true
+
+    return false
+  }
+
+  if (shouldBlockRender()) {
+    return <SplashLoader />
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

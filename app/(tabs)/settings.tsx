@@ -3,11 +3,9 @@ import { View, Text } from "react-native"
 import { logout } from "@/utils/auth"
 import { useRouter } from "expo-router"
 import { Button, ButtonText } from "@/components/ui/button"
-import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 
 const Setting = () => {
   const router = useRouter()
-  const { user } = useCurrentUser()
 
   const handleLogout = async () => {
     await logout()

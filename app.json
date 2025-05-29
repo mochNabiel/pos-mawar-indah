@@ -9,13 +9,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mochnabiel.posmawarindah",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/mawarindah.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.android.posmawarindah",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -27,10 +33,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/mawarindah.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+           "dark": {
+            "image": "./assets/images/mawarindah.png",
+            "backgroundColor": "#000000"
+          }
         }
       ],
       "expo-font",
@@ -38,6 +48,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7a99d45c-eb94-4ea4-abdf-73f66f98aa43"
+      }
+    },
+    "owner": "mochnabiel"
   }
 }

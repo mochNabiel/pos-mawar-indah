@@ -11,7 +11,8 @@ import {
 import { db } from "@/utils/firebase"
 import { Customer, CustomerWithId } from "@/types/customer"
 import { addLog } from "@/lib/firestore/logs"
-import { getCurrentUserData } from "@/lib/firebase/user"
+import { getCurrentUserData } from "@/lib/helper/getCurrentUserData"
+import { notifySuperadmins } from "@/lib/helper/notifySuperAdmins"
 
 const customersRef = collection(db, "customers")
 
@@ -27,6 +28,11 @@ export const createCustomer = async (data: Customer) => {
     target: "customer",
     targetId: docRef.id,
     description: `Customer baru "${data.name}" telah ditambahkan`,
+  })
+
+  await notifySuperadmins({
+    title: "Data Customer Baru",
+    body: `Admin ${user?.name} telah menambahkan data customer baru.`,
   })
 
   return docRef
@@ -65,6 +71,11 @@ export const updateCustomerInDb = async (
     targetId: customerDoc.id,
     description: `Data customer "${name}" telah diupdate`,
   })
+
+  await notifySuperadmins({
+    title: "Data Customer Diupdate",
+    body: `Admin ${user?.name} telah mengupdate data customer.`,
+  })
 }
 
 export const deleteCustomerInDb = async (name: string) => {
@@ -89,6 +100,11 @@ export const deleteCustomerInDb = async (name: string) => {
     target: "customer",
     targetId: customerDoc.id,
     description: `Data customer "${name}" telah dihapus`,
+  })
+
+  await notifySuperadmins({
+    title: "Data Customer Dihapus",
+    body: `Admin ${user?.name} telah menghapus data customer.`,
   })
 }
 
