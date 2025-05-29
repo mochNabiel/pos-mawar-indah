@@ -6,17 +6,10 @@ export default function FabricsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerBackVisible: false,
       }}
     >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "List Data Kain",
-          headerLeft: () => <BackButton path="/(tabs)/data" />,
-        }}
-      />
       <Stack.Screen
         name="new"
         options={{

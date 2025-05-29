@@ -24,6 +24,7 @@ import { Card } from "@/components/ui/card"
 import GradientCard from "@/components/GradientCard"
 import { CloseIcon, Icon } from "@/components/ui/icon"
 import useToastMessage from "@/lib/hooks/useToastMessage"
+import LoadingMessage from "@/components/LoadingMessage"
 
 type LogDetailModalProps = {
   log: Log | null
@@ -47,7 +48,7 @@ const LogDetailModal = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalBackdrop />
       <ModalContent>
         <ModalHeader>
@@ -231,47 +232,50 @@ const LogsScreen = () => {
 
   return (
     <View className="flex-1 bg-white p-5">
-      <View className="gap-3">
-        <Center className="flex-row items-center gap-2">
-          <GradientCard>
-            <Feather name="bell" size={24} color="white" />
-          </GradientCard>
-          <View>
-            <Heading size="2xl">Data Logs</Heading>
-            <Text>Monitor aktivitas admin sistem</Text>
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <LoadingMessage message="Memuat Data Log..." />
+        </View>
+      ) : (
+        <>
+          <View className="gap-3">
+            <Center className="flex-row items-center gap-2">
+              <GradientCard>
+                <Feather name="bell" size={24} color="white" />
+              </GradientCard>
+              <View>
+                <Heading size="2xl">Data Logs</Heading>
+                <Text>Monitor aktivitas admin sistem</Text>
+              </View>
+            </Center>
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-row gap-2 items-center rounded-lg"
+              onPress={handleMarkAllAsRead}
+            >
+              <Feather name="check-circle" size={16} />
+              <ButtonText>Tandai Semua Dibaca</ButtonText>
+            </Button>
           </View>
-        </Center>
-        <Button
-          variant="outline"
-          size="lg"
-          className="flex-row gap-2 items-center rounded-lg"
-          onPress={handleMarkAllAsRead}
-        >
-          <Feather name="check-circle" size={16} />
-          <ButtonText>Tandai Semua Dibaca</ButtonText>
-        </Button>
-      </View>
 
-      <View className="mt-6 flex-1">
-        {loading ? (
-          <Center className="flex-1">
-            <Spinner size="large" color="#BF40BF" />
-            <Text className="text-gray-500">Memuat data log...</Text>
-          </Center>
-        ) : logs.length === 0 ? (
-          <Center className="flex-1">
-            <Text className="text-gray-500">Log masih kosong</Text>
-          </Center>
-        ) : (
-          <FlatList
-            data={logs}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 40 }}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-      </View>
+          <View className="mt-6 flex-1">
+            {logs.length === 0 ? (
+              <Center className="flex-1">
+                <Text className="text-gray-500">Log masih kosong</Text>
+              </Center>
+            ) : (
+              <FlatList
+                data={logs}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                showsVerticalScrollIndicator={true}
+              />
+            )}
+          </View>
+        </>
+      )}
 
       <LogDetailModal
         log={selectedLog}

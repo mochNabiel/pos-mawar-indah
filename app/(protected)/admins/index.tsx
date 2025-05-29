@@ -12,7 +12,6 @@ import { Card } from "@/components/ui/card"
 import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge"
 import { CloseIcon, Icon, LockIcon, StarIcon } from "@/components/ui/icon"
 import { Button, ButtonText } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
 import {
   Modal,
   ModalBackdrop,
@@ -28,6 +27,7 @@ import EditUserModal from "@/components/EditUserModal"
 
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { UserWithId } from "@/types/user"
+import LoadingMessage from "@/components/LoadingMessage"
 
 const AdminScreen = () => {
   const router = useRouter()
@@ -220,16 +220,13 @@ const AdminScreen = () => {
   return (
     <View className="flex-1 bg-white p-5">
       {loading ? (
-        <View className="flex-1 flex-row gap-3 items-center justify-center">
-          <Spinner size="large" color="#BF40BF" />
-          <Text>Memuat Data Admin...</Text>
-        </View>
+        <LoadingMessage message="Memuat Data Admin..." />
       ) : (
         <>
           <View className="gap-3">
             <Center className="flex-row items-center gap-2">
               <GradientCard>
-                <Feather name="users" size={24} color="white" />
+                <Feather name="lock" size={24} color="white" />
               </GradientCard>
               <View>
                 <Heading size="2xl">Data Admin</Heading>

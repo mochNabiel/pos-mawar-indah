@@ -6,17 +6,10 @@ export default function CustomersLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerBackVisible: false,
       }}
     >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "List Data Customer",
-          headerLeft: () => <BackButton path="/(tabs)/data" />,
-        }}
-      />
       <Stack.Screen
         name="new"
         options={{

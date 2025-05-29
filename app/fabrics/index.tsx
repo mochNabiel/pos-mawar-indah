@@ -12,6 +12,10 @@ import { Text } from "@/components/ui/text"
 import { Heading } from "@/components/ui/heading"
 import { Pressable } from "@/components/ui/pressable"
 import { Spinner } from "@/components/ui/spinner"
+import LoadingMessage from "@/components/LoadingMessage"
+import { Center } from "@/components/ui/center"
+import GradientCard from "@/components/GradientCard"
+import { Feather } from "@expo/vector-icons"
 
 const FabricListScreen = () => {
   const router = useRouter()
@@ -46,7 +50,7 @@ const FabricListScreen = () => {
       }
       className="mb-3"
     >
-      <Card size="lg" variant="outline" className="shadow-md bg-white">
+      <Card size="lg" variant="outline">
         <Heading size="lg">{item.name}</Heading>
         <Text>Kode: {item.code}</Text>
         <Text>Warna: {item.color}</Text>
@@ -57,15 +61,22 @@ const FabricListScreen = () => {
   return (
     <View className="flex-1 p-5 bg-white">
       {isLoading ? (
-        <View className="flex flex-row gap-5 justify-center items-center">
-          <Spinner />
-          <Text size="lg">Mendapatkan data kain...</Text>
-        </View>
+        <LoadingMessage message="Memuat Data Kain..." />
       ) : (
-        <>
-          <Input className="rounded-xl mb-5">
+        <View className="gap-3">
+          <Center className="flex-row items-center gap-2">
+            <GradientCard>
+              <Feather name="layers" size={24} color="white" />
+            </GradientCard>
+            <View>
+              <Heading size="2xl">Data Kain</Heading>
+              <Text>Kelola informasi dan detail kain</Text>
+            </View>
+          </Center>
+
+          <Input size="lg" className="rounded-lg">
             <InputField
-              placeholder="Cari kain berdasarkan nama"
+              placeholder="Cari kain berdasarkan nama..."
               value={search}
               onChangeText={(text) => setSearch(text)}
               autoCapitalize="none"
@@ -77,10 +88,10 @@ const FabricListScreen = () => {
             data={filtered}
             keyExtractor={(item) => item.code}
             renderItem={renderItem}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            showsVerticalScrollIndicator={true}
           />
-        </>
+        </View>
       )}
     </View>
   )

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Text } from "@/components/ui/text"
 import { Pressable } from "@/components/ui/pressable"
 
-import { Feather } from "@expo/vector-icons"
+import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 
@@ -25,7 +25,7 @@ const Data = () => {
           variant="outline"
           className="flex flex-row items-center gap-5 m-3"
         >
-          <Feather name="file-text" size={32} color="#BF40BF" />
+          <Feather name="layers" size={32} color="#BF40BF" />
           <View>
             <Heading size="lg" className="mb-1">
               Data Kain
@@ -40,7 +40,7 @@ const Data = () => {
           variant="outline"
           className="flex flex-row items-center gap-5 m-3"
         >
-          <Feather name="user" size={32} color="#40BFBF" />
+          <Feather name="users" size={32} color="#40BFBF" />
           <View>
             <Heading size="lg" className="mb-1">
               Data Customer
@@ -80,7 +80,7 @@ const Data = () => {
               variant="outline"
               className="flex-row items-center gap-5 m-3"
             >
-              <Feather name="users" size={32} color="#3D8B37" />
+              <Feather name="lock" size={32} color="#3D8B37" />
               <View>
                 <Heading size="lg" className="mb-1">
                   Data Admin

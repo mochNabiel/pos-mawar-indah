@@ -12,6 +12,10 @@ import { Text } from "@/components/ui/text"
 import { Heading } from "@/components/ui/heading"
 import { Pressable } from "@/components/ui/pressable"
 import { Spinner } from "@/components/ui/spinner"
+import LoadingMessage from "@/components/LoadingMessage"
+import { Center } from "@/components/ui/center"
+import GradientCard from "@/components/GradientCard"
+import { Feather } from "@expo/vector-icons"
 
 const CustomerListScreen = () => {
   const router = useRouter()
@@ -41,7 +45,7 @@ const CustomerListScreen = () => {
       onPress={() => router.push(`/customers/${item.name}`)}
       className="mb-3"
     >
-      <Card size="lg" variant="outline" className="shadow-md bg-white">
+      <Card size="lg" variant="outline">
         <Heading size="lg">{item.name}</Heading>
         <Text>{item.phone}</Text>
       </Card>
@@ -51,13 +55,19 @@ const CustomerListScreen = () => {
   return (
     <View className="flex-1 p-5 bg-white">
       {isLoading ? (
-        <View className="flex flex-row gap-5 justify-center items-center">
-          <Spinner />
-          <Text size="lg">Mendapatkan data customer...</Text>
-        </View>
+        <LoadingMessage message="Memuat Data Customer..." />
       ) : (
-        <>
-          <Input className="rounded-xl mb-5">
+        <View className="gap-3">
+          <Center className="flex-row items-center gap-2">
+            <GradientCard>
+              <Feather name="users" size={24} color="white" />
+            </GradientCard>
+            <View>
+              <Heading size="2xl">Data Customer</Heading>
+              <Text>Kelola nama dan kontak pelanggan</Text>
+            </View>
+          </Center>
+          <Input size="lg" className="rounded-lg">
             <InputField
               placeholder="Cari customer berdasarkan nama"
               value={search}
@@ -71,10 +81,10 @@ const CustomerListScreen = () => {
             data={filtered}
             keyExtractor={(item) => item.name}
             renderItem={renderItem}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            showsVerticalScrollIndicator={true}
           />
-        </>
+        </View>
       )}
     </View>
   )
