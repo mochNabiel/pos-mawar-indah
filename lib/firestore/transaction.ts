@@ -137,7 +137,7 @@ export const createTransaction = async (data: Transaction) => {
     action: "tambah",
     target: "transaksi",
     targetId: docRef.id,
-    description: `Transaksi baru "${data.invCode}" untuk customer "${data.customerName}" telah dibuat`,
+    description: `Transaksi baru ${data.invCode} untuk ${data.customerName} telah dibuat`,
   })
 
   await notifySuperadmins({
@@ -194,7 +194,7 @@ export const deleteTransaction = async (invCode: string) => {
       action: "hapus",
       target: "transaksi",
       targetId: transactionDoc.id,
-      description: `Transaksi "${invCode}" untuk customer "${transactionData.customerName}" telah dihapus`,
+      description: `Transaksi ${invCode} untuk ${transactionData.customerName} telah dihapus`,
     })
 
     await notifySuperadmins({

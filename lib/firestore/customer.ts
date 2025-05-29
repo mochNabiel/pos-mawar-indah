@@ -27,7 +27,7 @@ export const createCustomer = async (data: Customer) => {
     action: "tambah",
     target: "customer",
     targetId: docRef.id,
-    description: `Customer baru "${data.name}" telah ditambahkan`,
+    description: `Customer baru ${data.name} telah ditambahkan`,
   })
 
   await notifySuperadmins({
@@ -69,7 +69,7 @@ export const updateCustomerInDb = async (
     action: "update",
     target: "customer",
     targetId: customerDoc.id,
-    description: `Data customer "${name}" telah diupdate`,
+    description: `Data customer ${name} telah diupdate`,
   })
 
   await notifySuperadmins({
@@ -99,7 +99,7 @@ export const deleteCustomerInDb = async (name: string) => {
     action: "hapus",
     target: "customer",
     targetId: customerDoc.id,
-    description: `Data customer "${name}" telah dihapus`,
+    description: `Data customer ${name} telah dihapus`,
   })
 
   await notifySuperadmins({

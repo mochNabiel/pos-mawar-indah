@@ -197,8 +197,8 @@ const LogsScreen = () => {
           ) : (
             <MaterialCommunityIcons name="bell" size={24} />
           )}
-          <View className="flex-1 gap-2">
-            <View className="flex-row gap-2">
+          <View className="flex-1 gap-1">
+            <View className="flex-row justify-between items-center">
               <Heading>{item.adminName}</Heading>
               <Badge
                 variant="outline"
@@ -217,7 +217,7 @@ const LogsScreen = () => {
                 month: "short",
                 day: "2-digit",
               })}{" "}
-              pukul{" "}
+              |{" "}
               {new Date(item.timestamp).toLocaleTimeString("id-ID", {
                 hour: "numeric",
                 minute: "2-digit",

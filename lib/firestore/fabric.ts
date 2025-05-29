@@ -27,7 +27,7 @@ export const createFabric = async (data: Fabric) => {
     action: "tambah",
     target: "kain",
     targetId: docRef.id,
-    description: `Kain baru "${data.name}" dengan kode "${data.code}" telah ditambahkan`,
+    description: `Kain baru ${data.code} dengan nama ${data.name} telah ditambahkan`,
   })
 
   await notifySuperadmins({
@@ -67,7 +67,7 @@ export const updateFabricInDb = async (code: string, data: Partial<Fabric>) => {
       action: "update",
       target: "kain",
       targetId: fabricDoc.id,
-      description: `Data Kain "${data.code}" dengan nama "${fabricData.name}" telah diupdate`,
+      description: `Data Kain ${data.code} dengan nama ${fabricData.name} telah diupdate`,
     })
 
     await notifySuperadmins({
@@ -104,7 +104,7 @@ export const deleteFabricInDb = async (code: string) => {
       action: "hapus",
       target: "kain",
       targetId: fabricDoc.id,
-      description: `Data Kain "${code}" dengan nama "${fabricData.name}" telah dihapus`,
+      description: `Data Kain ${code} dengan nama ${fabricData.name} telah dihapus`,
     })
 
     await notifySuperadmins({
