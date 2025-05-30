@@ -53,7 +53,7 @@ const Data = () => {
       {user?.role === "superadmin" && (
         <>
           <Pressable
-            onPress={() => router.push("/logs" as any)}
+            onPress={() => router.push("/(protected)/logs" as any)}
             className="w-full"
           >
             <Card
@@ -72,7 +72,7 @@ const Data = () => {
           </Pressable>
 
           <Pressable
-            onPress={() => router.push("/admins" as any)}
+            onPress={() => router.push("/(protected)/admins" as any)}
             className="w-full"
           >
             <Card

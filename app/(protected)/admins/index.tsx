@@ -28,9 +28,12 @@ import EditUserModal from "@/components/EditUserModal"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { UserWithId } from "@/types/user"
 import LoadingMessage from "@/components/LoadingMessage"
+import useBackHandler from "@/lib/hooks/useBackHandler"
 
 const AdminScreen = () => {
   const router = useRouter()
+
+  useBackHandler("(tabs)/data")
 
   const [users, setUsers] = useState<UserWithId[]>([])
   const [loading, setLoading] = useState<boolean>(false)

@@ -11,15 +11,18 @@ import { Card } from "@/components/ui/card"
 import { Text } from "@/components/ui/text"
 import { Heading } from "@/components/ui/heading"
 import { Pressable } from "@/components/ui/pressable"
-import { Spinner } from "@/components/ui/spinner"
 import LoadingMessage from "@/components/LoadingMessage"
 import { Center } from "@/components/ui/center"
 import GradientCard from "@/components/GradientCard"
 import { Feather } from "@expo/vector-icons"
 import { SearchIcon } from "@/components/ui/icon"
+import useBackHandler from "@/lib/hooks/useBackHandler"
 
 const FabricListScreen = () => {
   const router = useRouter()
+
+  useBackHandler("(tabs)/data")
+
   const [search, setSearch] = useState("")
   const debouncedSearch = useDebouncedValue(search, 700)
 

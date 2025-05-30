@@ -1,121 +1,22 @@
 import { View, FlatList, Pressable } from "react-native"
 import React, { useEffect, useState } from "react"
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Feather } from "@expo/vector-icons"
 
 import { getLogs, deleteLog, markAsRead } from "@/lib/firestore/logs"
 import { Log } from "@/types/logs"
 
-import {
-  Modal,
-  ModalBackdrop,
-  ModalContent,
-  ModalCloseButton,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@/components/ui/modal"
+import LogItem from "@/components/log/LogItem"
+import LogDetailModal from "@/components/log/LogDetailModal"
+
 import { Center } from "@/components/ui/center"
 import { Heading } from "@/components/ui/heading"
 import { Button, ButtonText } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
-import { Badge, BadgeText } from "@/components/ui/badge"
 import { Text } from "@/components/ui/text"
-import { Card } from "@/components/ui/card"
+
 import GradientCard from "@/components/GradientCard"
-import { CloseIcon, Icon } from "@/components/ui/icon"
-import useToastMessage from "@/lib/hooks/useToastMessage"
 import LoadingMessage from "@/components/LoadingMessage"
-
-type LogDetailModalProps = {
-  log: Log | null
-  isOpen: boolean
-  onClose: () => void
-  onDelete: (id: string) => void
-}
-
-const LogDetailModal = ({
-  log,
-  isOpen,
-  onClose,
-  onDelete,
-}: LogDetailModalProps) => {
-  if (!log) return null
-
-  const actionMap: Record<string, "success" | "info" | "error" | undefined> = {
-    customer: "success",
-    kain: "info",
-    transaksi: "error",
-  }
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <ModalBackdrop />
-      <ModalContent>
-        <ModalHeader>
-          <Heading size="xl">Detail Log</Heading>
-          <ModalCloseButton>
-            <Icon as={CloseIcon} size="md" />
-          </ModalCloseButton>
-        </ModalHeader>
-        <ModalBody>
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-semibold">Admin:</Text>
-            <Text>{log.adminName}</Text>
-          </View>
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-semibold">Role:</Text>
-            <Text>{log.adminRole}</Text>
-          </View>
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-semibold">Aksi:</Text>
-            <Badge
-              variant="outline"
-              action={actionMap[log.target]}
-              className="rounded-full"
-            >
-              <BadgeText>
-                {log.action} {log.target}
-              </BadgeText>
-            </Badge>
-          </View>
-          <View className="mb-2">
-            <Text className="font-semibold mb-1">Detail:</Text>
-            <Card variant="filled" className="rounded-lg">
-              <Text>{log.description}</Text>
-            </Card>
-          </View>
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-semibold">Waktu:</Text>
-            <Text>
-              {new Date(log.timestamp).toLocaleDateString("id-ID", {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-              })}{" "}
-              pukul{" "}
-              {new Date(log.timestamp).toLocaleTimeString("id-ID", {
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            variant="solid"
-            action="negative"
-            size="md"
-            onPress={() => onDelete(log.id)}
-            className="w-full rounded-lg flex-row gap-3 items-center justify-center"
-          >
-            <Feather name="trash" size={24} color="white" />
-            <ButtonText>Hapus Log</ButtonText>
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  )
-}
+import useToastMessage from "@/lib/hooks/useToastMessage"
+import useBackHandler from "@/lib/hooks/useBackHandler"
 
 const LogsScreen = () => {
   const [logs, setLogs] = useState<Log[]>([])
@@ -123,6 +24,8 @@ const LogsScreen = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedLog, setSelectedLog] = useState<Log | null>(null)
   const { showToast } = useToastMessage()
+
+  useBackHandler("(tabs)/data")
 
   const fetchLogs = async () => {
     try {
@@ -174,61 +77,11 @@ const LogsScreen = () => {
     setShowModal(true)
   }
 
-  const renderItem = ({ item }: { item: Log }) => {
-    const isUnread = item.read === false
-
-    const actionMap: Record<string, "success" | "info" | "error" | undefined> =
-      {
-        customer: "success",
-        kain: "info",
-        transaksi: "error",
-      }
-
-    return (
-      <Pressable onPress={() => handleSelectLog(item)} className="mb-3">
-        <Card
-          size="md"
-          variant="outline"
-          className={`rounded-lg flex-row items-center gap-2 ${
-            isUnread ? "bg-self-orange/10 border-self-orange" : ""
-          }`}
-        >
-          {isUnread ? (
-            <MaterialCommunityIcons name="bell-badge" size={24} />
-          ) : (
-            <MaterialCommunityIcons name="bell" size={24} />
-          )}
-          <View className="flex-1 gap-1">
-            <View className="flex-row justify-between items-center">
-              <Heading>{item.adminName}</Heading>
-              <Badge
-                variant="outline"
-                action={actionMap[item.target]}
-                className="rounded-full"
-              >
-                <BadgeText>
-                  {item.action} {item.target}
-                </BadgeText>
-              </Badge>
-            </View>
-            <Text>{item.description}</Text>
-            <Text className="text-sm">
-              {new Date(item.timestamp).toLocaleDateString("id-ID", {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-              })}{" "}
-              |{" "}
-              {new Date(item.timestamp).toLocaleTimeString("id-ID", {
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
-        </Card>
-      </Pressable>
-    )
-  }
+  const renderItem = ({ item }: { item: Log }) => (
+    <Pressable onPress={() => handleSelectLog(item)} className="mb-3">
+      <LogItem log={item} onPress={() => handleSelectLog(item)} />
+    </Pressable>
+  )
 
   return (
     <View className="flex-1 bg-white p-5">
