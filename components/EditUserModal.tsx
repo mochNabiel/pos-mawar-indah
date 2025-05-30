@@ -152,13 +152,13 @@ const EditUserModal = ({
             />
           </View>
         </ModalBody>
-        <ModalFooter>
-          <Button variant="outline" onPress={onClose} className="rounded-lg">
+        <ModalFooter className="flex-row gap-3">
+          <Button size="lg" variant="outline" onPress={onClose} className="rounded-lg flex-1">
             <ButtonText>Batal</ButtonText>
           </Button>
-          <Button
+          <Button size="lg"
             onPress={handleSubmit(onSubmit)}
-            className="rounded-lg"
+            className="rounded-lg flex-1"
             isDisabled={!watchName || !watchRole || loading}
           >
             {loading ? (

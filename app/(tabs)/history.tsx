@@ -216,7 +216,7 @@ export default function History() {
 
           {/* Bar pencarian dan tombol buka modal tanggal */}
           <View className="flex flex-row items-center justify-between gap-3 mb-4">
-            <Input className="flex-1 flex-row gap-1 rounded-lg" size="xl">
+            <Input className="flex-1 flex-row gap-1 rounded-lg" size="lg">
               <InputSlot className="pl-3">
                 <InputIcon as={SearchIcon} />
               </InputSlot>

@@ -20,7 +20,6 @@ export async function registerForPushNotificationsAsync() {
     }
 
     token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log('Expo Push Token:', token);
   } else {
     alert('Push notifikasi hanya bisa dilakukan di perangkat fisik');
   }

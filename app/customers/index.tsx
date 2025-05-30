@@ -6,7 +6,7 @@ import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue"
 import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 import { Customer } from "@/types/customer"
 
-import { Input, InputField } from "@/components/ui/input"
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Text } from "@/components/ui/text"
 import { Heading } from "@/components/ui/heading"
@@ -16,6 +16,7 @@ import LoadingMessage from "@/components/LoadingMessage"
 import { Center } from "@/components/ui/center"
 import GradientCard from "@/components/GradientCard"
 import { Feather } from "@expo/vector-icons"
+import { SearchIcon } from "@/components/ui/icon"
 
 const CustomerListScreen = () => {
   const router = useRouter()
@@ -68,8 +69,11 @@ const CustomerListScreen = () => {
             </View>
           </Center>
           <Input size="lg" className="rounded-lg">
+            <InputSlot className="pl-3">
+              <InputIcon as={SearchIcon} />
+            </InputSlot>
             <InputField
-              placeholder="Cari customer berdasarkan nama"
+              placeholder="Cari nama customer..."
               value={search}
               onChangeText={(text) => setSearch(text)}
               autoCapitalize="none"

@@ -7,7 +7,7 @@ import { useQuickActions } from "@/components/QuickActionSheet"
 import { registerForPushNotificationsAsync } from "@/lib/helper/notification"
 import { saveExpoPushToken } from "@/lib/helper/saveExpoPushToken"
 
-// Notification handler terbaru wajib mengembalikan semua properti ini:
+// Notification handler terbaru wajib mengembalikan semua properti ini
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -22,7 +22,6 @@ export default function TabsLayout() {
   const { openSheet, sheet } = useQuickActions()
   const router = useRouter()
 
-  // tipe listener harus Notifications.Subscription atau null
   const notificationListener = useRef<Notifications.EventSubscription | null>(null)
   const responseListener = useRef<Notifications.EventSubscription | null>(null)
 
@@ -36,7 +35,6 @@ export default function TabsLayout() {
       console.warn("Gagal register push notification:", err)
     })
 
-  // Pasang kedua listener dalam satu blok
   notificationListener.current = Notifications.addNotificationReceivedListener(
     (notification) => {
       console.log("Notification received:", notification)
