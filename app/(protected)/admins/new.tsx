@@ -15,6 +15,7 @@ import { EyeIcon, EyeOffIcon } from "@/components/ui/icon"
 import { createUser, isUserEmailUnique } from "@/lib/firestore/users"
 import { Spinner } from "@/components/ui/spinner"
 import DropdownSelector from "@/components/DropdownSelector"
+import { Heading } from "@/components/ui/heading"
 
 const RegisterScreen = () => {
   const router = useRouter()
@@ -43,7 +44,7 @@ const RegisterScreen = () => {
   const handleCheckEmail = async (email: string) => {
     setCheckingEmail(true)
     if (!email) {
-      showToast("Masukkan email kain terlebih dahulu", "error")
+      showToast("Masukkan email admin terlebih dahulu", "error")
       setCheckingEmail(false)
       return
     }
@@ -70,7 +71,7 @@ const RegisterScreen = () => {
     // Cek apakah email user sudah ada di database
     const isUnique = await isUserEmailUnique(data.email)
     if (!isUnique) {
-      showToast("Email kain sudah ada, coba gunakan email lain", "error")
+      showToast("Email admin sudah terpakai, coba gunakan email lain", "error")
       setLoading(false)
       return
     }
@@ -100,6 +101,7 @@ const RegisterScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
+      <Heading size="2xl" className="text-center mb-5">Mendaftar Admin Baru</Heading>
       <View className="mb-3">
         <Text className="text-lg text-self-army font-medium mb-1">Email</Text>
         <Controller
@@ -122,7 +124,7 @@ const RegisterScreen = () => {
                 className="h-full rounded-lg"
               >
                 <ButtonText>
-                  {checkingEmail ? <Spinner /> : "Cek Email"}
+                  {checkingEmail ? "Mengecek..." : "Cek Email"}
                 </ButtonText>
               </Button>
             </View>
