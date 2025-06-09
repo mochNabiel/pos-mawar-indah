@@ -32,7 +32,7 @@ const EditCustomerScreen = () => {
   const { showToast } = useToastMessage()
 
   const [loading, setLoading] = useState<boolean>(false)
-  const [checkingName, setCheckingName] = useState(false)
+  const [checkingName, setCheckingName] = useState<boolean>(false)
 
   const screenWidth = Dimensions.get("window").width
 

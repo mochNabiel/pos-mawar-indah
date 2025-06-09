@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import {
   Modal,
   ModalBackdrop,
@@ -6,19 +6,19 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from "@/components/ui/modal"
-import { Button, ButtonText } from "@/components/ui/button"
-import { Heading } from "@/components/ui/heading"
-import { Text } from "@/components/ui/text"
+} from "@/components/ui/modal";
+import { Button, ButtonText } from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { Text } from "@/components/ui/text";
 
 interface Props {
-  isOpen: boolean
-  onClose: () => void
-  onDelete: () => void
-  isDeleting: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  onDelete: () => void;
+  isDeleting: boolean;
 }
 
-const AdminDeleteModal: React.FC<Props> = ({
+const CustomerDeleteModal: React.FC<Props> = ({
   isOpen,
   onClose,
   onDelete,
@@ -30,12 +30,12 @@ const AdminDeleteModal: React.FC<Props> = ({
       <ModalContent>
         <ModalHeader>
           <Heading size="md" className="text-typography-950">
-            Yakin ingin menghapus Data Admin ini?
+            Yakin ingin menghapus Data Customer ini?
           </Heading>
         </ModalHeader>
         <ModalBody>
           <Text size="sm" className="text-typography-500">
-            Dengan menghapus data admin ini, semua data yang terkait dengan user
+            Dengan menghapus data customer ini, semua data yang terkait dengan customer
             ini akan dihapus secara permanen.
           </Text>
         </ModalBody>
@@ -62,7 +62,7 @@ const AdminDeleteModal: React.FC<Props> = ({
         </ModalFooter>
       </ModalContent>
     </Modal>
-  )
-}
+  );
+};
 
-export default AdminDeleteModal
+export default CustomerDeleteModal;

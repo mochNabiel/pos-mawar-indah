@@ -26,7 +26,7 @@ type FormValues = {
   role: "admin" | "superadmin" | ""
 }
 
-const EditUserModal = ({
+const AdminEditModal = ({
   isOpen,
   onClose,
   user,
@@ -61,6 +61,9 @@ const EditUserModal = ({
 
   const watchName = watch("name")
   const watchRole = watch("role")
+
+  const isUnchanged =
+  watchName === user?.name && watchRole === user?.role
 
   const onSubmit = async (values: FormValues) => {
     if (!user?.id) return
@@ -159,7 +162,7 @@ const EditUserModal = ({
           <Button size="lg"
             onPress={handleSubmit(onSubmit)}
             className="rounded-lg flex-1"
-            isDisabled={!watchName || !watchRole || loading}
+            isDisabled={!watchName || !watchRole || loading || isUnchanged}
           >
             {loading ? (
               <>
@@ -176,4 +179,4 @@ const EditUserModal = ({
   )
 }
 
-export default EditUserModal
+export default AdminEditModal

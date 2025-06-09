@@ -10,8 +10,8 @@ import { Text } from "@/components/ui/text"
 import { Center } from "@/components/ui/center"
 
 import GradientCard from "@/components/GradientCard"
-import EditUserModal from "@/components/EditUserModal"
 
+import AdminEditModal from "@/components/admin/AdminEditModal"
 import AdminItem from "@/components/admin/AdminItem"
 import AdminDeleteModal from "@/components/admin/AdminDeleteModal"
 
@@ -127,7 +127,7 @@ const AdminScreen = () => {
           />
 
           {selectedUser && (
-            <EditUserModal
+            <AdminEditModal
               isOpen={showEditModal}
               onClose={() => setShowEditModal(false)}
               user={selectedUser}

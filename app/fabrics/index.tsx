@@ -78,6 +78,20 @@ const FabricListScreen = () => {
             </View>
           </Center>
 
+          <Pressable
+            onPress={() => router.push("/fabrics/new")}
+            className="mb-3"
+          >
+            <GradientCard>
+              <View className="flex-row items-center justify-center gap-2">
+                <Feather name="plus" size={16} color="white" />
+                <Text className="text-white font-semibold">
+                  Tambah Data Kain
+                </Text>
+              </View>
+            </GradientCard>
+          </Pressable>
+
           <Input size="lg" className="rounded-lg">
             <InputSlot className="pl-3">
               <InputIcon as={SearchIcon} />

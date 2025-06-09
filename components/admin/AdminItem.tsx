@@ -16,7 +16,7 @@ interface Props {
   onShowDelete: () => void
 }
 
-const UserItem: React.FC<Props> = ({ user, onEdit, onShowDelete }) => {
+const AdminItem: React.FC<Props> = ({ user, onEdit, onShowDelete }) => {
   return (
     <Card size="sm" variant="outline" className="rounded-lg mb-5">
       <View>
@@ -64,4 +64,4 @@ const UserItem: React.FC<Props> = ({ user, onEdit, onShowDelete }) => {
   )
 }
 
-export default UserItem
+export default AdminItem
