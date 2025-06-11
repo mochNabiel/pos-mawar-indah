@@ -6,11 +6,8 @@ import {
   doc,
   query,
   orderBy,
-  limit,
-  startAfter,
-  QueryDocumentSnapshot,
-  DocumentData,
   where,
+  Timestamp,
 } from "firebase/firestore"
 import { db } from "@/utils/firebase"
 import { Transaction, TransactionWithId } from "@/types/transaction"
@@ -20,112 +17,29 @@ import { notifySuperadmins } from "@/lib/helper/notifySuperAdmins"
 
 const transactionsRef = collection(db, "transactions")
 
-let lastVisibleDoc: QueryDocumentSnapshot<DocumentData> | null = null
-const pageLimit = 10
-
-// Reset pagination dengan mengatur lastVisibleDoc ke null
-export const resetPagination = () => {
-  lastVisibleDoc = null
-}
-
-// Fungsi untuk mengambil transaksi yang dipaginasikan dengan filter opsional
-export const getPaginatedTransactions = async (
-  page: number,
-  searchQuery?: string,
-  startDate?: Date,
-  endDate?: Date
-) => {
-  // Jika halaman pertama, reset pagination
-  if (page === 1) {
-    resetPagination()
-  }
-
-  // Jika ada filter pencarian dengan searchQuery, kita ambil semua transaksi dulu lalu filter di client side
-  if (searchQuery) {
-    const snapshot = await getDocs(
-      query(collection(db, "transactions"), orderBy("createdAt", "desc"))
-    )
-
-    // Map seluruh data lengkap dari dokumen
-    const allTransactions = snapshot.docs.map((doc) => {
-      const t = doc.data()
-      return {
-        id: doc.id,
-        ...t,
-        createdAt: t.createdAt?.toDate?.() ?? new Date(t.createdAt),
-      } as TransactionWithId
-    })
-
-    // Filter dengan pencarian case-insensitive pada customerName
-    let filteredTransactions = allTransactions.filter((transaction) =>
-      transaction.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-
-    // Filter tanggal jika ada startDate dan/atau endDate
-    if (startDate && endDate) {
-      filteredTransactions = filteredTransactions.filter(
-        (transaction) =>
-          transaction.createdAt >= startDate && transaction.createdAt <= endDate
-      )
-    } else if (startDate) {
-      filteredTransactions = filteredTransactions.filter((transaction) => {
-        const d = transaction.createdAt
-        return (
-          d.getFullYear() === startDate.getFullYear() &&
-          d.getMonth() === startDate.getMonth() &&
-          d.getDate() === startDate.getDate()
-        )
-      })
-    }
-
-    // Pagination client side
-    const startIndex = (page - 1) * pageLimit
-    const paginated = filteredTransactions.slice(
-      startIndex,
-      startIndex + pageLimit
-    )
-
-    return { data: paginated, lastDoc: null }
-  }
-
-  // Jika tidak ada searchQuery, lakukan query firestore dengan pagination dan filter tanggal
-  let q = query(
-    collection(db, "transactions"),
-    orderBy("createdAt", "desc"),
-    limit(pageLimit)
+// Function to fetch all transactions from Firestore
+export const fetchAllTransactions = async (): Promise<TransactionWithId[]> => {
+  const snapshot = await getDocs(
+    query(transactionsRef, orderBy("createdAt", "desc"))
   )
 
-  if (startDate && endDate) {
-    q = query(
-      q,
-      where("createdAt", ">=", startDate),
-      where("createdAt", "<=", endDate)
-    )
-  }
-
-  if (lastVisibleDoc) {
-    q = query(q, startAfter(lastVisibleDoc))
-  }
-
-  const snapshot = await getDocs(q)
-
-  if (!snapshot.empty) {
-    lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1]
-  }
-
-  const data = snapshot.docs.map((doc) => {
-    const t = doc.data()
+  // Map snapshot results to an array of transactions with conversion of timestamp to Date
+  const transactions: TransactionWithId[] = snapshot.docs.map((doc) => {
+    const data = doc.data()
     return {
       id: doc.id,
-      ...t,
-      createdAt: t.createdAt?.toDate?.() ?? new Date(t.createdAt),
+      ...data,
+      createdAt:
+        data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : data.createdAt,
     } as TransactionWithId
   })
 
-  return { data, lastDoc: lastVisibleDoc }
+  return transactions
 }
 
-// Buat transaksi baru
+// Create a new transaction
 export const createTransaction = async (data: Transaction) => {
   const user = await getCurrentUserData()
 
@@ -148,29 +62,7 @@ export const createTransaction = async (data: Transaction) => {
   return docRef
 }
 
-// Ambil transaksi berdasarkan kode faktur
-export const getTransactionByInvCode = async (
-  invCode: string
-): Promise<TransactionWithId | null> => {
-  const transactionsRef = collection(db, "transactions")
-  const q = query(transactionsRef, where("invCode", "==", invCode))
-  const querySnapshot = await getDocs(q)
-
-  if (!querySnapshot.empty) {
-    const doc = querySnapshot.docs[0]
-    const data = doc.data()
-
-    return {
-      id: doc.id,
-      ...data,
-      createdAt: data.createdAt?.toDate?.() ?? new Date(data.createdAt),
-    } as TransactionWithId
-  } else {
-    return null
-  }
-}
-
-// Hapus transaksi berdasarkan InvCode
+// Delete a transaction by InvCode
 export const deleteTransaction = async (invCode: string) => {
   const user = await getCurrentUserData()
 
@@ -181,12 +73,12 @@ export const deleteTransaction = async (invCode: string) => {
     throw new Error("Dokumen dengan InvCode tersebut tidak ditemukan")
   }
 
-  // Mengambil dokumen pertama dari hasil query dan menghapus berdasarkan ID
+  // Get the first document from the query results and delete by ID
   const transactionDoc = snapshot.docs[0]
 
-  const transactionData = transactionDoc.data() // Ambil datanya dulu
+  const transactionData = transactionDoc.data() // Get the data first
 
-  // Kirim log sebelum data dihapus
+  // Send log before data is deleted
   try {
     await addLog({
       adminName: user?.name,

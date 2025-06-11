@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react"
-import { View, Text, ScrollView, Alert } from "react-native"
+import { View, Text, ScrollView } from "react-native"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import * as Print from "expo-print"
 
 import { TransactionWithId } from "@/types/transaction"
-import {
-  deleteTransaction,
-  getTransactionByInvCode,
-} from "@/lib/firestore/transaction"
+import { deleteTransaction } from "@/lib/firestore/transaction"
+import useTransactionStore from "@/lib/zustand/useTransactionStore"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 
 import { Button, ButtonText } from "@/components/ui/button"
@@ -25,27 +23,27 @@ import { Spinner } from "@/components/ui/spinner"
 
 export default function TransactionDetail() {
   const { invCode } = useLocalSearchParams<{ invCode: string }>()
-  const { showToast } = useToastMessage()
   const router = useRouter()
+  const { showToast } = useToastMessage()
+
+  const {
+    getTransactionByInvCode
+  } = useTransactionStore()
 
   const [showModal, setShowModal] = useState<boolean>(false)
   const [transaction, setTransaction] = useState<TransactionWithId | null>(null)
 
-  // Ambil data transaksi berdasarkan invCode saat komponen dimount
   useEffect(() => {
-    const fetchDetail = async () => {
-      if (!invCode) return
-      try {
-        const data = await getTransactionByInvCode(invCode)
-        setTransaction(data)
-      } catch (error) {
-        showToast("Gagal memuat data transaksi, hubungi developer", "error")
-      }
-    }
-    fetchDetail()
-  }, [invCode])
+    if (!invCode) return
 
-  // Fungsi handle print PDF
+    const localTransaction = getTransactionByInvCode(invCode)
+    if (localTransaction) {
+      setTransaction(localTransaction)
+    } else {
+      setTransaction(null)
+    }
+  }, [invCode, getTransactionByInvCode])
+
   const handlePrint = async () => {
     if (!transaction) return
     try {
@@ -56,11 +54,10 @@ export default function TransactionDetail() {
     }
   }
 
-  // Fungsi untuk menghapus transaksi
   const handleDelete = async () => {
     if (!transaction) return
     try {
-      await deleteTransaction(invCode)
+      await deleteTransaction(invCode!)
       showToast("Transaksi berhasil dihapus", "success")
       router.push("/(tabs)/history")
     } catch (error) {
@@ -70,14 +67,11 @@ export default function TransactionDetail() {
     }
   }
 
-  // Apabila data transaksi belum ada, tampilkan loading
   if (!transaction) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
-        <View className="flex-row gap-3 items-center">
-          <Spinner size="large" />
-          <Text className="text-lg">Memuat data transaksi...</Text>
-        </View>
+      <View className="flex-1 justify-center items-center bg-white" accessibilityRole="alert" accessibilityLiveRegion="polite">
+        <Spinner size="large" />
+        <Text className="text-lg mt-4">Memuat data transaksi...</Text>
       </View>
     )
   }
@@ -94,24 +88,18 @@ export default function TransactionDetail() {
       <View className="flex-row items-center justify-between mb-3">
         <View>
           <View className="mb-3">
-            <Text className="font-semibold text-secondary-800 mb-1">
-              Invoice
-            </Text>
+            <Text className="font-semibold text-secondary-800 mb-1">Invoice</Text>
             <Text className="font-semibold">#{transaction.invCode}</Text>
           </View>
 
           <View className="mb-3">
-            <Text className="font-semibold text-secondary-800 mb-1">
-              Customer
-            </Text>
+            <Text className="font-semibold text-secondary-800 mb-1">Customer</Text>
             <Text className="font-semibold">{transaction.customerName}</Text>
           </View>
         </View>
         <View>
           <View className="flex items-end mb-3">
-            <Text className="font-semibold text-secondary-800 mb-1">
-              Tanggal
-            </Text>
+            <Text className="font-semibold text-secondary-800 mb-1">Tanggal</Text>
             <Text className="font-semibold">
               {new Date(transaction.createdAt).toLocaleDateString("id-ID", {
                 year: "numeric",
@@ -125,7 +113,6 @@ export default function TransactionDetail() {
             <Text className="font-semibold text-secondary-800 mb-1">Waktu</Text>
             <Text className="font-semibold">
               {new Date(transaction.createdAt).toLocaleTimeString("id-ID", {
-                second: "numeric",
                 hour: "numeric",
                 minute: "2-digit",
               })}
@@ -146,24 +133,16 @@ export default function TransactionDetail() {
         <View key={idx}>
           <View className="flex-row items-center border-b border-gray-300 p-2">
             <Text className="flex-1 text-left">{card.fabricName}</Text>
-            <Text className="flex-1 text-center">
-              {card.pricePerKg.toLocaleString("id-ID")}
-            </Text>
+            <Text className="flex-1 text-center">{card.pricePerKg.toLocaleString("id-ID")}</Text>
             <Text className="flex-1 text-center">{card.weight}</Text>
-            <Text className="flex-1 text-right">
-              {card.totalPrice.toLocaleString("id-ID")}
-            </Text>
+            <Text className="flex-1 text-right">{card.totalPrice.toLocaleString("id-ID")}</Text>
           </View>
           {card.useDiscount && (
             <View className="flex-row items-center border-b border-gray-300 p-2">
               <Text className="flex-1 text-left">Diskon</Text>
-              <Text className="flex-1 text-center">
-                -{(card.discountPerKg ?? 0).toLocaleString("id-ID")}
-              </Text>
+              <Text className="flex-1 text-center">-{(card.discountPerKg ?? 0).toLocaleString("id-ID")}</Text>
               <Text className="flex-1 text-center"></Text>
-              <Text className="flex-1 text-right">
-                -{card.discount.toLocaleString("id-ID")}
-              </Text>
+              <Text className="flex-1 text-right">-{card.discount.toLocaleString("id-ID")}</Text>
             </View>
           )}
         </View>
@@ -173,35 +152,28 @@ export default function TransactionDetail() {
       <Card variant="ghost" className="p-0 py-2 mt-4">
         {transaction.totalDiscount > 0 && (
           <>
-            {/* Sub Total transaksi */}
             <View className="p-2 py-0 flex-row items-center justify-between">
               <Text>Sub Total</Text>
               <Text>{transaction.subTotal.toLocaleString("id-ID")}</Text>
             </View>
-
-            {/* Diskon transaksi */}
             <View className="p-2 py-0 flex-row items-center justify-between">
               <Text>Total Diskon</Text>
               <Text>-{transaction.totalDiscount.toLocaleString("id-ID")}</Text>
             </View>
           </>
         )}
-
-        {/* Total transaksi */}
         <View className="p-2 py-0 flex-row items-center justify-between">
           <Text className="text-xl font-semibold">Total Transaksi</Text>
-          <Text className="text-xl font-semibold">
-            {transaction.totalTransaction.toLocaleString("id-ID")}
-          </Text>
+          <Text className="text-xl font-semibold">{transaction.totalTransaction.toLocaleString("id-ID")}</Text>
         </View>
       </Card>
 
-      {/* Tombol Cetak PDF */}
+      {/* Print PDF Button */}
       <Button onPress={handlePrint} size="lg" className="rounded-lg mt-4">
         <ButtonText>Cetak PDF</ButtonText>
       </Button>
 
-      {/* Tombol Hapus Transaksi */}
+      {/* Delete Transaction Button */}
       <Button
         onPress={() => setShowModal(true)}
         size="lg"
@@ -212,35 +184,18 @@ export default function TransactionDetail() {
         <ButtonText className="text-red-500">Hapus Transaksi</ButtonText>
       </Button>
 
-      {/* Modal Konfirmasi Hapus */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false)
-        }}
-      >
+      {/* Confirmation Modal for Deletion */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <ModalBackdrop />
         <ModalContent>
           <ModalBody>
-            <Text className="text-center text-lg">
-              Apakah Anda yakin ingin menghapus transaksi ini?
-            </Text>
+            <Text className="text-center text-lg">Apakah Anda yakin ingin menghapus transaksi ini?</Text>
           </ModalBody>
           <ModalFooter className="flex-row gap-3 justify-between">
-            <Button
-              onPress={() => setShowModal(false)}
-              size="lg"
-              className="flex-1 rounded-lg"
-            >
+            <Button onPress={() => setShowModal(false)} size="lg" className="flex-1 rounded-lg">
               <ButtonText>Batal</ButtonText>
             </Button>
-            <Button
-              onPress={handleDelete}
-              variant="outline"
-              action="negative"
-              size="lg"
-              className="flex-1 rounded-lg"
-            >
+            <Button onPress={handleDelete} variant="outline" action="negative" size="lg" className="flex-1 rounded-lg">
               <ButtonText className="text-red-500">Hapus</ButtonText>
             </Button>
           </ModalFooter>

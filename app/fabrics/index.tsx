@@ -67,52 +67,57 @@ const FabricListScreen = () => {
       {isLoading ? (
         <LoadingMessage message="Memuat Data Kain..." />
       ) : (
-        <View className="gap-3">
-          <Center className="flex-row items-center gap-2">
-            <GradientCard>
-              <Feather name="layers" size={24} color="white" />
-            </GradientCard>
-            <View>
-              <Heading size="2xl">Data Kain</Heading>
-              <Text>Kelola informasi dan detail kain</Text>
-            </View>
-          </Center>
-
-          <Pressable
-            onPress={() => router.push("/fabrics/new")}
-            className="mb-3"
-          >
-            <GradientCard>
-              <View className="flex-row items-center justify-center gap-2">
-                <Feather name="plus" size={16} color="white" />
-                <Text className="text-white font-semibold">
-                  Tambah Data Kain
-                </Text>
+        <>
+          <View className="gap-3 mb-3">
+            <Center className="flex-row items-center gap-2">
+              <GradientCard>
+                <Feather name="layers" size={24} color="white" />
+              </GradientCard>
+              <View>
+                <Heading size="2xl">Data Kain</Heading>
+                <Text>Kelola informasi dan detail kain</Text>
               </View>
-            </GradientCard>
-          </Pressable>
+            </Center>
 
-          <Input size="lg" className="rounded-lg">
-            <InputSlot className="pl-3">
-              <InputIcon as={SearchIcon} />
-            </InputSlot>
-            <InputField
-              placeholder="Cari nama kain..."
-              value={search}
-              onChangeText={(text) => setSearch(text)}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </Input>
+            <Pressable
+              onPress={() => router.push("/fabrics/new")}
+              className="mb-3"
+            >
+              <GradientCard>
+                <View className="flex-row items-center justify-center gap-2">
+                  <Feather name="plus" size={16} color="white" />
+                  <Text className="text-white font-semibold">
+                    Tambah Data Kain
+                  </Text>
+                </View>
+              </GradientCard>
+            </Pressable>
+
+            <Input size="lg" className="rounded-lg">
+              <InputSlot className="pl-3">
+                <InputIcon as={SearchIcon} />
+              </InputSlot>
+              <InputField
+                placeholder="Cari nama kain..."
+                value={search}
+                onChangeText={(text) => setSearch(text)}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </Input>
+          </View>
 
           <FlatList
             data={filtered}
             keyExtractor={(item) => item.code}
             renderItem={renderItem}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{
+                paddingBottom: 40,
+                flexGrow: 1,
+              }}
             showsVerticalScrollIndicator={true}
           />
-        </View>
+        </>
       )}
     </View>
   )

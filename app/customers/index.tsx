@@ -35,7 +35,9 @@ const CustomerListScreen = () => {
   const { customers, isLoading, fetchAllCustomers } = useCustomerStore()
   const [filtered, setFiltered] = useState<Customer[]>([])
 
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  )
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -121,49 +123,61 @@ const CustomerListScreen = () => {
       {isLoading ? (
         <LoadingMessage message="Memuat Data Customer..." />
       ) : (
-        <View className="gap-3">
-          <Center className="flex-row items-center gap-2">
-            <GradientCard>
-              <Feather name="users" size={24} color="white" />
-            </GradientCard>
-            <View>
-              <Heading size="2xl">Data Customer</Heading>
-              <Text>Kelola nama dan kontak pelanggan</Text>
-            </View>
-          </Center>
-          <Pressable onPress={() => router.push("/customers/new")} className="mb-3">
-            <GradientCard>
-              <View className="flex-row items-center justify-center gap-2">
-                <Feather name="plus" size={16} color="white" />
-                <Text className="text-white font-semibold">Tambah Data Customer</Text>
+        <>
+          <View className="gap-3 mb-3">
+            <Center className="flex-row items-center gap-2">
+              <GradientCard>
+                <Feather name="users" size={24} color="white" />
+              </GradientCard>
+              <View>
+                <Heading size="2xl">Data Customer</Heading>
+                <Text>Kelola nama dan kontak pelanggan</Text>
               </View>
-            </GradientCard>
-          </Pressable>
-          <Input size="lg" className="rounded-lg">
-            <InputSlot className="pl-3">
-              <InputIcon as={SearchIcon} />
-            </InputSlot>
-            <InputField
-              placeholder="Cari nama customer..."
-              value={search}
-              onChangeText={setSearch}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </Input>
+            </Center>
+            <Pressable
+              onPress={() => router.push("/customers/new")}
+              className="mb-3"
+            >
+              <GradientCard>
+                <View className="flex-row items-center justify-center gap-2">
+                  <Feather name="plus" size={16} color="white" />
+                  <Text className="text-white font-semibold">
+                    Tambah Data Customer
+                  </Text>
+                </View>
+              </GradientCard>
+            </Pressable>
+            <Input size="lg" className="rounded-lg">
+              <InputSlot className="pl-3">
+                <InputIcon as={SearchIcon} />
+              </InputSlot>
+              <InputField
+                placeholder="Cari nama customer..."
+                value={search}
+                onChangeText={setSearch}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </Input>
+          </View>
 
           {filtered.length > 0 ? (
             <FlatList
               data={filtered}
               keyExtractor={(item) => item.name}
               renderItem={renderItem}
-              contentContainerStyle={{ paddingBottom: 100 }}
               showsVerticalScrollIndicator={true}
+              contentContainerStyle={{
+                paddingBottom: 40,
+                flexGrow: 1,
+              }}
             />
           ) : (
             <Center>
               {debouncedSearch ? (
-                <Text>Customer dengan nama "{debouncedSearch}" tidak ditemukan</Text>
+                <Text>
+                  Customer dengan nama "{debouncedSearch}" tidak ditemukan
+                </Text>
               ) : (
                 <Text>Data Customer Kosong</Text>
               )}
@@ -187,7 +201,7 @@ const CustomerListScreen = () => {
             onDelete={handleDelete}
             isDeleting={isDeleting}
           />
-        </View>
+        </>
       )}
     </View>
   )

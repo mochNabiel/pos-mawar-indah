@@ -1,72 +1,72 @@
 import { create } from "zustand"
+import { fetchAllTransactions } from "@/lib/firestore/transaction"
 import { TransactionWithId } from "@/types/transaction"
-import {
-  getPaginatedTransactions,
-  resetPagination,
-} from "@/lib/firestore/transaction"
 
 interface TransactionStore {
   transactions: TransactionWithId[]
-  loading: boolean
-  hasMore: boolean
-  currentPage: number
-  fetchTransactions: (
-    page: number,
-    searchQuery?: string,
-    startDate?: Date,
-    endDate?: Date
-  ) => Promise<void>
-  resetTransactions: () => void
+  filteredTransactions: TransactionWithId[]
+  searchQuery: string // State to hold the search query
+  loading: boolean // Loading state
+  fetchTransactions: () => Promise<void>
+  filterTransactionsByDate: (startDate: Date, endDate: Date) => void
+  filterTransactionsByCustomerName: (query: string) => void // Method for filtering by customer name
+  resetFilters: () => void
+  getTransactionByInvCode: (invCode: string) => TransactionWithId | undefined // Method to get transaction by invCode
 }
 
-export const useTransactionStore = create<TransactionStore>((set, get) => ({
+const useTransactionStore = create<TransactionStore>((set, get) => ({
   transactions: [],
-  loading: false,
-  hasMore: true,
-  currentPage: 1,
+  filteredTransactions: [],
+  searchQuery: "", // Initialize search query
+  loading: false, // Initialize loading state
 
-  fetchTransactions: async (
-    page = 1,
-    searchQuery?: string,
-    startDate?: Date,
-    endDate?: Date
-  ) => {
-    if (get().loading) return
-
-    set({ loading: true })
-
+  // Fetch all transactions from Firestore and store them
+  fetchTransactions: async () => {
+    set({ loading: true }) // Set loading to true before fetching
     try {
-      // Panggil API pagination dengan filter opsi
-      const { data } = await getPaginatedTransactions(
-        page,
-        searchQuery,
-        startDate,
-        endDate
-      )
-
-      if (data.length === 0) {
-        // Jika tidak ada data, berarti sudah halaman terakhir
-        set({ hasMore: false })
-      } else {
-        set({
-          transactions: data,
-          currentPage: page,
-          hasMore: data.length >= 10, // Jika data kurang dari pageLimit (10), maka halaman terakhir
-        })
-      }
+      const transactions = await fetchAllTransactions()
+      set({ transactions, filteredTransactions: transactions })
     } catch (error) {
-      console.error("Fetch paginated transactions failed:", error)
+      console.error("Failed to fetch transactions:", error)
     } finally {
-      set({ loading: false })
+      set({ loading: false }) // Set loading to false after fetching
     }
   },
 
-  resetTransactions: () => {
-    resetPagination()
-    set({
-      transactions: [],
-      hasMore: true,
-      currentPage: 1,
-    })
+  // Filter transactions based on the provided date range
+  filterTransactionsByDate: (startDate, endDate) => {
+    set((state) => ({
+      filteredTransactions: state.transactions.filter((transaction) => {
+        const transactionDate = new Date(transaction.createdAt)
+        return transactionDate >= startDate && transactionDate <= endDate
+      }),
+    }))
+  },
+
+  // Filter transactions based on customer name
+  filterTransactionsByCustomerName: (query) => {
+    set((state) => ({
+      searchQuery: query, // Update the search query state
+      filteredTransactions: state.transactions.filter((transaction) =>
+        transaction.customerName.toLowerCase().includes(query.toLowerCase())
+      ),
+    }))
+  },
+
+  // Reset filters to show all transactions
+  resetFilters: () => {
+    set((state) => ({
+      filteredTransactions: state.transactions,
+      searchQuery: "", // Reset search query
+    }))
+  },
+
+  // Get a transaction by its invCode
+  getTransactionByInvCode: (invCode) => {
+    return get().transactions.find(
+      (transaction) => transaction.invCode === invCode
+    )
   },
 }))
+
+export default useTransactionStore
