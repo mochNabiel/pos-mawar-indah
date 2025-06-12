@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native"
 import { Card } from "@/components/ui/card"
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
-import { Feather } from "@expo/vector-icons"
+import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons"
 import { Customer } from "@/types/customer"
 import { Button, ButtonText } from "../ui/button"
 
@@ -23,10 +23,15 @@ const CustomerItem: React.FC<Props> = ({
   return (
     <Pressable onPress={onPress} className="mb-3">
       <Card size="lg" variant="outline" className="p-4">
-        <View>
-          <View>
-            <Heading size="lg">{customer.name}</Heading>
-            <Text className="text-typography-600">{customer.phone}</Text>
+        <View className="gap-1">
+          <Heading size="lg">{customer.name}</Heading>
+          <View className="flex-row items-center gap-2">
+            <Feather name="home" color="gray" />
+            <Text className="text-typography-500">{customer.company}</Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            <Feather name="phone" color="gray" />
+            <Text className="text-typography-500">{customer.phone}</Text>
           </View>
           <View className="flex-row items-center gap-3 mt-3">
             <Button onPress={onEdit} className="flex-1 rounded-lg">

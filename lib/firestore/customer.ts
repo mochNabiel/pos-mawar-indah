@@ -56,11 +56,12 @@ export const updateCustomerInDb = async (
   const snapshot = await getDocs(q)
 
   if (snapshot.empty) {
-    throw new Error("Dokumen dengan nama tersebut tidak ditemukan")
+    throw new Error("Customer dengan nama tersebut tidak ditemukan")
   }
 
   const customerDoc = snapshot.docs[0]
   const docRef = doc(db, "customers", customerDoc.id)
+
   await updateDoc(docRef, data)
 
   await addLog({

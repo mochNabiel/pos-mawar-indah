@@ -7,6 +7,7 @@ const customerSchema = z.object({
     .string()
     .min(6, "Nomor telepon minimal 6 digit")
     .regex(/^\d+$/, "Hanya boleh angka"),
+  company: z.string().min(1, "Nama Perusahaan wajib diisi"),
 })
 
 export type TCustomerSchema = z.infer<typeof customerSchema>

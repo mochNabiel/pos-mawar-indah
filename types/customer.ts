@@ -1,6 +1,7 @@
 export type Customer = {
   name: string
   phone: string
+  company: string
 }
 
 export type CustomerWithId = Customer & { id: string }

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react"
-import { Pressable, FlatList, Text, View } from "react-native"
+import { FlatList, Text, View } from "react-native"
 import { useRouter } from "expo-router"
-import dayjs from "dayjs"
-import "dayjs/locale/id"
-import DateTimePicker, { useDefaultClassNames } from "react-native-ui-datepicker"
+import DateTimePicker, {
+  useDefaultClassNames,
+} from "react-native-ui-datepicker"
 import { SearchIcon } from "@/components/ui/icon"
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Button, ButtonText } from "@/components/ui/button"
@@ -14,116 +14,80 @@ import {
   ModalBody,
   ModalFooter,
 } from "@/components/ui/modal"
-import { Card } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
 import { Feather } from "@expo/vector-icons"
 
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue"
 import useTransactionStore from "@/lib/zustand/useTransactionStore"
-
-dayjs.locale("id")
+import TransactionItem from "@/components/transactions/TransactionItem"
+import LoadingMessage from "@/components/LoadingMessage"
 
 export default function History() {
   const router = useRouter()
   const defaultClassNames = useDefaultClassNames()
 
-  // Ambil state dari store
   const {
     transactions,
     loading,
-    fetchTransactions,
-    filterTransactionsByCustomerName,
-    filterTransactionsByDate,
+    hasMore,
+    fetchInitial,
+    fetchMore,
+    setCustomerName,
+    setDateRange,
     resetFilters,
   } = useTransactionStore()
 
-  // State untuk modal pilih tanggal dan penyimpanan sementara tanggal
+  // Modal dan filter lokal sebelum diterapkan
   const [showDateModal, setShowDateModal] = useState(false)
   const [tempStartDate, setTempStartDate] = useState<Date | null>(null)
   const [tempEndDate, setTempEndDate] = useState<Date | null>(null)
 
-  // State input pencarian nama customer
+  // Search & debounce
   const [searchQuery, setSearchQuery] = useState("")
-  const debouncedQuery = useDebouncedValue(searchQuery, 700) // Debounce untuk menghindari fetch berlebihan
+  const debouncedQuery = useDebouncedValue(searchQuery, 700)
 
-  // Ambil data transaksi saat komponen dimuat
   useEffect(() => {
-    fetchTransactions()
-  }, [fetchTransactions])
+    console.log(transactions)
+    console.log(tempStartDate)
+    console.log(tempEndDate)
+    console.log(searchQuery)
+  }, [])
 
-  // Filter transaksi berdasarkan nama customer
+  // Fetch data awal saat pertama kali
   useEffect(() => {
-    filterTransactionsByCustomerName(debouncedQuery)
-  }, [debouncedQuery, filterTransactionsByCustomerName])
+    fetchInitial()
+  }, [])
 
-  // Filter transaksi berdasarkan tanggal
+  // Fetch ulang ketika query nama customer berubah
   useEffect(() => {
-    if (tempStartDate && tempEndDate) {
-      filterTransactionsByDate(tempStartDate, tempEndDate)
-    } else {
-      resetFilters() // Reset filters if no date is selected
-    }
-  }, [tempStartDate, tempEndDate, filterTransactionsByDate, resetFilters])
+    setCustomerName(searchQuery)
+  }, [searchQuery])
 
-  // Render item transaksi
-  const renderItem = ({ item }: { item: (typeof transactions)[0] }) => (
-    <Pressable
-      onPress={() => router.push(`/transactions/${item.invCode}`)}
-      className="mb-4"
-    >
-      <Card
-        size="sm"
-        variant="outline"
-        className="grid grid-cols-1 md:grid-cols-[1fr_auto] rounded-lg"
-      >
-        <View>
-          <Text className="text-xl font-semibold">{item.invCode}</Text>
-          <Text className="text-lg text-typography-700">
-            {item.customerName}
-          </Text>
-        </View>
-        <View className="flex items-end justify-end">
-          <Text className="text-xl font-semibold">
-            {new Date(item.createdAt).toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </Text>
-          <Text className="text-lg text-typography-700">
-            {new Date(item.createdAt).toLocaleTimeString("id-ID", {
-              hour: "numeric",
-              minute: "2-digit",
-            })}
-          </Text>
-        </View>
-      </Card>
-    </Pressable>
-  )
+  // Terapkan filter tanggal
+  const applyDateFilter = () => {
+    setDateRange(tempStartDate, tempEndDate)
+    setShowDateModal(false)
+  }
 
-  // Reset semua filter dan data
-  const resetFilter = () => {
-    setSearchQuery("")
+  // Reset semua filter dan input
+  const resetAllFilters = () => {
     setTempStartDate(null)
     setTempEndDate(null)
+    setSearchQuery("")
     resetFilters()
+    setShowDateModal(false)
   }
 
   return (
     <View className="flex-1 bg-white px-5">
-      <Text className="text-2xl font-bold mx-auto text-center mb-4 mt-2">
-        Riwayat Penjualan
-      </Text>
-
-      {/* Tampilkan spinner jika loading dan belum ada data */}
       {loading && transactions.length === 0 ? (
-        <View className="flex flex-row gap-1 items-center justify-center">
-          <Spinner />
-          <Text>Mendapatkan Data Invoice</Text>
-        </View>
+        <LoadingMessage message="Memuat Data Transaksi..." />
       ) : (
         <>
-          {/* Modal pilih tanggal */}
+          <Text className="text-2xl font-bold mx-auto text-center mb-4 mt-2">
+            Riwayat Penjualan
+          </Text>
+
+          {/* MODAL TANGGAL */}
           <Modal
             isOpen={showDateModal}
             onClose={() => setShowDateModal(false)}
@@ -136,9 +100,10 @@ export default function History() {
                   mode="range"
                   startDate={tempStartDate}
                   endDate={tempEndDate}
-                  onChange={({ startDate, endDate }: { startDate: any; endDate: any }) => {
+                  onChange={({ startDate, endDate }: any) => {
                     setTempStartDate(startDate)
                     setTempEndDate(endDate)
+                    console.log("Selected date range:", { startDate, endDate })
                   }}
                   classNames={{
                     ...defaultClassNames,
@@ -153,29 +118,18 @@ export default function History() {
               </ModalBody>
               <ModalFooter>
                 <View className="flex w-full gap-3">
-                  {/* Tombol reset filter */}
                   <Button
                     className="rounded-lg"
                     variant="outline"
                     size="lg"
-                    onPress={() => {
-                      resetFilter()
-                      setShowDateModal(false)
-                      setTempStartDate(null)
-                      setTempEndDate(null)
-                    }}
+                    onPress={resetAllFilters}
                   >
                     <ButtonText>Reset Filter</ButtonText>
                   </Button>
-                  {/* Tombol pilih tanggal */}
                   <Button
                     className="rounded-lg"
                     size="lg"
-                    onPress={() => {
-                      setTempStartDate(tempStartDate)
-                      setTempEndDate(tempEndDate)
-                      setShowDateModal(false)
-                    }}
+                    onPress={applyDateFilter}
                   >
                     <ButtonText>Pilih Tanggal</ButtonText>
                   </Button>
@@ -184,7 +138,7 @@ export default function History() {
             </ModalContent>
           </Modal>
 
-          {/* Bar pencarian dan tombol buka modal tanggal */}
+          {/* INPUT & TOMBOL */}
           <View className="flex flex-row items-center justify-between gap-3 mb-4">
             <Input className="flex-1 flex-row gap-1 rounded-lg" size="lg">
               <InputSlot className="pl-3">
@@ -207,13 +161,39 @@ export default function History() {
             </Button>
           </View>
 
-          {/* Daftar transaksi */}
-          <FlatList
-            data={transactions}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+          {/* LIST TRANSAKSI */}
+          {transactions.length === 0 ? (
+            <Text className="text-center text-gray-400 mt-12">
+              Tidak ada transaksi ditemukan
+            </Text>
+          ) : (
+            <FlatList
+              data={transactions}
+              renderItem={({ item }) => (
+                <TransactionItem
+                  item={item}
+                  onPress={() => router.push(`/transactions/${item.invCode}`)}
+                />
+              )}
+              keyExtractor={(item) => item.invCode}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              onEndReached={() => {
+                if (hasMore && !loading) fetchMore()
+              }}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={() =>
+                hasMore ? (
+                  <Text className="text-center text-gray-500 mb-4">
+                    Menampilkan lebih banyak...
+                  </Text>
+                ) : (
+                  <Text className="text-center text-gray-400 mb-4">
+                    Semua data sudah dimuat
+                  </Text>
+                )
+              }
+            />
+          )}
         </>
       )}
     </View>

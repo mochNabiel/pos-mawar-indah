@@ -30,7 +30,7 @@ const CustomerDetailModal = ({ customer, isOpen, onClose }: Props) => {
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalBackdrop />
       <ModalContent>
-        <ModalHeader>
+        <ModalHeader className="mb-3">
           <Heading size="xl">Detail Customer</Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} size="lg" />
@@ -38,11 +38,15 @@ const CustomerDetailModal = ({ customer, isOpen, onClose }: Props) => {
         </ModalHeader>
 
         <ModalBody>
-          <View className="flex-row justify-between items-center mb-2">
+          <View className="flex-row justify-between items-start mb-2">
             <Text className="text-lg font-semibold">Nama:</Text>
             <Text className="text-lg">{customer.name}</Text>
           </View>
-          <View className="flex-row justify-between items-center mb-2">
+          <View className="flex-row justify-between items-start mb-2">
+            <Text className="text-lg font-semibold">Perusahaan:</Text>
+            <Text className="text-lg">{customer.company || "-"}</Text>
+          </View>
+          <View className="flex-row justify-between items-start mb-2">
             <Text className="text-lg font-semibold">Nomor Telepon:</Text>
             <Text className="text-lg">{customer.phone || "-"}</Text>
           </View>

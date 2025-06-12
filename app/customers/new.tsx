@@ -22,6 +22,8 @@ import useToastMessage from "@/lib/hooks/useToastMessage"
 import { useCustomerStore } from "@/lib/zustand/useCustomerStore"
 import { countryCodes } from "@/constants/countryCodes"
 import { Feather } from "@expo/vector-icons"
+import { Heading } from "@/components/ui/heading"
+import { Center } from "@/components/ui/center"
 
 const NewCustomerScreen = () => {
   const router = useRouter()
@@ -41,7 +43,7 @@ const NewCustomerScreen = () => {
     resolver: zodResolver(customerSchema),
     defaultValues: {
       countryCode: "+62",
-    }
+    },
   })
 
   const onSubmit = async (data: TCustomerSchema) => {
@@ -62,6 +64,7 @@ const NewCustomerScreen = () => {
       await addCustomer({
         name: data.name,
         phone: `${data.countryCode}${data.phoneNumber}`,
+        company: data.company,
       })
       showToast("Data customer berhasil ditambahkan", "success")
       router.back()
@@ -96,9 +99,12 @@ const NewCustomerScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
+      <Center>
+        <Heading size="xl" className="mb-3">Tambah Data Customer</Heading>
+      </Center>
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">
+          <FormControlLabelText className="text-lg text-self-cyan">
             Nama Customer
           </FormControlLabelText>
         </FormControlLabel>
@@ -106,8 +112,8 @@ const NewCustomerScreen = () => {
           control={control}
           name="name"
           render={({ field }) => (
-            <View className="flex flex-row justify-between items-center gap-5 w-full">
-              <Input size="lg" variant="underlined" className="flex-1 mr-2">
+            <View className="flex flex-row justify-between items-center gap-2 w-full">
+              <Input size="lg" variant="outline" className="flex-1 mr-2 rounded-lg">
                 <InputField
                   placeholder="cth: BUDI PRASETYA"
                   autoCapitalize="characters"
@@ -119,7 +125,8 @@ const NewCustomerScreen = () => {
               <Button
                 onPress={() => handleCheckName(field.value)}
                 disabled={checkingName}
-                className="h-full rounded-full"
+                size="lg"
+                className="h-full rounded-lg"
               >
                 <ButtonText>
                   {checkingName ? <Spinner /> : "Cek Nama"}
@@ -135,7 +142,7 @@ const NewCustomerScreen = () => {
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg mb-3">
+          <FormControlLabelText className="text-lg text-self-cyan">
             Nomor Telepon
           </FormControlLabelText>
         </FormControlLabel>
@@ -158,7 +165,7 @@ const NewCustomerScreen = () => {
                   field.onChange(selectedItem.dial_code)
                 }
                 renderButton={(selectedItem, isOpened) => (
-                  <View className="border rounded-xl border-secondary-500 p-2 px-3 bg-white flex flex-row gap-2 items-center justify-between">
+                  <View className="border rounded-lg border-secondary-500 p-2 px-3 bg-white flex flex-row gap-2 items-center justify-between">
                     <Text className="text-gray-900 text-lg font-semibold">
                       {selectedItem ? selectedItem.dial_code : "+62"}
                     </Text>
@@ -189,7 +196,7 @@ const NewCustomerScreen = () => {
             control={control}
             name="phoneNumber"
             render={({ field }) => (
-              <Input className="flex-1" size="lg" variant="underlined">
+              <Input className="flex-1 rounded-lg" size="lg" variant="outline">
                 <InputField
                   placeholder="cth: 81234567890"
                   keyboardType="numeric"
@@ -208,31 +215,59 @@ const NewCustomerScreen = () => {
         )}
       </FormControl>
 
-      <View className="flex flex-row justify-between items-center gap-5 w-full">
+      <FormControl className="mb-5">
+        <FormControlLabel>
+          <FormControlLabelText className="text-lg text-self-cyan">
+            Perusahaan / Apparel
+          </FormControlLabelText>
+        </FormControlLabel>
+        <Controller
+          control={control}
+          name="company"
+          render={({ field }) => (
+            <View className="flex flex-row justify-between items-center gap-5 w-full">
+              <Input size="lg" variant="outline" className="flex-1 mr-2 rounded-lg">
+                <InputField
+                  placeholder="cth: SOLO APPAREL"
+                  autoCapitalize="characters"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              </Input>
+            </View>
+          )}
+        />
+        {errors.company && (
+          <Text className="text-red-500">{errors.company.message}</Text>
+        )}
+      </FormControl>
+
+      <View className="flex-row items-center gap-3 w-full">
         <Button
           onPress={() => router.back()}
-          size="xl"
-          variant="link"
+          size="lg"
+          variant="outline"
           action="secondary"
-          className="flex-1 rounded-full"
+          className="flex-1 rounded-lg"
         >
           <ButtonText>Kembali</ButtonText>
         </Button>
 
         <Button
           onPress={handleSubmit(onSubmit)}
-          size="xl"
+          size="lg"
           variant="solid"
           action="info"
           disabled={loading}
-          className="flex-1 rounded-full"
+          className="flex-1 rounded-lg"
         >
           {loading ? (
             <ButtonText>
               <Spinner />
             </ButtonText>
           ) : (
-            <ButtonText>Kirim</ButtonText>
+            <ButtonText>Simpan</ButtonText>
           )}
         </Button>
       </View>

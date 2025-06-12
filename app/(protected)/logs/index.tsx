@@ -5,8 +5,8 @@ import { Feather } from "@expo/vector-icons"
 import { getLogs, deleteLog, markAsRead } from "@/lib/firestore/logs"
 import { Log } from "@/types/logs"
 
-import LogItem from "@/components/log/LogItem"
-import LogDetailModal from "@/components/log/LogDetailModal"
+import LogItem from "@/components/logs/LogItem"
+import LogDetailModal from "@/components/logs/LogDetailModal"
 
 import { Center } from "@/components/ui/center"
 import { Heading } from "@/components/ui/heading"

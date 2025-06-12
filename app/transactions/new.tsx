@@ -25,6 +25,7 @@ import useGenerateInvoice from "@/lib/hooks/useGenerateInvoice"
 import { TTransactionSchema } from "@/schema/transactionSchema"
 import { createTransaction } from "@/lib/firestore/transaction"
 import { Spinner } from "@/components/ui/spinner"
+import { serverTimestamp } from "firebase/firestore"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
@@ -137,7 +138,6 @@ const NewTransactionScreen = () => {
     const transactionData = {
       ...data,
       invCode: invoiceCode || "",
-      createdAt: new Date(),
     }
     
     try {

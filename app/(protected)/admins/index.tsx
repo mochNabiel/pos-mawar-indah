@@ -11,9 +11,9 @@ import { Center } from "@/components/ui/center"
 
 import GradientCard from "@/components/GradientCard"
 
-import AdminEditModal from "@/components/admin/AdminEditModal"
-import AdminItem from "@/components/admin/AdminItem"
-import AdminDeleteModal from "@/components/admin/AdminDeleteModal"
+import AdminEditModal from "@/components/admins/AdminEditModal"
+import AdminItem from "@/components/admins/AdminItem"
+import AdminDeleteModal from "@/components/admins/AdminDeleteModal"
 
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { UserWithId } from "@/types/user"

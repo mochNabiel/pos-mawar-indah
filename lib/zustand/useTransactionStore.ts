@@ -1,71 +1,95 @@
 import { create } from "zustand"
-import { fetchAllTransactions } from "@/lib/firestore/transaction"
 import { TransactionWithId } from "@/types/transaction"
+import { getTransactions } from "../firestore/transaction"
 
-interface TransactionStore {
+type TransactionState = {
   transactions: TransactionWithId[]
-  filteredTransactions: TransactionWithId[]
-  searchQuery: string // State to hold the search query
-  loading: boolean // Loading state
-  fetchTransactions: () => Promise<void>
-  filterTransactionsByDate: (startDate: Date, endDate: Date) => void
-  filterTransactionsByCustomerName: (query: string) => void // Method for filtering by customer name
+  transaction: TransactionWithId | null
+  loading: boolean
+  hasMore: boolean
+  lastDoc: any
+  filters: {
+    customerName?: string
+    startDate?: Date | null
+    endDate?: Date | null
+  }
+  fetchInitial: () => void
+  fetchMore: () => void
+  setCustomerName: (name: string) => void
+  setDateRange: (start: Date | null, end: Date | null) => void
   resetFilters: () => void
-  getTransactionByInvCode: (invCode: string) => TransactionWithId | undefined // Method to get transaction by invCode
+  getTransactionDetail: (invCode: string) => TransactionWithId | undefined
 }
 
-const useTransactionStore = create<TransactionStore>((set, get) => ({
+const useTransactionStore = create<TransactionState>((set, get) => ({
   transactions: [],
-  filteredTransactions: [],
-  searchQuery: "", // Initialize search query
-  loading: false, // Initialize loading state
-
-  // Fetch all transactions from Firestore and store them
-  fetchTransactions: async () => {
-    set({ loading: true }) // Set loading to true before fetching
-    try {
-      const transactions = await fetchAllTransactions()
-      set({ transactions, filteredTransactions: transactions })
-    } catch (error) {
-      console.error("Failed to fetch transactions:", error)
-    } finally {
-      set({ loading: false }) // Set loading to false after fetching
-    }
+  transaction: null,
+  loading: false,
+  hasMore: true,
+  lastDoc: null,
+  filters: {
+    customerName: undefined,
+    startDate: null,
+    endDate: null,
   },
 
-  // Filter transactions based on the provided date range
-  filterTransactionsByDate: (startDate, endDate) => {
+  fetchInitial: async () => {
+    set({ loading: true })
+    const { customerName, startDate, endDate } = get().filters
+    const result = await getTransactions({ customerName, startDate, endDate })
+
+    set({
+      transactions: result.data,
+      lastDoc: result.lastDoc,
+      hasMore: !result.isLastPage,
+      loading: false,
+    })
+  },
+
+  fetchMore: async () => {
+    const { lastDoc, hasMore, loading, filters } = get()
+    if (!hasMore || loading) return
+
+    set({ loading: true })
+    const result = await getTransactions({ ...filters, lastDoc })
+
     set((state) => ({
-      filteredTransactions: state.transactions.filter((transaction) => {
-        const transactionDate = new Date(transaction.createdAt)
-        return transactionDate >= startDate && transactionDate <= endDate
-      }),
+      transactions: [...state.transactions, ...result.data],
+      lastDoc: result.lastDoc,
+      hasMore: !result.isLastPage,
+      loading: false,
     }))
   },
 
-  // Filter transactions based on customer name
-  filterTransactionsByCustomerName: (query) => {
+  setCustomerName: (name: string) => {
     set((state) => ({
-      searchQuery: query, // Update the search query state
-      filteredTransactions: state.transactions.filter((transaction) =>
-        transaction.customerName.toLowerCase().includes(query.toLowerCase())
-      ),
+      filters: { ...state.filters, customerName: name || undefined },
     }))
+    get().fetchInitial()
   },
 
-  // Reset filters to show all transactions
+  setDateRange: (start: Date | null, end: Date | null) => {
+    set((state) => ({
+      filters: { ...state.filters, startDate: start, endDate: end },
+    }))
+    get().fetchInitial()
+  },
+
   resetFilters: () => {
-    set((state) => ({
-      filteredTransactions: state.transactions,
-      searchQuery: "", // Reset search query
-    }))
+    set({
+      filters: {
+        customerName: undefined,
+        startDate: null,
+        endDate: null,
+      },
+    })
+    get().fetchInitial()
   },
 
-  // Get a transaction by its invCode
-  getTransactionByInvCode: (invCode) => {
-    return get().transactions.find(
-      (transaction) => transaction.invCode === invCode
-    )
+  getTransactionDetail: (invCode: string) => {
+    const tx = get().transactions.find((tx) => tx.invCode === invCode)
+    set({ transaction: tx || null })
+    return tx
   },
 }))
 

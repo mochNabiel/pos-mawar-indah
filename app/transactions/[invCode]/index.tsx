@@ -3,7 +3,6 @@ import { View, Text, ScrollView } from "react-native"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import * as Print from "expo-print"
 
-import { TransactionWithId } from "@/types/transaction"
 import { deleteTransaction } from "@/lib/firestore/transaction"
 import useTransactionStore from "@/lib/zustand/useTransactionStore"
 import useToastMessage from "@/lib/hooks/useToastMessage"
@@ -26,23 +25,15 @@ export default function TransactionDetail() {
   const router = useRouter()
   const { showToast } = useToastMessage()
 
-  const {
-    getTransactionByInvCode
-  } = useTransactionStore()
+  const { transaction, getTransactionDetail } = useTransactionStore()
 
   const [showModal, setShowModal] = useState<boolean>(false)
-  const [transaction, setTransaction] = useState<TransactionWithId | null>(null)
 
   useEffect(() => {
-    if (!invCode) return
-
-    const localTransaction = getTransactionByInvCode(invCode)
-    if (localTransaction) {
-      setTransaction(localTransaction)
-    } else {
-      setTransaction(null)
+    if (invCode) {
+      getTransactionDetail(invCode)
     }
-  }, [invCode, getTransactionByInvCode])
+  }, [invCode])
 
   const handlePrint = async () => {
     if (!transaction) return
@@ -69,7 +60,11 @@ export default function TransactionDetail() {
 
   if (!transaction) {
     return (
-      <View className="flex-1 justify-center items-center bg-white" accessibilityRole="alert" accessibilityLiveRegion="polite">
+      <View
+        className="flex-1 justify-center items-center bg-white"
+        accessibilityRole="alert"
+        accessibilityLiveRegion="polite"
+      >
         <Spinner size="large" />
         <Text className="text-lg mt-4">Memuat data transaksi...</Text>
       </View>
@@ -88,18 +83,24 @@ export default function TransactionDetail() {
       <View className="flex-row items-center justify-between mb-3">
         <View>
           <View className="mb-3">
-            <Text className="font-semibold text-secondary-800 mb-1">Invoice</Text>
+            <Text className="font-semibold text-secondary-800 mb-1">
+              Invoice
+            </Text>
             <Text className="font-semibold">#{transaction.invCode}</Text>
           </View>
 
           <View className="mb-3">
-            <Text className="font-semibold text-secondary-800 mb-1">Customer</Text>
+            <Text className="font-semibold text-secondary-800 mb-1">
+              Customer
+            </Text>
             <Text className="font-semibold">{transaction.customerName}</Text>
           </View>
         </View>
         <View>
           <View className="flex items-end mb-3">
-            <Text className="font-semibold text-secondary-800 mb-1">Tanggal</Text>
+            <Text className="font-semibold text-secondary-800 mb-1">
+              Tanggal
+            </Text>
             <Text className="font-semibold">
               {new Date(transaction.createdAt).toLocaleDateString("id-ID", {
                 year: "numeric",
@@ -133,16 +134,24 @@ export default function TransactionDetail() {
         <View key={idx}>
           <View className="flex-row items-center border-b border-gray-300 p-2">
             <Text className="flex-1 text-left">{card.fabricName}</Text>
-            <Text className="flex-1 text-center">{card.pricePerKg.toLocaleString("id-ID")}</Text>
+            <Text className="flex-1 text-center">
+              {card.pricePerKg.toLocaleString("id-ID")}
+            </Text>
             <Text className="flex-1 text-center">{card.weight}</Text>
-            <Text className="flex-1 text-right">{card.totalPrice.toLocaleString("id-ID")}</Text>
+            <Text className="flex-1 text-right">
+              {card.totalPrice.toLocaleString("id-ID")}
+            </Text>
           </View>
           {card.useDiscount && (
             <View className="flex-row items-center border-b border-gray-300 p-2">
               <Text className="flex-1 text-left">Diskon</Text>
-              <Text className="flex-1 text-center">-{(card.discountPerKg ?? 0).toLocaleString("id-ID")}</Text>
+              <Text className="flex-1 text-center">
+                -{(card.discountPerKg ?? 0).toLocaleString("id-ID")}
+              </Text>
               <Text className="flex-1 text-center"></Text>
-              <Text className="flex-1 text-right">-{card.discount.toLocaleString("id-ID")}</Text>
+              <Text className="flex-1 text-right">
+                -{card.discount.toLocaleString("id-ID")}
+              </Text>
             </View>
           )}
         </View>
@@ -164,7 +173,9 @@ export default function TransactionDetail() {
         )}
         <View className="p-2 py-0 flex-row items-center justify-between">
           <Text className="text-xl font-semibold">Total Transaksi</Text>
-          <Text className="text-xl font-semibold">{transaction.totalTransaction.toLocaleString("id-ID")}</Text>
+          <Text className="text-xl font-semibold">
+            {transaction.totalTransaction.toLocaleString("id-ID")}
+          </Text>
         </View>
       </Card>
 
@@ -189,13 +200,25 @@ export default function TransactionDetail() {
         <ModalBackdrop />
         <ModalContent>
           <ModalBody>
-            <Text className="text-center text-lg">Apakah Anda yakin ingin menghapus transaksi ini?</Text>
+            <Text className="text-center text-lg">
+              Apakah Anda yakin ingin menghapus transaksi ini?
+            </Text>
           </ModalBody>
           <ModalFooter className="flex-row gap-3 justify-between">
-            <Button onPress={() => setShowModal(false)} size="lg" className="flex-1 rounded-lg">
+            <Button
+              onPress={() => setShowModal(false)}
+              size="lg"
+              className="flex-1 rounded-lg"
+            >
               <ButtonText>Batal</ButtonText>
             </Button>
-            <Button onPress={handleDelete} variant="outline" action="negative" size="lg" className="flex-1 rounded-lg">
+            <Button
+              onPress={handleDelete}
+              variant="outline"
+              action="negative"
+              size="lg"
+              className="flex-1 rounded-lg"
+            >
               <ButtonText className="text-red-500">Hapus</ButtonText>
             </Button>
           </ModalFooter>
