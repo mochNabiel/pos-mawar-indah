@@ -7,14 +7,11 @@ import {
   ModalCloseButton,
   ModalHeader,
   ModalBody,
-  ModalFooter,
 } from "@/components/ui/modal";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { CloseIcon } from "@/components/ui/icon";
-import { Feather } from "@expo/vector-icons";
 import { Customer } from "@/types/customer";
 
 type Props = {

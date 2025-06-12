@@ -33,6 +33,8 @@ import { Fabric } from "@/types/fabric"
 import { isFabricCodeUnique } from "@/lib/firestore/fabric"
 import useToastMessage from "@/lib/hooks/useToastMessage"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
+import { Center } from "@/components/ui/center"
+import { Heading } from "@/components/ui/heading"
 
 const NewFabricScreen = () => {
   const router = useRouter()
@@ -107,9 +109,14 @@ const NewFabricScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
+      <Center>
+        <Heading size="xl" className="mb-3">
+          Tambah Data Kain
+        </Heading>
+      </Center>
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">
+          <FormControlLabelText className="text-lg text-self-purple">
             Kode Kain
           </FormControlLabelText>
         </FormControlLabel>
@@ -117,10 +124,14 @@ const NewFabricScreen = () => {
           control={control}
           name="code"
           render={({ field }) => (
-            <View className="flex flex-row justify-between items-center gap-5 w-full">
-              <Input size="lg" variant="underlined" className="flex-1 mr-2">
+            <View className="flex flex-row justify-between items-center gap-1 w-full">
+              <Input
+                size="lg"
+                variant="outline"
+                className="flex-1 mr-2 rounded-lg"
+              >
                 <InputField
-                  placeholder="Contoh: MLN-PUTIH"
+                  placeholder="cth: MLN-PUTIH"
                   autoCapitalize="characters"
                   value={field.value}
                   onChangeText={field.onChange}
@@ -130,11 +141,17 @@ const NewFabricScreen = () => {
               <Button
                 onPress={() => handleCheckCode(field.value)}
                 disabled={checkingCode}
-                className="h-full rounded-full"
+                size="lg"
+                className="h-full rounded-lg"
               >
-                <ButtonText>
-                  {checkingCode ? <Spinner /> : "Cek kode"}
-                </ButtonText>
+                {checkingCode ? (
+                  <View className="flex-row">
+                    <Spinner color="white" />
+                    <ButtonText>Mengecek...</ButtonText>
+                  </View>
+                ) : (
+                  <ButtonText>Cek kode</ButtonText>
+                )}
               </Button>
             </View>
           )}
@@ -146,7 +163,7 @@ const NewFabricScreen = () => {
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">
+          <FormControlLabelText className="text-lg text-self-purple">
             Nama Kain
           </FormControlLabelText>
         </FormControlLabel>
@@ -154,9 +171,9 @@ const NewFabricScreen = () => {
           control={control}
           name="name"
           render={({ field }) => (
-            <Input size="lg" variant="underlined">
+            <Input size="lg" variant="outline" className="rounded-lg">
               <InputField
-                placeholder="Contoh: MILANO PUTIH 160BR"
+                placeholder="cth: MILANO PUTIH 160BR"
                 autoCapitalize="characters"
                 value={field.value}
                 onChangeText={field.onChange}
@@ -172,7 +189,7 @@ const NewFabricScreen = () => {
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">
+          <FormControlLabelText className="text-lg text-self-purple">
             Harga Ecer
           </FormControlLabelText>
         </FormControlLabel>
@@ -180,7 +197,7 @@ const NewFabricScreen = () => {
           control={control}
           name="retailPrice"
           render={({ field }) => (
-            <Input size="lg" variant="underlined">
+            <Input size="lg" variant="outline" className="rounded-lg">
               <InputField
                 keyboardType="numeric"
                 value={field.value}
@@ -198,7 +215,7 @@ const NewFabricScreen = () => {
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">
+          <FormControlLabelText className="text-lg text-self-purple">
             Harga Grosir
           </FormControlLabelText>
         </FormControlLabel>
@@ -206,7 +223,7 @@ const NewFabricScreen = () => {
           control={control}
           name="wholesalePrice"
           render={({ field }) => (
-            <Input size="lg" variant="underlined">
+            <Input size="lg" variant="outline" className="rounded-lg">
               <InputField
                 keyboardType="numeric"
                 value={field.value}
@@ -224,7 +241,7 @@ const NewFabricScreen = () => {
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">
+          <FormControlLabelText className="text-lg text-self-purple">
             Harga Roll
           </FormControlLabelText>
         </FormControlLabel>
@@ -232,7 +249,7 @@ const NewFabricScreen = () => {
           control={control}
           name="rollPrice"
           render={({ field }) => (
-            <Input size="lg" variant="underlined">
+            <Input size="lg" variant="outline" className="rounded-lg">
               <InputField
                 keyboardType="numeric"
                 value={field.value}
@@ -250,16 +267,18 @@ const NewFabricScreen = () => {
 
       <FormControl className="mb-5">
         <FormControlLabel>
-          <FormControlLabelText className="text-lg">Warna</FormControlLabelText>
+          <FormControlLabelText className="text-lg text-self-purple">
+            Warna
+          </FormControlLabelText>
         </FormControlLabel>
         <Controller
           control={control}
           name="color"
           render={({ field: { value, onChange } }) => (
             <Select selectedValue={value} onValueChange={onChange}>
-              <SelectTrigger size="lg" variant="underlined">
+              <SelectTrigger size="lg" variant="outline" className="rounded-lg">
                 <SelectInput placeholder="Pilih warna" />
-                <SelectIcon className="ml-auto" as={ChevronDownIcon} />
+                <SelectIcon className="ml-auto mr-2" as={ChevronDownIcon} />
               </SelectTrigger>
               <SelectPortal>
                 <SelectBackdrop />
@@ -280,31 +299,31 @@ const NewFabricScreen = () => {
         )}
       </FormControl>
 
-      <View className="flex flex-row justify-between items-center gap-5 w-full">
+      <View className="flex flex-row justify-between items-center gap-3 w-full">
         <Button
           onPress={() => router.back()}
-          size="xl"
-          variant="link"
+          size="lg"
+          variant="outline"
           action="secondary"
-          className="flex-1 rounded-full"
+          className="flex-1 rounded-lg"
         >
           <ButtonText>Kembali</ButtonText>
         </Button>
 
         <Button
           onPress={handleSubmit(onSubmit)}
-          size="xl"
+          size="lg"
           variant="solid"
-          action="info"
           disabled={loading}
-          className="flex-1 rounded-full"
+          className="flex-1 rounded-lg"
         >
           {loading ? (
-            <ButtonText>
-              <Spinner />
-            </ButtonText>
+            <View className="flex-row gap-1">
+              <Spinner color="white" />
+              <ButtonText>Menyimpan...</ButtonText>
+            </View>
           ) : (
-            <ButtonText>Tambah Kain</ButtonText>
+            <ButtonText>Simpan</ButtonText>
           )}
         </Button>
       </View>

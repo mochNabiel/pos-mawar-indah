@@ -100,7 +100,9 @@ const NewCustomerScreen = () => {
   return (
     <ScrollView className="flex-1 bg-white p-5">
       <Center>
-        <Heading size="xl" className="mb-3">Tambah Data Customer</Heading>
+        <Heading size="xl" className="mb-3">
+          Tambah Data Customer
+        </Heading>
       </Center>
       <FormControl className="mb-5">
         <FormControlLabel>
@@ -112,8 +114,12 @@ const NewCustomerScreen = () => {
           control={control}
           name="name"
           render={({ field }) => (
-            <View className="flex flex-row justify-between items-center gap-2 w-full">
-              <Input size="lg" variant="outline" className="flex-1 mr-2 rounded-lg">
+            <View className="flex flex-row justify-between items-center gap-1 w-full">
+              <Input
+                size="lg"
+                variant="outline"
+                className="flex-1 mr-2 rounded-lg"
+              >
                 <InputField
                   placeholder="cth: BUDI PRASETYA"
                   autoCapitalize="characters"
@@ -128,9 +134,14 @@ const NewCustomerScreen = () => {
                 size="lg"
                 className="h-full rounded-lg"
               >
-                <ButtonText>
-                  {checkingName ? <Spinner /> : "Cek Nama"}
-                </ButtonText>
+                {checkingName ? (
+                  <View className="flex-row">
+                    <Spinner color="white" />
+                    <ButtonText>Mengecek...</ButtonText>
+                  </View>
+                ) : (
+                  <ButtonText>Cek nama</ButtonText>
+                )}
               </Button>
             </View>
           )}
@@ -226,7 +237,11 @@ const NewCustomerScreen = () => {
           name="company"
           render={({ field }) => (
             <View className="flex flex-row justify-between items-center gap-5 w-full">
-              <Input size="lg" variant="outline" className="flex-1 mr-2 rounded-lg">
+              <Input
+                size="lg"
+                variant="outline"
+                className="flex-1 mr-2 rounded-lg"
+              >
                 <InputField
                   placeholder="cth: SOLO APPAREL"
                   autoCapitalize="characters"
@@ -258,14 +273,14 @@ const NewCustomerScreen = () => {
           onPress={handleSubmit(onSubmit)}
           size="lg"
           variant="solid"
-          action="info"
           disabled={loading}
           className="flex-1 rounded-lg"
         >
           {loading ? (
-            <ButtonText>
-              <Spinner />
-            </ButtonText>
+            <View className="flex-row gap-1">
+              <Spinner color="white" />
+              <ButtonText>Menyimpan...</ButtonText>
+            </View>
           ) : (
             <ButtonText>Simpan</ButtonText>
           )}

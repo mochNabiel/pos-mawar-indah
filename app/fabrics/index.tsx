@@ -7,27 +7,43 @@ import { useFabricStore } from "@/lib/zustand/useFabricStore"
 import { Fabric } from "@/types/fabric"
 
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
 import { Text } from "@/components/ui/text"
 import { Heading } from "@/components/ui/heading"
 import { Pressable } from "@/components/ui/pressable"
-import LoadingMessage from "@/components/LoadingMessage"
 import { Center } from "@/components/ui/center"
-import GradientCard from "@/components/GradientCard"
-import { Feather } from "@expo/vector-icons"
 import { SearchIcon } from "@/components/ui/icon"
+
+import GradientCard from "@/components/GradientCard"
+import LoadingMessage from "@/components/LoadingMessage"
+
 import useBackHandler from "@/lib/hooks/useBackHandler"
+import { Feather } from "@expo/vector-icons"
+
+import FabricItem from "@/components/fabrics/FabricItem"
+import FabricDetailModal from "@/components/fabrics/FabricDetailModal"
+import FabricEditModal from "@/components/fabrics/FabricEditModal"
+import FabricDeleteModal from "@/components/fabrics/FabricDeleteModal"
+
+import { deleteFabricInDb } from "@/lib/firestore/fabric"
 
 const FabricListScreen = () => {
   const router = useRouter()
 
   useBackHandler("(tabs)/data")
 
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState<string>("")
   const debouncedSearch = useDebouncedValue(search, 700)
 
   const { fabrics, isLoading, fetchAllFabrics } = useFabricStore()
   const [filtered, setFiltered] = useState<Fabric[]>([])
+
+  const [selectedFabric, setSelectedFabric] = useState<Fabric | null>(
+    null
+  )
+  const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false)
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
   useEffect(() => {
     fetchAllFabrics()
@@ -35,8 +51,8 @@ const FabricListScreen = () => {
 
   useEffect(() => {
     if (debouncedSearch) {
-      const result = fabrics.filter((f) =>
-        f.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+      const result = fabrics.filter((c) =>
+        c.code.toLowerCase().includes(debouncedSearch.toLowerCase())
       )
       setFiltered(result)
     } else {
@@ -44,22 +60,64 @@ const FabricListScreen = () => {
     }
   }, [debouncedSearch, fabrics])
 
+  const openDetail = (fabric: Fabric) => {
+    setSelectedFabric(fabric)
+    setIsDetailOpen(true)
+  }
+
+  const closeDetail = () => {
+    setSelectedFabric(null)
+    setIsDetailOpen(false)
+  }
+
+  const openEdit = (fabric: Fabric) => {
+    setSelectedFabric(fabric)
+    setIsEditOpen(true)
+  }
+
+  const closeEdit = () => {
+    setSelectedFabric(null)
+    setIsEditOpen(false)
+  }
+
+  const openDelete = (fabric: Fabric) => {
+    setSelectedFabric(fabric)
+    setIsDeleteOpen(true)
+  }
+
+  const closeDelete = () => {
+    setSelectedFabric(null)
+    setIsDeleteOpen(false)
+  }
+
+  const closeAllModals = () => {
+    setSelectedFabric(null)
+    setIsDetailOpen(false)
+    setIsEditOpen(false)
+    setIsDeleteOpen(false)
+  }
+
+  const handleDelete = async () => {
+    if (!selectedFabric) return
+    try {
+      setIsDeleting(true)
+      await deleteFabricInDb(selectedFabric.code)
+      setIsDeleting(false)
+      closeAllModals()
+      fetchAllFabrics()
+    } catch (error) {
+      setIsDeleting(false)
+      console.error("Gagal menghapus kain", error)
+    }
+  }
+
   const renderItem = ({ item }: { item: Fabric }) => (
-    <Pressable
-      onPress={() =>
-        router.push({
-          pathname: "/fabrics/[code]",
-          params: { code: item.code },
-        })
-      }
-      className="mb-3"
-    >
-      <Card size="lg" variant="outline">
-        <Heading size="lg">{item.name}</Heading>
-        <Text>Kode: {item.code}</Text>
-        <Text>Warna: {item.color}</Text>
-      </Card>
-    </Pressable>
+    <FabricItem
+      fabric={item}
+      onPress={() => openDetail(item)}
+      onEdit={() => openEdit(item)}
+      onDelete={() => openDelete(item)}
+    />
   )
 
   return (
@@ -78,7 +136,6 @@ const FabricListScreen = () => {
                 <Text>Kelola informasi dan detail kain</Text>
               </View>
             </Center>
-
             <Pressable
               onPress={() => router.push("/fabrics/new")}
               className="mb-3"
@@ -92,7 +149,6 @@ const FabricListScreen = () => {
                 </View>
               </GradientCard>
             </Pressable>
-
             <Input size="lg" className="rounded-lg">
               <InputSlot className="pl-3">
                 <InputIcon as={SearchIcon} />
@@ -100,22 +156,52 @@ const FabricListScreen = () => {
               <InputField
                 placeholder="Cari nama kain..."
                 value={search}
-                onChangeText={(text) => setSearch(text)}
+                onChangeText={setSearch}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
             </Input>
           </View>
 
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.code}
-            renderItem={renderItem}
-            contentContainerStyle={{
+          {filtered.length > 0 ? (
+            <FlatList
+              data={filtered}
+              keyExtractor={(item) => item.name}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{
                 paddingBottom: 40,
                 flexGrow: 1,
               }}
-            showsVerticalScrollIndicator={true}
+            />
+          ) : (
+            <Center>
+              {debouncedSearch ? (
+                <Text>
+                  Kain dengan nama "{debouncedSearch}" tidak ditemukan
+                </Text>
+              ) : (
+                <Text>Data Kain Kosong</Text>
+              )}
+            </Center>
+          )}
+
+          {/* Modals */}
+          <FabricDetailModal
+            fabric={selectedFabric}
+            isOpen={isDetailOpen}
+            onClose={closeDetail}
+          />
+          <FabricEditModal
+            fabric={selectedFabric}
+            isOpen={isEditOpen}
+            onClose={closeEdit}
+          />
+          <FabricDeleteModal
+            isOpen={isDeleteOpen}
+            onClose={closeDelete}
+            onDelete={handleDelete}
+            isDeleting={isDeleting}
           />
         </>
       )}

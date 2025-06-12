@@ -114,7 +114,6 @@ const CustomerEditModal: React.FC<Props> = ({
                   isDisabled
                 >
                   <InputField
-                    placeholder="Email admin"
                     value={field.value}
                     editable={false}
                   />
@@ -165,7 +164,7 @@ const CustomerEditModal: React.FC<Props> = ({
               render={({ field }) => (
                 <Input variant="outline" size="lg" className="rounded-lg">
                   <InputField
-                    placeholder="Email admin"
+                    placeholder="Masukkan Nama Perusahaan"
                     value={field.value}
                     onChangeText={field.onChange}
                     autoCapitalize="characters"

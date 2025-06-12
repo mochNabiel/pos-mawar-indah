@@ -29,7 +29,7 @@ const CustomerListScreen = () => {
 
   useBackHandler("(tabs)/data")
 
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState<string>("")
   const debouncedSearch = useDebouncedValue(search, 700)
 
   const { customers, isLoading, fetchAllCustomers } = useCustomerStore()
@@ -38,10 +38,10 @@ const CustomerListScreen = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   )
-  const [isDetailOpen, setIsDetailOpen] = useState(false)
-  const [isEditOpen, setIsEditOpen] = useState(false)
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false)
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
   useEffect(() => {
     fetchAllCustomers()
