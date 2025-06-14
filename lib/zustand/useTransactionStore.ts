@@ -1,6 +1,9 @@
 import { create } from "zustand"
 import { TransactionWithId } from "@/types/transaction"
-import { getTransactions } from "../firestore/transaction"
+import {
+  getTransactionByInvCode,
+  getTransactions,
+} from "@/lib/firestore/transaction"
 
 type TransactionState = {
   transactions: TransactionWithId[]
@@ -18,7 +21,9 @@ type TransactionState = {
   setCustomerName: (name: string) => void
   setDateRange: (start: Date | null, end: Date | null) => void
   resetFilters: () => void
-  getTransactionDetail: (invCode: string) => TransactionWithId | undefined
+  getTransactionDetail: (
+    invCode: string
+  ) => Promise<TransactionWithId | undefined>
 }
 
 const useTransactionStore = create<TransactionState>((set, get) => ({
@@ -86,9 +91,15 @@ const useTransactionStore = create<TransactionState>((set, get) => ({
     get().fetchInitial()
   },
 
-  getTransactionDetail: (invCode: string) => {
+  getTransactionDetail: async (invCode: string) => {
     const tx = get().transactions.find((tx) => tx.invCode === invCode)
-    set({ transaction: tx || null })
+    if (!tx) {
+      // Ambil dari Firestore jika tidak ditemukan di state
+      const fetchedTransaction = await getTransactionByInvCode(invCode)
+      set({ transaction: fetchedTransaction })
+      return fetchedTransaction
+    }
+    set({ transaction: tx })
     return tx
   },
 }))

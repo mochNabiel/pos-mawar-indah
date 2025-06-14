@@ -31,7 +31,7 @@ export default function TransactionItem({ item, onPress }: Props) {
           <Text className="text-xl font-semibold">
             {date.toLocaleDateString("id-ID", {
               year: "numeric",
-              month: "long",
+              month: "short",
               day: "numeric",
             })}
           </Text>

@@ -1,63 +1,122 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { Dimensions, ScrollView, View } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { LineChart } from "react-native-chart-kit"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
-
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
-
 import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
 import SalesRecapContent from "@/components/SalesRecapContent"
-
 import { useDashboardStore } from "@/lib/zustand/useDashboardStore"
+import LoadingMessage from "@/components/LoadingMessage"
+import MonthPicker from "@/components/MonthPicker"
+import { Button, ButtonText } from "@/components/ui/button"
+import { Center } from "@/components/ui/center"
+import {
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+} from "@/components/ui/modal"
+import { useRouter } from "expo-router"
 
 export default function Dashboard() {
   const { user } = useCurrentUser()
-
+  const router = useRouter()
   const {
-    daily,
-    weekly,
-    monthly,
-    byWeight,
-    byTransaction,
-    topFabrics,
-    monthlySales,
     loading,
-    fetchDashboardData,
+    fetchTransactions,
+    getSalesRecap,
+    getMonthlySalesChartData,
+    getFabricsRecap,
+    getCustomersRecap,
   } = useDashboardStore()
 
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(
+    new Date().getMonth() + 1 + ""
+  )
+  const [selectedYear, setSelectedYear] = useState<string | null>(
+    new Date().getFullYear() + ""
+  )
+  const [showModal, setShowModal] = useState<boolean>(false)
+
   useEffect(() => {
-    fetchDashboardData()
+    fetchTransactions()
   }, [])
+
+  const handleApply = (month: string | null, year: string | null) => {
+    if (month) setSelectedMonth(month)
+    if (year) setSelectedYear(year)
+    setShowModal(false) // Tutup modal setelah menerapkan pilihan
+  }
 
   const salesRecapData: TabItem[] = [
     {
       key: "daily",
       title: "Harian",
-      content: <SalesRecapContent data={daily} />,
+      content: (
+        <SalesRecapContent
+          data={getSalesRecap("daily", selectedMonth, selectedYear)}
+        />
+      ),
     },
     {
       key: "weekly",
       title: "Mingguan",
-      content: <SalesRecapContent data={weekly} />,
+      content: (
+        <SalesRecapContent
+          data={getSalesRecap("weekly", selectedMonth, selectedYear)}
+        />
+      ),
     },
     {
       key: "monthly",
       title: "Bulanan",
-      content: <SalesRecapContent data={monthly} />,
+      content: (
+        <SalesRecapContent
+          data={getSalesRecap("monthly", selectedMonth, selectedYear)}
+        />
+      ),
     },
   ]
 
   const screenWidth = Dimensions.get("window").width
   const chartWidth = screenWidth - 80
 
+  const monthlySales = getMonthlySalesChartData(selectedYear)
+  const topFabrics = getFabricsRecap(selectedMonth, selectedYear)
+  const { byWeight, byTransaction } = getCustomersRecap(
+    selectedMonth,
+    selectedYear
+  )
+
+  const getMonthName = (month: string | null) => {
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agt",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ]
+    return month ? monthNames[parseInt(month) - 1] : ""
+  }
+
+  if (loading) {
+    return <LoadingMessage message="Memuat Data Dashboard..." />
+  }
+
   return (
     <ScrollView className="p-5 bg-white flex-1">
-      {/* Greeting */}
       <View className="mb-6">
         <Heading size="2xl" className="mb-1 text-self-purple">
           Selamat datang, {user?.name ?? "Admin"}!
@@ -75,142 +134,222 @@ export default function Dashboard() {
         </View>
       </View>
 
-      {/* Loading Spinner */}
-      {loading ? (
-        <View className="items-center gap-3 py-8">
-          <Spinner size="large" color="#bf40bf" />
-          <Text className="text-self-purple">Memuat Data Dashboard...</Text>
-        </View>
-      ) : (
-        <>
-          {/* Rekap Penjualan */}
-          <View>
-            <Heading className="text-2xl mb-2">Rekap Penjualan</Heading>
-            <SegmentedTabs
-              tabs={salesRecapData}
-              activeTabColor="bg-self-purple"
-              defaultTabKey="monthly"
-            />
-          </View>
+      <Button
+        variant="outline"
+        className="rounded-lg mb-4"
+        onPress={() => setShowModal(true)}
+      >
+        <ButtonText>Pilih Bulan dan Tahun</ButtonText>
+      </Button>
 
-          {/* Grafik Penjualan Kain Bulanan */}
-          <Card variant="outline" size="lg" className="mb-6">
-            <Heading className="text-2xl mb-4">Penjualan Kain Bulanan</Heading>
-            {monthlySales.length === 0 ? (
-              <Text className="text-center py-8">Tidak Ada Data</Text>
-            ) : (
-              <LineChart
-                data={{
-                  labels: monthlySales.map((m) => m.month),
-                  datasets: [
-                    {
-                      data: monthlySales.map((m) => m.totalWeight),
-                      color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
-                    },
-                  ],
-                }}
-                width={chartWidth || 200}
-                height={200}
-                yAxisSuffix=" kg"
-                chartConfig={{
-                  backgroundColor: "#ffffff",
-                  backgroundGradientFrom: "#ffffff",
-                  backgroundGradientTo: "#ffffff",
-                  decimalPlaces: 0,
+      {/* Modal untuk memilih bulan dan tahun */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
+        <ModalBackdrop />
+        <ModalContent>
+          <ModalBody>
+            <MonthPicker
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              onMonthChange={setSelectedMonth}
+              onYearChange={setSelectedYear}
+              onApply={() => handleApply(selectedMonth, selectedYear)}
+            />
+          </ModalBody>
+          <ModalFooter className="flex-row gap-3 items-center">
+            <Button
+              variant="outline"
+              action="secondary"
+              className="rounded-lg flex-1"
+              onPress={() => setShowModal(false)}
+            >
+              <ButtonText>Batal</ButtonText>
+            </Button>
+            <Button
+              className="rounded-lg flex-1"
+              onPress={() => handleApply(selectedMonth, selectedYear)}
+            >
+              <ButtonText>Terapkan</ButtonText>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Rekap Penjualan */}
+      <View>
+        <Heading className="text-2xl mb-2">
+          Rekap Penjualan {getMonthName(selectedMonth)} {selectedYear}
+        </Heading>
+        <SegmentedTabs
+          tabs={salesRecapData}
+          activeTabColor="bg-self-purple"
+          defaultTabKey="monthly"
+        />
+      </View>
+
+      {/* Grafik Penjualan Kain Bulanan */}
+      <Card variant="outline" size="lg" className="mb-6">
+        <Heading className="text-2xl mb-4">
+          Penjualan Kain Tahun {selectedYear}
+        </Heading>
+        {monthlySales.length === 0 ? (
+          <Text className="text-center py-8">Tidak Ada Data</Text>
+        ) : (
+          <LineChart
+            data={{
+              labels: monthlySales.map((m) => m.month),
+              datasets: [
+                {
+                  data: monthlySales.map((m) => m.totalWeight),
                   color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  style: { borderRadius: 16 },
-                }}
-                bezier
-              />
-            )}
-          </Card>
-
-          {/* Top 5 Customers */}
-          <Card variant="outline" size="lg" className="mb-6">
-            <View className="flex-row gap-3 items-center mb-1">
-              <Feather name="user" size={20} />
-              <Heading className="text-2xl">5 Customer Teratas</Heading>
-            </View>
-            <Text className="text-secondary-900 mb-4">
-              Berdasarkan berat kain terjual dan total transaksi
-            </Text>
-            <SegmentedTabs
-              defaultTabKey="berat"
-              activeTabColor="bg-self-purple"
-              tabs={[
-                {
-                  key: "berat",
-                  title: "Berat Kain",
-                  content: (
-                    <View className="gap-3">
-                      {byWeight.map((customer, index) => (
-                        <Card
-                          key={index}
-                          variant="outline"
-                          className="flex-row justify-between items-center px-4 py-3"
-                        >
-                          <Text className="font-medium text-base">{customer.name}</Text>
-                          <Text className="text-right font-semibold text-lg">
-                            {parseFloat(customer.totalWeight.toFixed(2))} kg
-                          </Text>
-                        </Card>
-                      ))}
-                    </View>
-                  ),
                 },
-                {
-                  key: "transaksi",
-                  title: "Total Transaksi",
-                  content: (
-                    <View className="gap-3">
-                      {byTransaction.map((customer, index) => (
-                        <Card
-                          key={index}
-                          variant="outline"
-                          className="flex-row justify-between items-center px-4 py-3"
-                        >
-                          <Text className="font-medium text-base">{customer.name}</Text>
-                          <Text className="text-right font-semibold text-lg">
-                            Rp {customer.totalTransaction.toLocaleString("id-ID")}
-                          </Text>
-                        </Card>
-                      ))}
-                    </View>
-                  ),
-                },
-              ]}
-            />
-          </Card>
+              ],
+            }}
+            width={chartWidth || 200}
+            height={200}
+            yAxisSuffix=" kg"
+            chartConfig={{
+              backgroundColor: "#ffffff",
+              backgroundGradientFrom: "#ffffff",
+              backgroundGradientTo: "#ffffff",
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: { borderRadius: 16 },
+            }}
+            bezier
+          />
+        )}
+      </Card>
 
-          {/* Top 5 Kain */}
-          <Card variant="outline" size="lg" className="mb-20">
-            <View className="flex-row gap-3 items-center mb-1">
-              <Feather name="calendar" size={20} />
-              <Heading className="text-2xl">5 Kain Terlaris</Heading>
-            </View>
-            <Text className="text-secondary-900 mb-4">
-              Berdasarkan kuantitas terjual bulanan
+      {/* Top 5 Customers */}
+      <Card variant="outline" size="lg" className="mb-6">
+        <View className="flex-row gap-3 items-center mb-1">
+          <Feather name="user" size={20} />
+          <Heading className="text-2xl">
+            5 Customer Teratas {getMonthName(selectedMonth)} {selectedYear}
+          </Heading>
+        </View>
+        <Text className="text-secondary-900 mb-4">
+          Berdasarkan berat kain terjual dan total transaksi
+        </Text>
+        {byTransaction.length == 0 ? (
+          <Center>
+            <Text className="text-center text-self-purple mt-5">
+              Belum ada transaksi terjadi pada bulan ini. Coba tambahkan
+              transaksi baru.{" "}
             </Text>
-            <View className="gap-3">
-              {topFabrics.map((fabric, index) => (
-                <Card
-                  key={index}
-                  variant="outline"
-                  className="flex-row justify-between items-center px-4 py-3"
-                >
-                  <Text className="font-medium text-base">
-                    {fabric.fabricName}
-                  </Text>
-                  <Text className="text-right font-semibold text-lg">
-                    {fabric.totalWeight.toFixed(2)} kg
-                  </Text>
-                </Card>
-              ))}
-            </View>
-          </Card>
-        </>
-      )}
+          </Center>
+        ) : (
+          <SegmentedTabs
+            defaultTabKey="berat"
+            activeTabColor="bg-self-purple"
+            tabs={[
+              {
+                key: "berat",
+                title: "Berat Kain",
+                content: (
+                  <View className="gap-3">
+                    {byWeight.slice(0, 5).map((customer, index) => (
+                      <Card
+                        key={index}
+                        variant="outline"
+                        className="flex-row justify-between items-center px-4 py-3"
+                      >
+                        <Text className="font-medium text-base">
+                          {customer.name}
+                        </Text>
+                        <Text className="text-right font-semibold text-lg">
+                          {parseFloat(customer.totalWeight.toFixed(2))} kg
+                        </Text>
+                      </Card>
+                    ))}
+                  </View>
+                ),
+              },
+              {
+                key: "transaksi",
+                title: "Total Transaksi",
+                content: (
+                  <View className="gap-3">
+                    {byTransaction.slice(0, 5).map((customer, index) => (
+                      <Card
+                        key={index}
+                        variant="outline"
+                        className="flex-row justify-between items-center px-4 py-3"
+                      >
+                        <Text className="font-medium text-base">
+                          {customer.name}
+                        </Text>
+                        <Text className="text-right font-semibold text-lg">
+                          Rp {customer.totalTransaction.toLocaleString("id-ID")}
+                        </Text>
+                      </Card>
+                    ))}
+                  </View>
+                ),
+              },
+            ]}
+          />
+        )}
+        {user?.role == "superadmin" && (
+          <Button
+            variant="link"
+            onPress={() => {
+              router.push("/(protected)/customer-recap" as any)
+            }}
+          >
+            <ButtonText>Lihat Selengkapnya</ButtonText>
+          </Button>
+        )}
+      </Card>
+
+      {/* Top 5 Kain */}
+      <Card variant="outline" size="lg" className="mb-20">
+        <View className="flex-row gap-3 items-center mb-1">
+          <Feather name="calendar" size={20} />
+          <Heading className="text-2xl">
+            5 Kain Terlaris {getMonthName(selectedMonth)} {selectedYear}
+          </Heading>
+        </View>
+        <Text className="text-secondary-900 mb-4">
+          Berdasarkan kuantitas terjual bulanan
+        </Text>
+        {topFabrics.length == 0 ? (
+          <Center>
+            <Text className="text-center text-self-purple mt-5">
+              Belum ada transaksi terjadi pada bulan ini. Coba tambahkan
+              transaksi baru.{" "}
+            </Text>
+          </Center>
+        ) : (
+          <View className="gap-3">
+            {topFabrics.slice(0, 5).map((fabric, index) => (
+              <Card
+                key={index}
+                variant="outline"
+                className="flex-row justify-between items-center px-4 py-3"
+              >
+                <Text className="font-medium text-base">
+                  {fabric.fabricName}
+                </Text>
+                <Text className="text-right font-semibold text-lg">
+                  {fabric.totalWeight.toFixed(2)} kg
+                </Text>
+              </Card>
+            ))}
+          </View>
+        )}
+        {user?.role == "superadmin" && (
+          <Button
+            variant="link"
+            onPress={() => {
+              router.push("/(protected)/fabric-recap" as any)
+            }}
+          >
+            <ButtonText>Lihat Selengkapnya</ButtonText>
+          </Button>
+        )}
+      </Card>
     </ScrollView>
   )
 }

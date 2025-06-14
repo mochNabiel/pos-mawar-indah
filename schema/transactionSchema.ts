@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Define the schema for a single card in the transaction
 const cardSchema = z.object({
   fabricName: z.string().min(1, "Nama kain wajib diisi"),
   quantityType: z.string().min(1, "Tipe kuantitas wajib diisi"),
@@ -12,7 +11,6 @@ const cardSchema = z.object({
   useDiscount: z.boolean(),
 });
 
-// Define the main transaction schema
 const transactionSchema = z.object({
   adminName: z.string().min(1, "Nama admin wajib diisi"),
   customerName: z.string().min(1, "Nama customer wajib diisi"),
@@ -24,6 +22,5 @@ const transactionSchema = z.object({
   invoiceCode: z.string().min(1, "Kode transaksi wajib diisi"), // Optional: if you want to include invoice code
 });
 
-// Export the inferred type
 export type TTransactionSchema = z.infer<typeof transactionSchema>;
 export default transactionSchema;

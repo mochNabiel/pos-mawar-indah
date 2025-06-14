@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Text } from "@/components/ui/text"
 import { Pressable } from "@/components/ui/pressable"
 
-import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Feather } from "@expo/vector-icons"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 

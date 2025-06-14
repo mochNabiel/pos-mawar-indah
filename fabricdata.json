@@ -1,0 +1,587 @@
+[
+  {
+    "invCode": "INV-202501015763",
+    "adminName": "MAWAR INDAH",
+    "customerName": "JAYA KRAMAYUDHA",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Grosir",
+        "weight": "15,1",
+        "pricePerKg": 56000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 845600,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 845600,
+    "totalDiscount": 0,
+    "totalTransaction": 845600,
+    "createdAt": "2025-01-01T19:13:43+07:00"
+  },
+  {
+    "invCode": "INV-202501026982",
+    "adminName": "MAWAR INDAH",
+    "customerName": "IMAM",
+    "cards": [
+      {
+        "fabricName": "BRAZIL HITAM",
+        "quantityType": "Grosir",
+        "weight": "13,12",
+        "pricePerKg": 65000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 852800,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "MILANO NAVY (DONGKER)",
+        "quantityType": "Ecer",
+        "weight": "4,15",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 284275,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 1137075,
+    "totalDiscount": 0,
+    "totalTransaction": 1137075,
+    "createdAt": "2025-01-02T15:20:55+07:00"
+  },
+  {
+    "invCode": "INV-202501023871",
+    "adminName": "MAWAR INDAH",
+    "customerName": "WISNU",
+    "cards": [
+      {
+        "fabricName": "MILANO NAVY (DONGKER)",
+        "quantityType": "Ecer",
+        "weight": "1,15",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 78775,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "MILANO MAROON",
+        "quantityType": "Ecer",
+        "weight": "4,57",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 313045,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 391820,
+    "totalDiscount": 0,
+    "totalTransaction": 391820,
+    "createdAt": "2025-01-02T14:35:20+07:00"
+  },
+  {
+    "invCode": "INV-202501027158",
+    "adminName": "MAWAR INDAH",
+    "customerName": "SUMBER REJEKI",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "5,1",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 300900,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 300900,
+    "totalDiscount": 0,
+    "totalTransaction": 300900,
+    "createdAt": "2025-01-02T16:05:12+07:00"
+  },
+  {
+    "invCode": "INV-202501027632",
+    "adminName": "MAWAR INDAH",
+    "customerName": "PAGUPON",
+    "cards": [
+      {
+        "fabricName": "BRAZIL PUTIH 170SR",
+        "quantityType": "Ecer",
+        "weight": "5,56",
+        "pricePerKg": 63000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 350280,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 350280,
+    "totalDiscount": 0,
+    "totalTransaction": 350280,
+    "createdAt": "2025-01-02T16:12:45+07:00"
+  },
+  {
+    "invCode": "INV-202501028173",
+    "adminName": "MAWAR INDAH",
+    "customerName": "OZI",
+    "cards": [
+      {
+        "fabricName": "MILANO HITAM",
+        "quantityType": "Ecer",
+        "weight": "5,62",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 384970,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "3,51",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 293085,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 678055,
+    "totalDiscount": 0,
+    "totalTransaction": 678055,
+    "createdAt": "2025-01-02T16:40:33+07:00"
+  },
+  {
+    "invCode": "INV-202501028563",
+    "adminName": "MAWAR INDAH",
+    "customerName": "ANANG",
+    "cards": [
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "1,02",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 85170,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 85170,
+    "totalDiscount": 0,
+    "totalTransaction": 85170,
+    "createdAt": "2025-01-02T17:00:14+07:00"
+  },
+  {
+    "invCode": "INV-202501039988",
+    "adminName": "MAWAR INDAH",
+    "customerName": "PAPAH THREEGEE",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "9",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 531000,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 531000,
+    "totalDiscount": 0,
+    "totalTransaction": 531000,
+    "createdAt": "2025-01-03T20:01:44+07:00"
+  },
+  {
+    "invCode": "INV-202501061048",
+    "adminName": "MAWAR INDAH",
+    "customerName": "BU ARSYAD",
+    "cards": [
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "1,4",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 116900,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "1,1",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 91850,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "0,56",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 46760,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 255510,
+    "totalDiscount": 0,
+    "totalTransaction": 255510,
+    "createdAt": "2025-01-06T14:25:19+07:00"
+  },
+  {
+    "invCode": "INV-202501066521",
+    "adminName": "MAWAR INDAH",
+    "customerName": "PAGUPON",
+    "cards": [
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Roll",
+        "weight": "25,03",
+        "pricePerKg": 80000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 2002400,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Roll",
+        "weight": "25,1",
+        "pricePerKg": 80000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 2008000,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Roll",
+        "weight": "25,1",
+        "pricePerKg": 80000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 2008000,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Roll",
+        "weight": "25,14",
+        "pricePerKg": 80000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 2011200,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 8029600,
+    "totalDiscount": 0,
+    "totalTransaction": 8029600,
+    "createdAt": "2025-01-06T16:45:00+07:00"
+  },
+  {
+    "invCode": "INV-202501065237",
+    "adminName": "MAWAR INDAH",
+    "customerName": "BAGUS JR",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Grosir",
+        "weight": "15,08",
+        "pricePerKg": 56000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 844480,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "2,07",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 122130,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 966610,
+    "totalDiscount": 0,
+    "totalTransaction": 966610,
+    "createdAt": "2025-01-06T15:20:00+07:00"
+  },
+  {
+    "invCode": "INV-202501069572",
+    "adminName": "MAWAR INDAH",
+    "customerName": "JAYA KRAMAYUDHA",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "8,98",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 529820,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 529820,
+    "totalDiscount": 0,
+    "totalTransaction": 529820,
+    "createdAt": "2025-01-06T15:30:00+07:00"
+  },
+  {
+    "invCode": "INV-202501066484",
+    "adminName": "MAWAR INDAH",
+    "customerName": "ILHAM DEMES",
+    "cards": [
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "5,14",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 429190,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 429190,
+    "totalDiscount": 0,
+    "totalTransaction": 429190,
+    "createdAt": "2025-01-06T18:15:00+07:00"
+  },
+  {
+    "invCode": "INV-202501077061",
+    "adminName": "MAWAR INDAH",
+    "customerName": "PAPAH THREEGEE",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "1,04",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 61360,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 61360,
+    "totalDiscount": 0,
+    "totalTransaction": 61360,
+    "createdAt": "2025-01-07T10:50:00+07:00"
+  },
+  {
+    "invCode": "INV-202501077914",
+    "adminName": "MAWAR INDAH",
+    "customerName": "WISNU",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Roll",
+        "weight": "24,78",
+        "pricePerKg": 52000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 1288560,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 1288560,
+    "totalDiscount": 0,
+    "totalTransaction": 1288560,
+    "createdAt": "2025-01-07T12:20:00+07:00"
+  },
+  {
+    "invCode": "INV-202501078427",
+    "adminName": "MAWAR INDAH",
+    "customerName": "BAGUS JR",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "2,07",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 122130,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 122130,
+    "totalDiscount": 0,
+    "totalTransaction": 122130,
+    "createdAt": "2025-01-07T13:05:00+07:00"
+  },
+  {
+    "invCode": "INV-202401086845",
+    "adminName": "MAWAR INDAH",
+    "customerName": "WAWAN BERKAH",
+    "cards": [
+      {
+        "fabricName": "MILANO BIRU LANGIT",
+        "quantityType": "Ecer",
+        "weight": "5,14",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 352090,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 352090,
+    "totalDiscount": 0,
+    "totalTransaction": 352090,
+    "createdAt": "2024-01-08T10:00:00+07:00"
+  },
+  {
+    "invCode": "INV-202401086391",
+    "adminName": "MAWAR INDAH",
+    "customerName": "ILHAM DEMES",
+    "cards": [
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "1",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 83500,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 83500,
+    "totalDiscount": 0,
+    "totalTransaction": 83500,
+    "createdAt": "2024-01-08T10:30:00+07:00"
+  },
+  {
+    "invCode": "INV-202401087217",
+    "adminName": "MAWAR INDAH",
+    "customerName": "WISNU",
+    "cards": [
+      {
+        "fabricName": "MILANO HITAM",
+        "quantityType": "Ecer",
+        "weight": "1,01",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 69185,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 69185,
+    "totalDiscount": 0,
+    "totalTransaction": 69185,
+    "createdAt": "2024-01-08T11:00:00+07:00"
+  },
+  {
+    "invCode": "INV-202401080930",
+    "adminName": "MAWAR INDAH",
+    "customerName": "IDO",
+    "cards": [
+      {
+        "fabricName": "MILANO PUTIH MI",
+        "quantityType": "Ecer",
+        "weight": "4,36",
+        "pricePerKg": 59000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 257240,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "MILANO HITAM",
+        "quantityType": "Ecer",
+        "weight": "5,27",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 360995,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "MILANO HIJAU BOTOL",
+        "quantityType": "Ecer",
+        "weight": "8,09",
+        "pricePerKg": 68500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 554165,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 1178395,
+    "totalDiscount": 0,
+    "totalTransaction": 1178395,
+    "createdAt": "2024-01-08T11:20:00+07:00"
+  },
+  {
+    "invCode": "INV-202401082544",
+    "adminName": "MAWAR INDAH",
+    "customerName": "PAGUPON",
+    "cards": [
+      {
+        "fabricName": "MILANO HITAM",
+        "quantityType": "Roll",
+        "weight": "25,43",
+        "pricePerKg": 65000,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 1652950,
+        "useDiscount": false
+      }
+    ],
+    "subTotal": 1652950,
+    "totalDiscount": 0,
+    "totalTransaction": 1652950,
+    "createdAt": "2024-01-08T12:00:00+07:00"
+  },
+  {
+    "invCode": "INV-202401086763",
+    "adminName": "MAWAR INDAH",
+    "customerName": "DONALD DW PRO",
+    "cards": [
+      {
+        "fabricName": "EMBOS PUTIH",
+        "quantityType": "Ecer",
+        "weight": "10,2",
+        "pricePerKg": 83500,
+        "discountPerKg": 0,
+        "discount": 0,
+        "totalPrice": 851700,
+        "useDiscount": false
+      },
+      {
+        "fabricName": "MILANO PUTIH MI PREMIUM",
+        "quantityType": "Ecer",
+        "weight": "0,55",
+        "pricePerKg": 59000,
+        "discountPerKg": 1000,
+        "discount": 550,
+        "totalPrice": 32450,
+        "useDiscount": true
+      }
+    ],
+    "subTotal": 884150,
+    "totalDiscount": 550,
+    "totalTransaction": 883600,
+    "createdAt": "2024-01-08T12:30:00+07:00"
+  }
+]
+
+
+

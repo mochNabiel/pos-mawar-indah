@@ -1,4 +1,5 @@
-import { View, Text, ActivityIndicator } from "react-native";
+import { View } from "react-native";
+import LoadingMessage from "@/components/LoadingMessage";
 
 export default function SplashLoader() {
   return (
@@ -10,10 +11,7 @@ export default function SplashLoader() {
         backgroundColor: "#FFF",
       }}
     >
-      <ActivityIndicator size="large" color="#BF40BF" />
-      <Text style={{ marginTop: 16, fontSize: 16, color: "#BF40BF" }}>
-        Memuat aplikasi...
-      </Text>
+      <LoadingMessage message="Memuat aplikasi..." />
     </View>
   );
 }

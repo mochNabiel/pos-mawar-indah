@@ -7,7 +7,7 @@ import { useQuickActions } from "@/components/QuickActionSheet"
 import { registerForPushNotificationsAsync } from "@/lib/helper/notification"
 import { saveExpoPushToken } from "@/lib/helper/saveExpoPushToken"
 
-// Notification handler terbaru wajib mengembalikan semua properti ini
+// Notification handler terbaru wajib me return semua properti ini
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,

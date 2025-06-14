@@ -30,7 +30,7 @@ const CustomerListScreen = () => {
   useBackHandler("(tabs)/data")
 
   const [search, setSearch] = useState<string>("")
-  const debouncedSearch = useDebouncedValue(search, 700)
+  const debouncedSearch = useDebouncedValue(search, 500)
 
   const { customers, isLoading, fetchAllCustomers } = useCustomerStore()
   const [filtered, setFiltered] = useState<Customer[]>([])

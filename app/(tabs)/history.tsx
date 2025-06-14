@@ -43,7 +43,7 @@ export default function History() {
 
   // Search & debounce
   const [searchQuery, setSearchQuery] = useState("")
-  const debouncedQuery = useDebouncedValue(searchQuery, 700)
+  const debouncedQuery = useDebouncedValue(searchQuery, 500)
 
   useEffect(() => {
     console.log(transactions)

@@ -29,7 +29,7 @@ const TransactionCardItem: React.FC<TransactionCardProps> = ({
   const useDiscount = watch(`cards.${index}.useDiscount`)
   const discountPerKg = watch(`cards.${index}.discountPerKg`)
 
-  // Update price per kg when fabric name or quantity type changes
+  // Memperbarui harga per kg ketika nama kain atau tipe kuantitas berubah
   useEffect(() => {
     if (fabricName && quantityType) {
       const selectedFabric = fabrics.find((f) => f.name === fabricName)
@@ -54,7 +54,7 @@ const TransactionCardItem: React.FC<TransactionCardProps> = ({
     }
   }, [fabricName, quantityType, fabrics, index, setValue])
 
-  // Update calculations when relevant values change
+  // Memperbarui perhitungan ketika nilai yang relevan berubah
   useEffect(() => {
     updateCalculations()
   }, [weight, useDiscount, discountPerKg])
@@ -67,36 +67,36 @@ const TransactionCardItem: React.FC<TransactionCardProps> = ({
       ? parseFloat(discountPerKg) || 0
       : 0
 
-    // Calculate discount total
+    // Menghitung total diskon
     const discountTotal = currentWeight * currentDiscountPerKg
     setValue(`cards.${index}.discount`, discountTotal)
 
-    // Calculate total price
+    // Menghitung total harga
     const totalPrice = currentWeight * currentPricePerKg
     setValue(`cards.${index}.totalPrice`, totalPrice)
 
-    // Update transaction totals
+    // Memperbarui total transaksi
     updateTransactionTotals()
   }
 
   const updateTransactionTotals = () => {
     const cards = getValues("cards")
 
-    // Calculate sub total (sum of all total prices)
+    // Menghitung subtotal (jumlah dari semua total harga)
     const subTotal = cards.reduce(
       (sum: number, card: TransactionCard) => sum + (card.totalPrice || 0),
       0
     )
     setValue("subTotal", subTotal)
 
-    // Calculate total discount (sum of all discounts)
+    // Menghitung total diskon (jumlah dari semua diskon)
     const totalDiscount = cards.reduce(
       (sum: number, card: TransactionCard) => sum + (card.discount || 0),
       0
     )
     setValue("totalDiscount", totalDiscount)
 
-    // Calculate total transaction
+    // Menghitung total transaksi
     setValue("totalTransaction", subTotal - totalDiscount)
   }
 

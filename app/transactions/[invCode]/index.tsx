@@ -18,7 +18,9 @@ import {
 } from "@/components/ui/modal"
 
 import ReceiptPrintTemplate from "@/components/ReceiptPrintTemplate"
-import { Spinner } from "@/components/ui/spinner"
+import LoadingMessage from "@/components/LoadingMessage"
+import { Image } from "react-native"
+import { Center } from "@/components/ui/center"
 
 export default function TransactionDetail() {
   const { invCode } = useLocalSearchParams<{ invCode: string }>()
@@ -59,25 +61,27 @@ export default function TransactionDetail() {
   }
 
   if (!transaction) {
-    return (
-      <View
-        className="flex-1 justify-center items-center bg-white"
-        accessibilityRole="alert"
-        accessibilityLiveRegion="polite"
-      >
-        <Spinner size="large" />
-        <Text className="text-lg mt-4">Memuat data transaksi...</Text>
-      </View>
-    )
+    return <LoadingMessage message="Memuat Data Transaksi..." />
   }
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
-      <View className="mb-4">
-        <Text className="text-2xl font-semibold">Toko Kain Mawar Indah</Text>
-        <Text>Jl. Duren No.18 Gedangan</Text>
-        <Text>Kec. Grogol, Kab. Sukoharjo, Jawa Tengah</Text>
-      </View>
+      {/* Perusahaan */}
+      <Center>
+        <View className="flex-row gap-2 items-start mb-5">
+          <Image
+            source={require("@/assets/images/mawarindah.png")}
+            style={{ width: 60, height: 60 }}
+          />
+          <View>
+            <Text className="text-2xl font-semibold">
+              Toko Kain Mawar Indah
+            </Text>
+            <Text>Jl. Duren No.18 Gedangan</Text>
+            <Text>Kec. Grogol, Kab. Sukoharjo, Jawa Tengah</Text>
+          </View>
+        </View>
+      </Center>
 
       {/* Invoice Header */}
       <View className="flex-row items-center justify-between mb-3">
@@ -104,7 +108,7 @@ export default function TransactionDetail() {
             <Text className="font-semibold">
               {new Date(transaction.createdAt).toLocaleDateString("id-ID", {
                 year: "numeric",
-                month: "long",
+                month: "short",
                 day: "numeric",
               })}
             </Text>

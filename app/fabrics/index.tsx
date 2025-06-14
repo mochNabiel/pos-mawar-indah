@@ -32,14 +32,12 @@ const FabricListScreen = () => {
   useBackHandler("(tabs)/data")
 
   const [search, setSearch] = useState<string>("")
-  const debouncedSearch = useDebouncedValue(search, 700)
+  const debouncedSearch = useDebouncedValue(search, 500)
 
   const { fabrics, isLoading, fetchAllFabrics } = useFabricStore()
   const [filtered, setFiltered] = useState<Fabric[]>([])
 
-  const [selectedFabric, setSelectedFabric] = useState<Fabric | null>(
-    null
-  )
+  const [selectedFabric, setSelectedFabric] = useState<Fabric | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false)
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
@@ -52,7 +50,7 @@ const FabricListScreen = () => {
   useEffect(() => {
     if (debouncedSearch) {
       const result = fabrics.filter((c) =>
-        c.code.toLowerCase().includes(debouncedSearch.toLowerCase())
+        c.name.toLowerCase().includes(debouncedSearch.toLowerCase())
       )
       setFiltered(result)
     } else {

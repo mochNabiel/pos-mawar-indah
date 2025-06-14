@@ -11,7 +11,6 @@ import { auth } from "@/utils/firebase"
 import { getCurrentUserData } from "@/lib/helper/getCurrentUserData"
 import SplashLoader from "@/components/SplashLoader"
 
-// Prevent splash screen from auto hiding
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
@@ -32,7 +31,7 @@ export default function RootLayout() {
         setIsLoggedIn(false)
         setRole(null)
       }
-      setIsReady(true) // Mark ready after auth state is resolved
+      setIsReady(true) 
     })
 
     return unsubscribe
@@ -58,7 +57,6 @@ export default function RootLayout() {
     }
   }, [isReady])
 
-  // Prevent UI from rendering until redirect decision is complete
   const shouldBlockRender = () => {
     if (!isReady) return true
 

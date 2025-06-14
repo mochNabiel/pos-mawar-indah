@@ -1,4 +1,4 @@
-import React, {  useState } from "react"
+import React, { useState } from "react"
 import {
   View,
   Text,
@@ -29,7 +29,6 @@ interface DropdownSelectorProps {
 }
 
 const DropdownSelector: React.FC<DropdownSelectorProps> = ({
-  label,
   placeholder,
   value,
   options,
@@ -42,7 +41,7 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({
 
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const debouncedSearchTerm = useDebouncedValue(searchTerm, 700)
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 500)
 
   const filteredOptions = searchable
     ? options.filter((option) =>
@@ -57,7 +56,9 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({
         className="flex-1 flex-row items-center justify-between p-2 py-3 border border-gray-300 rounded-lg"
       >
         <Text
-          className={value ? "text-base text-black" : "text-base text-typography-500"}
+          className={
+            value ? "text-base text-black" : "text-base text-typography-500"
+          }
         >
           {value || placeholder}
         </Text>
@@ -83,6 +84,7 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({
                 {searchable && (
                   <TextInput
                     placeholder={searchPlaceholder}
+                    placeholderTextColor="gray"
                     value={searchTerm}
                     onChangeText={setSearchTerm}
                     className="p-2 border border-gray-300 rounded-lg mb-2"

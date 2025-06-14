@@ -45,7 +45,7 @@ export const getTransactions = async ({
 
     const constraints: any[] = []
 
-    // Filter: customerName (case-insensitive)
+    // Filter customerName (case-insensitive)
     if (hasCustomerFilter) {
       constraints.push(
         where("customerName", ">=", customerName!.toUpperCase()),
@@ -53,19 +53,23 @@ export const getTransactions = async ({
       )
     }
 
-    // Filter: tanggal
+    // Filter tanggal
     if (hasDateFilter) {
       const start = new Date(startDate!)
       const end = endDate
         ? new Date(endDate)
-        : new Date(startDate!.getFullYear(), startDate!.getMonth(), startDate!.getDate() + 1)
+        : new Date(
+            startDate!.getFullYear(),
+            startDate!.getMonth(),
+            startDate!.getDate() + 1
+          )
       constraints.push(where("createdAt", ">=", start))
       constraints.push(where("createdAt", "<", end))
     }
 
     // Susun orderBy sesuai kebutuhan
     if (hasCustomerFilter) {
-      constraints.unshift(orderBy("customerName")) // harus paling awal kalau pakai filter range di customerName
+      constraints.unshift(orderBy("customerName"))
     }
 
     constraints.push(orderBy("createdAt", "desc"))
@@ -82,7 +86,8 @@ export const getTransactions = async ({
     const data: TransactionWithId[] = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.() ?? new Date(doc.data().createdAt),
+      createdAt:
+        doc.data().createdAt?.toDate?.() ?? new Date(doc.data().createdAt),
     })) as TransactionWithId[]
 
     return {
@@ -96,13 +101,42 @@ export const getTransactions = async ({
   }
 }
 
-// Create a new transaction
+// Ambil transaksi berdasarkan invCode
+export const getTransactionByInvCode = async (
+  invCode: string
+): Promise<TransactionWithId | undefined> => {
+  try {
+    const q = query(transactionsRef, where("invCode", "==", invCode))
+    const snapshot = await getDocs(q)
+
+    if (snapshot.empty) {
+      console.error("Transaksi tidak ditemukan untuk invCode:", invCode)
+      return undefined
+    }
+
+    const transactionDoc = snapshot.docs[0]
+    const transactionData = {
+      id: transactionDoc.id,
+      ...transactionDoc.data(),
+      createdAt:
+        transactionDoc.data().createdAt?.toDate?.() ??
+        new Date(transactionDoc.data().createdAt),
+    } as TransactionWithId
+
+    return transactionData
+  } catch (error) {
+    console.error("Error getting transaction by invCode:", error)
+    return undefined
+  }
+}
+
+// Buat Transaksi baru
 export const createTransaction = async (data: Transaction) => {
   const user = await getCurrentUserData()
 
   const finalData = {
     ...data,
-    createdAt: serverTimestamp()
+    // createdAt: serverTimestamp(),
   }
   const docRef = await addDoc(transactionsRef, finalData)
 
@@ -123,7 +157,7 @@ export const createTransaction = async (data: Transaction) => {
   return docRef
 }
 
-// Delete a transaction by InvCode
+// Hapus transaksi berdasar InvCode
 export const deleteTransaction = async (invCode: string) => {
   const user = await getCurrentUserData()
 
@@ -134,12 +168,10 @@ export const deleteTransaction = async (invCode: string) => {
     throw new Error("Dokumen dengan InvCode tersebut tidak ditemukan")
   }
 
-  // Get the first document from the query results and delete by ID
   const transactionDoc = snapshot.docs[0]
 
-  const transactionData = transactionDoc.data() // Get the data first
+  const transactionData = transactionDoc.data()
 
-  // Send log before data is deleted
   try {
     await addLog({
       adminName: user?.name,
