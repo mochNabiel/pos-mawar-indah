@@ -14,7 +14,7 @@ const SalesRecapContent = ({ data }: { data: any }) => {
     )
   }
   return (
-    <View className="flex gap-3 mb-2">
+    <View className="flex gap-3 mb-2 mt-2">
       <Card
         variant="outline"
         size="lg"

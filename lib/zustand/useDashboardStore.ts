@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { TransactionWithId } from "@/types/transaction";
 import { getAllTransactions } from "@/lib/firestore/dashboard";
-import { getDateRange } from "@/lib/helper/getDateRange";
+import getDateRange from "@/lib/helper/getDateRange";
 
 interface DashboardState {
   transactions: TransactionWithId[];

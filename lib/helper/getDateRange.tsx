@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
-export const getDateRange = (
+const getDateRange = (
   type: "daily" | "weekly" | "monthly",
   date = new Date()
 ) => {
@@ -35,3 +35,5 @@ export const getDateRange = (
     endDate,
   };
 };
+
+export default getDateRange

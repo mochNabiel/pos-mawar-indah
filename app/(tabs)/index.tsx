@@ -22,6 +22,7 @@ import {
   ModalFooter,
 } from "@/components/ui/modal"
 import { useRouter } from "expo-router"
+import getMonthName from "@/lib/helper/getMonthName"
 
 export default function Dashboard() {
   const { user } = useCurrentUser()
@@ -93,24 +94,6 @@ export default function Dashboard() {
     selectedYear
   )
 
-  const getMonthName = (month: string | null) => {
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "Mei",
-      "Jun",
-      "Jul",
-      "Agt",
-      "Sep",
-      "Okt",
-      "Nov",
-      "Des",
-    ]
-    return month ? monthNames[parseInt(month) - 1] : ""
-  }
-
   if (loading) {
     return <LoadingMessage message="Memuat Data Dashboard..." />
   }
@@ -155,7 +138,7 @@ export default function Dashboard() {
               onApply={() => handleApply(selectedMonth, selectedYear)}
             />
           </ModalBody>
-          <ModalFooter className="flex-row gap-3 items-center">
+          <ModalFooter className="flex gap-3 items-center">
             <Button
               variant="outline"
               action="secondary"
@@ -188,9 +171,12 @@ export default function Dashboard() {
 
       {/* Grafik Penjualan Kain Bulanan */}
       <Card variant="outline" size="lg" className="mb-6">
-        <Heading className="text-2xl mb-4">
-          Penjualan Kain Tahun {selectedYear}
-        </Heading>
+        <View className="flex-row items-center gap-3">
+          <Feather name="trending-up" size={20} color="#BF40BF" />
+          <Heading className="text-2xl">
+            Penjualan Kain Tahun {selectedYear}
+          </Heading>
+        </View>
         {monthlySales.length === 0 ? (
           <Text className="text-center py-8">Tidak Ada Data</Text>
         ) : (
@@ -224,7 +210,7 @@ export default function Dashboard() {
       {/* Top 5 Customers */}
       <Card variant="outline" size="lg" className="mb-6">
         <View className="flex-row gap-3 items-center mb-1">
-          <Feather name="user" size={20} />
+          <Feather name="user" size={20} color="#BF40BF" />
           <Heading className="text-2xl">
             5 Customer Teratas {getMonthName(selectedMonth)} {selectedYear}
           </Heading>
@@ -248,12 +234,13 @@ export default function Dashboard() {
                 key: "berat",
                 title: "Berat Kain",
                 content: (
-                  <View className="gap-3">
+                  <View className="gap-3 mt-2">
                     {byWeight.slice(0, 5).map((customer, index) => (
                       <Card
                         key={index}
                         variant="outline"
-                        className="flex-row justify-between items-center px-4 py-3"
+                        size="sm"
+                        className="flex-row justify-between items-center rounded-lg"
                       >
                         <Text className="font-medium text-base">
                           {customer.name}
@@ -270,12 +257,13 @@ export default function Dashboard() {
                 key: "transaksi",
                 title: "Total Transaksi",
                 content: (
-                  <View className="gap-3">
+                  <View className="gap-3 mt-2">
                     {byTransaction.slice(0, 5).map((customer, index) => (
                       <Card
                         key={index}
                         variant="outline"
-                        className="flex-row justify-between items-center px-4 py-3"
+                        size="sm"
+                        className="flex-row justify-between items-center rounded-lg"
                       >
                         <Text className="font-medium text-base">
                           {customer.name}
@@ -306,7 +294,7 @@ export default function Dashboard() {
       {/* Top 5 Kain */}
       <Card variant="outline" size="lg" className="mb-20">
         <View className="flex-row gap-3 items-center mb-1">
-          <Feather name="calendar" size={20} />
+          <Feather name="calendar" size={20} color="#BF40BF" />
           <Heading className="text-2xl">
             5 Kain Terlaris {getMonthName(selectedMonth)} {selectedYear}
           </Heading>
@@ -327,7 +315,8 @@ export default function Dashboard() {
               <Card
                 key={index}
                 variant="outline"
-                className="flex-row justify-between items-center px-4 py-3"
+                size="sm"
+                className="flex-row justify-between items-center rounded-lg"
               >
                 <Text className="font-medium text-base">
                   {fabric.fabricName}

@@ -50,18 +50,17 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
   const years = yearsData.filter((year) => parseInt(year, 10) >= 2025)
 
   return (
-    <View className="flex-1 justify-center items-center bg-gray-100 mb-4">
-      <View className="flex-row w-full justify-between gap-3">
-        <View className="flex-1">
+    <View className="flex-1 justify-center items-center">
+      <View className="w-full gap-3">
+        <View>
           <Select
             onValueChange={onMonthChange}
             selectedValue={selectedMonth || ""}
             accessibilityLabel="Pilih Bulan"
           >
-            <SelectTrigger variant="outline" size="md" className="rounded-lg">
+            <SelectTrigger variant="outline" size="lg" className="rounded-lg">
               <SelectInput
                 placeholder="Pilih Bulan"
-                className="text-md"
                 value={
                   selectedMonth
                     ? months.find((m) => m.value === selectedMonth)?.label
@@ -88,16 +87,15 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
           </Select>
         </View>
 
-        <View className="flex-1">
+        <View>
           <Select
             onValueChange={onYearChange}
             selectedValue={selectedYear || ""}
             accessibilityLabel="Pilih Tahun"
           >
-            <SelectTrigger variant="outline" size="md" className="rounded-lg">
+            <SelectTrigger variant="outline" size="lg" className="rounded-lg">
               <SelectInput
                 placeholder="Pilih Tahun"
-                className="text-md"
                 value={selectedYear || ""}
               />
               <SelectIcon className="ml-auto mr-2" size="sm" as={ChevronDownIcon} />
