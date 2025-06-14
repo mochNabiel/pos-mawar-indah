@@ -161,11 +161,12 @@ const NewTransactionScreen = () => {
     }
 
     try {
-      await createTransaction(transactionData)
+      await createTransaction(transactionData as any)
       showToast("Transaksi berhasil dibuat", "success")
       reset()
       setLoading(false)
-      router.push(`/transactions/${invoiceCode}`)
+      // router.push(`/transactions/${invoiceCode}`)
+      router.push(`/transactions/new`) // sementara
     } catch (error) {
       showToast("Gagal membuat transaksi", "error")
       setLoading(false)

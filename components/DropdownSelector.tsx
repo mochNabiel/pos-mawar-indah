@@ -9,7 +9,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
 } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { Button, ButtonText } from "@/components/ui/button"
@@ -79,7 +78,7 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             className="flex-1 justify-center items-center"
           >
-            <TouchableWithoutFeedback>
+            <Pressable>
               <View className="w-[90vw] bg-white rounded-lg shadow-lg p-4">
                 {searchable && (
                   <TextInput
@@ -128,7 +127,7 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({
                   )}
                 </ScrollView>
               </View>
-            </TouchableWithoutFeedback>
+            </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
       </Modal>

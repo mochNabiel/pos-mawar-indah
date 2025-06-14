@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { FlatList, ScrollView, View } from "react-native"
+import { FlatList, ScrollView, View, Pressable } from "react-native"
 import { useDashboardStore } from "@/lib/zustand/useDashboardStore"
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
@@ -17,8 +17,11 @@ import {
 } from "@/components/ui/modal"
 import getMonthName from "@/lib/helper/getMonthName"
 import { Feather } from "@expo/vector-icons"
+import GradientCard from "@/components/GradientCard"
+import { useRouter } from "expo-router"
 
 export default function FabricRecap() {
+  const router = useRouter()
   const { loading, getFabricsRecap } = useDashboardStore()
 
   const [selectedMonth, setSelectedMonth] = useState<string | null>(
@@ -55,8 +58,21 @@ export default function FabricRecap() {
         <Heading size="2xl" className="text-self-purple mb-3">
           Rekap Kain {getMonthName(selectedMonth)} {selectedYear}
         </Heading>
+        <Pressable
+          onPress={() => router.push("/fabric-recap/forecast-fabric")}
+          className="mb-3"
+        >
+          <GradientCard>
+            <View className="flex-row items-center justify-center gap-2">
+              <Text className="text-white font-semibold">
+                Prediksi Data Penjualan Kain
+              </Text>
+            </View>
+          </GradientCard>
+        </Pressable>
         <Button
           variant="outline"
+          size="lg"
           className="rounded-lg"
           onPress={() => setShowModal(true)}
         >

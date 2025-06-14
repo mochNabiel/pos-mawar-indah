@@ -202,7 +202,6 @@ export default function Dashboard() {
               labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
               style: { borderRadius: 16 },
             }}
-            bezier
           />
         )}
       </Card>
@@ -331,6 +330,7 @@ export default function Dashboard() {
         {user?.role == "superadmin" && (
           <Button
             variant="link"
+            className="mt-3"
             onPress={() => {
               router.push("/(protected)/fabric-recap" as any)
             }}
