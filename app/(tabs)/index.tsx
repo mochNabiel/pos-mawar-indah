@@ -75,8 +75,6 @@ export default function Dashboard() {
     [selectedMonth, selectedYear, getSalesRecap]
   )
 
-  const screenWidth = Dimensions.get("window").width
-
   const monthlySales = getMonthlySalesChartData(selectedYear)
   const topFabrics = getFabricsRecap(selectedMonth, selectedYear)
   const { byWeight, byTransaction } = getCustomersRecap(
