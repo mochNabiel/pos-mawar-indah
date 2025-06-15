@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo } from "react"
 import { Dimensions, ScrollView, View } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { LineChart } from "react-native-chart-kit"
@@ -7,27 +7,20 @@ import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
-import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
+import SegmentedTabs from "@/components/SegmentedTabs"
 import SalesRecapContent from "@/components/SalesRecapContent"
 import { useDashboardStore } from "@/lib/zustand/useDashboardStore"
 import LoadingMessage from "@/components/LoadingMessage"
 import MonthPicker from "@/components/MonthPicker"
-import { Button, ButtonText } from "@/components/ui/button"
 import { Center } from "@/components/ui/center"
-import {
-  Modal,
-  ModalBackdrop,
-  ModalContent,
-  ModalBody,
-  ModalFooter,
-} from "@/components/ui/modal"
-import { useRouter } from "expo-router"
 import getMonthName from "@/lib/helper/getMonthName"
+import { Button, ButtonText } from "@/components/ui/button"
+import { useRouter } from "expo-router"
 
 export default function Dashboard() {
-  const { user } = useCurrentUser()
+  const { user, loadingCurrentUser } = useCurrentUser()
   const router = useRouter()
-const {
+  const {
     loading,
     fetchTransactions,
     getSalesRecap,
@@ -38,9 +31,7 @@ const {
     selectedYear,
     setSelectedMonth,
     setSelectedYear,
-  } = useDashboardStore();
-
-  const [showModal, setShowModal] = useState<boolean>(false)
+  } = useDashboardStore()
 
   useEffect(() => {
     fetchTransactions()
@@ -49,41 +40,42 @@ const {
   const handleApply = (month: string | null, year: string | null) => {
     if (month) setSelectedMonth(month)
     if (year) setSelectedYear(year)
-    setShowModal(false) // Tutup modal setelah menerapkan pilihan
   }
 
-  const salesRecapData: TabItem[] = [
-    {
-      key: "daily",
-      title: "Harian",
-      content: (
-        <SalesRecapContent
-          data={getSalesRecap("daily", selectedMonth, selectedYear)}
-        />
-      ),
-    },
-    {
-      key: "weekly",
-      title: "Mingguan",
-      content: (
-        <SalesRecapContent
-          data={getSalesRecap("weekly", selectedMonth, selectedYear)}
-        />
-      ),
-    },
-    {
-      key: "monthly",
-      title: "Bulanan",
-      content: (
-        <SalesRecapContent
-          data={getSalesRecap("monthly", selectedMonth, selectedYear)}
-        />
-      ),
-    },
-  ]
+  const salesRecapData = useMemo(
+    () => [
+      {
+        key: "daily",
+        title: "Harian",
+        content: (
+          <SalesRecapContent
+            data={getSalesRecap("daily", selectedMonth, selectedYear)}
+          />
+        ),
+      },
+      {
+        key: "weekly",
+        title: "Mingguan",
+        content: (
+          <SalesRecapContent
+            data={getSalesRecap("weekly", selectedMonth, selectedYear)}
+          />
+        ),
+      },
+      {
+        key: "monthly",
+        title: "Bulanan",
+        content: (
+          <SalesRecapContent
+            data={getSalesRecap("monthly", selectedMonth, selectedYear)}
+          />
+        ),
+      },
+    ],
+    [selectedMonth, selectedYear, getSalesRecap]
+  )
 
   const screenWidth = Dimensions.get("window").width
-  const chartWidth = screenWidth - 80
 
   const monthlySales = getMonthlySalesChartData(selectedYear)
   const topFabrics = getFabricsRecap(selectedMonth, selectedYear)
@@ -92,7 +84,7 @@ const {
     selectedYear
   )
 
-  if (loading) {
+  if (loading && loadingCurrentUser) {
     return <LoadingMessage message="Memuat Data Dashboard..." />
   }
 
@@ -115,45 +107,11 @@ const {
         </View>
       </View>
 
-      <Button
-        variant="outline"
-        className="rounded-lg mb-4"
-        onPress={() => setShowModal(true)}
-      >
-        <ButtonText>Pilih Bulan dan Tahun</ButtonText>
-      </Button>
-
-      {/* Modal untuk memilih bulan dan tahun */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
-        <ModalBackdrop />
-        <ModalContent>
-          <ModalBody>
-            <MonthPicker
-              selectedMonth={selectedMonth}
-              selectedYear={selectedYear}
-              onMonthChange={setSelectedMonth}
-              onYearChange={setSelectedYear}
-              onApply={() => handleApply(selectedMonth, selectedYear)}
-            />
-          </ModalBody>
-          <ModalFooter className="flex gap-3 items-center">
-            <Button
-              variant="outline"
-              action="secondary"
-              className="rounded-lg flex-1"
-              onPress={() => setShowModal(false)}
-            >
-              <ButtonText>Batal</ButtonText>
-            </Button>
-            <Button
-              className="rounded-lg flex-1"
-              onPress={() => handleApply(selectedMonth, selectedYear)}
-            >
-              <ButtonText>Terapkan</ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <MonthPicker
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        onApply={handleApply}
+      />
 
       {/* Rekap Penjualan */}
       <View>
@@ -168,8 +126,8 @@ const {
       </View>
 
       {/* Grafik Penjualan Kain Bulanan */}
-      <Card variant="outline" size="lg" className="mb-6">
-        <View className="flex-row items-center gap-3">
+      <Card variant="outline" size="lg" className="mb-6 mt-6">
+        <View className="flex-row items-center gap-3 mb-3">
           <Feather name="trending-up" size={20} color="#BF40BF" />
           <Heading className="text-2xl">
             Penjualan Kain Tahun {selectedYear}
@@ -178,29 +136,31 @@ const {
         {monthlySales.length === 0 ? (
           <Text className="text-center py-8">Tidak Ada Data</Text>
         ) : (
-          <LineChart
-            data={{
-              labels: monthlySales.map((m) => m.month),
-              datasets: [
-                {
-                  data: monthlySales.map((m) => m.totalWeight),
-                  color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
-                },
-              ],
-            }}
-            width={chartWidth || 200}
-            height={200}
-            yAxisSuffix=" kg"
-            chartConfig={{
-              backgroundColor: "#ffffff",
-              backgroundGradientFrom: "#ffffff",
-              backgroundGradientTo: "#ffffff",
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              style: { borderRadius: 16 },
-            }}
-          />
+          <ScrollView horizontal>
+            <LineChart
+              data={{
+                labels: monthlySales.map((m) => m.month),
+                datasets: [
+                  {
+                    data: monthlySales.map((m) => m.totalWeight),
+                    color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+                  },
+                ],
+              }}
+              width={Dimensions.get("window").width}
+              height={200}
+              yAxisSuffix=" kg"
+              chartConfig={{
+                backgroundColor: "#ffffff",
+                backgroundGradientFrom: "#ffffff",
+                backgroundGradientTo: "#ffffff",
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                style: { borderRadius: 16 },
+              }}
+            />
+          </ScrollView>
         )}
       </Card>
 
@@ -279,6 +239,7 @@ const {
         {user?.role == "superadmin" && (
           <Button
             variant="link"
+            className="mt-3"
             onPress={() => {
               router.push("/(protected)/customer-recap" as any)
             }}

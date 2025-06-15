@@ -1,33 +1,26 @@
 import React, { useEffect, useState } from "react"
-import { FlatList, ScrollView, View } from "react-native"
+import { FlatList, View } from "react-native"
 import { useDashboardStore } from "@/lib/zustand/useDashboardStore"
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
 import MonthPicker from "@/components/MonthPicker"
-import { Button, ButtonText } from "@/components/ui/button"
 import LoadingMessage from "@/components/LoadingMessage"
-import {
-  Modal,
-  ModalBackdrop,
-  ModalContent,
-  ModalBody,
-  ModalFooter,
-} from "@/components/ui/modal"
 import getMonthName from "@/lib/helper/getMonthName"
 import { Feather } from "@expo/vector-icons"
 import SegmentedTabs, { TabItem } from "@/components/SegmentedTabs"
+import { Center } from "@/components/ui/center"
 
 export default function CustomerRecap() {
-  const { loading, getCustomersRecap } = useDashboardStore()
+  const {
+    loading,
+    getCustomersRecap,
+    selectedMonth,
+    selectedYear,
+    setSelectedMonth,
+    setSelectedYear,
+  } = useDashboardStore()
 
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(
-    (new Date().getMonth() + 1).toString()
-  )
-  const [selectedYear, setSelectedYear] = useState<string | null>(
-    new Date().getFullYear().toString()
-  )
-  const [showModal, setShowModal] = useState<boolean>(false)
   const [customersByWeight, setCustomersByWeight] = useState<any[]>([])
   const [customersByTransaction, setCustomersByTransaction] = useState<any[]>(
     []
@@ -46,16 +39,6 @@ export default function CustomerRecap() {
     setCustomersByTransaction(byTransaction || [])
   }
 
-  const handleApply = (month: string | null, year: string | null) => {
-    if (month) setSelectedMonth(month)
-    if (year) setSelectedYear(year)
-    setShowModal(false)
-  }
-
-  if (loading) {
-    return <LoadingMessage message="Memuat Data Customer..." />
-  }
-
   const customerRecapData: TabItem[] = [
     {
       key: "berat",
@@ -65,7 +48,7 @@ export default function CustomerRecap() {
           data={customersByWeight}
           keyExtractor={(item) => item.name}
           renderItem={({ item }) => (
-            <Card size="md" variant="outline" className="rounded-lg mb-3 mt-2">
+            <Card size="md" variant="outline" className="rounded-lg mb-2 mt-2">
               <View className="gap-1">
                 <Heading size="lg">{item.name}</Heading>
                 <View className="flex-row items-center gap-2">
@@ -88,11 +71,11 @@ export default function CustomerRecap() {
           data={customersByTransaction}
           keyExtractor={(item) => item.name}
           renderItem={({ item }) => (
-            <Card size="md" variant="outline" className="rounded-lg mb-3 mt-2">
+            <Card size="md" variant="outline" className="rounded-lg mb-2 mt-2">
               <View className="gap-1">
                 <Heading size="lg">{item.name}</Heading>
                 <View className="flex-row items-center gap-2">
-                  <Feather name="award" size={24} color="#BF40BF" />
+                  <Feather name="award" size={20} color="#BF40BF" />
                   <Text className="text-self-purple text-lg font-semibold">
                     Rp {item.totalTransaction.toLocaleString("id-ID")}
                   </Text>
@@ -105,51 +88,24 @@ export default function CustomerRecap() {
     },
   ]
 
+  if (loading) {
+    return <LoadingMessage message="Memuat Data Customer..." />
+  }
+
   return (
-    <ScrollView className="p-5 bg-white flex-1">
-      <View className="mb-6">
+    <View className="p-5 bg-white flex-1">
+      <View>
         <Heading size="2xl" className="text-self-purple mb-3">
           Rekap Customer {getMonthName(selectedMonth)} {selectedYear}
         </Heading>
-        <Button
-          variant="outline"
-          className="rounded-lg"
-          onPress={() => setShowModal(true)}
-        >
-          <ButtonText>Pilih Bulan dan Tahun</ButtonText>
-        </Button>
-
-        {/* Modal untuk memilih bulan dan tahun */}
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
-          <ModalBackdrop />
-          <ModalContent>
-            <ModalBody>
-              <MonthPicker
-                selectedMonth={selectedMonth}
-                selectedYear={selectedYear}
-                onMonthChange={setSelectedMonth}
-                onYearChange={setSelectedYear}
-                onApply={() => handleApply(selectedMonth, selectedYear)}
-              />
-            </ModalBody>
-            <ModalFooter className="flex-row gap-3 items-center">
-              <Button
-                variant="outline"
-                action="secondary"
-                className="rounded-lg flex-1"
-                onPress={() => setShowModal(false)}
-              >
-                <ButtonText>Batal</ButtonText>
-              </Button>
-              <Button
-                className="rounded-lg flex-1"
-                onPress={() => handleApply(selectedMonth, selectedYear)}
-              >
-                <ButtonText>Terapkan</ButtonText>
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+        <MonthPicker
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          onApply={(month, year) => {
+            if (month) setSelectedMonth(month)
+            if (year) setSelectedYear(year)
+          }}
+        />
       </View>
 
       {/* Segmented Tabs for Customer Recap */}
@@ -158,6 +114,14 @@ export default function CustomerRecap() {
         activeTabColor="bg-self-purple"
         defaultTabKey="berat"
       />
-    </ScrollView>
+
+      {customersByTransaction.length== 0 && (
+        <Center>
+          <Text className="text-center text-self-purple mt-5">
+            Tidak ada data customer untuk bulan ini.
+          </Text>
+        </Center>
+      )}
+    </View>
   )
 }

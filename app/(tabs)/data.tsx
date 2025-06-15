@@ -10,12 +10,15 @@ import { Pressable } from "@/components/ui/pressable"
 import { Feather } from "@expo/vector-icons"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
+import LoadingMessage from "@/components/LoadingMessage"
 
 const Data = () => {
   const router = useRouter()
-  const { user, loading } = useCurrentUser()
+  const { user, loadingCurrentUser } = useCurrentUser()
 
-  if (loading) return null
+  if (loadingCurrentUser) {
+    return <LoadingMessage message="Memuat Data..." />
+  }
 
   return (
     <View className="flex-1 bg-white p-5 justify-center">

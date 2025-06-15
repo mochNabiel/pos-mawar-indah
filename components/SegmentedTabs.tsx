@@ -46,7 +46,7 @@ const SegmentedTabs: React.FC<TabsProps> = ({
   }, [activeTab])
 
   return (
-    <View className="mb-4">
+    <View>
       {/* Tab Headers */}
       <View className="flex-row gap-3 mb-2 bg-secondary-100 p-2 rounded-lg">
         {tabs.map((tab) => (

@@ -105,7 +105,7 @@ const FabricForecastScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
-      <Text className="text-xl font-bold mb-4 text-center text-self-purple">
+      <Text className="text-2xl font-bold mb-4 text-center text-self-purple">
         Prediksi Stok Kain Bulan Ini
       </Text>
 
@@ -120,7 +120,7 @@ const FabricForecastScreen = () => {
       />
 
       {selectedFabric && (
-        <Card variant="outline" className="mt-3">
+        <Card variant="outline" className="rounded-lg mt-3 mb-20">
           <Text className="text-lg font-semibold mb-2">Detail Penjualan</Text>
           <Text className="mb-2">Nama Kain: {selectedFabric}</Text>
 
@@ -148,7 +148,7 @@ const FabricForecastScreen = () => {
           )}
 
           {calculationDetail && (
-            <Card variant="filled" className="rounded-lg mt-4">
+            <Card variant="filled" className="rounded-lg mt-3">
               <Text className="font-semibold mb-1">Detail Perhitungan:</Text>
               <Text className="font-mono text-sm whitespace-pre-wrap">
                 {calculationDetail}

@@ -1,39 +1,43 @@
-import { create } from "zustand";
-import { TransactionWithId } from "@/types/transaction";
-import { getAllTransactions } from "@/lib/firestore/dashboard";
-import getDateRange from "@/lib/helper/getDateRange";
+import { create } from "zustand"
+import { TransactionWithId } from "@/types/transaction"
+import { getAllTransactions } from "@/lib/firestore/dashboard"
+import getDateRange from "@/lib/helper/getDateRange"
 
 interface DashboardState {
-  transactions: TransactionWithId[];
-  loading: boolean;
-  selectedMonth: string | null;
-  selectedYear: string | null;
-  fetchTransactions: () => Promise<void>;
-  setSelectedMonth: (month: string | null) => void;
-  setSelectedYear: (year: string | null) => void;
+  transactions: TransactionWithId[]
+  loading: boolean
+  selectedMonth: string | null
+  selectedYear: string | null
+  fetchTransactions: () => Promise<void>
+  setSelectedMonth: (month: string | null) => void
+  setSelectedYear: (year: string | null) => void
   getSalesRecap: (
     type: "daily" | "weekly" | "monthly",
     month?: string | null,
     year?: string | null
   ) => {
-    transactions: number;
-    totalFabricSold: number;
-    totalRevenue: number;
-  };
+    transactions: number
+    totalFabricSold: number
+    totalRevenue: number
+  }
   getMonthlySalesChartData: (
     year?: string | null
-  ) => { month: string; totalWeight: number }[];
+  ) => { month: string; totalWeight: number }[]
   getFabricsRecap: (
     month?: string | null,
     year?: string | null
-  ) => { fabricName: string; totalWeight: number }[];
+  ) => { fabricName: string; totalWeight: number }[]
   getCustomersRecap: (
     month?: string | null,
     year?: string | null
   ) => {
-    byWeight: { name: string; totalWeight: number; totalTransaction: number }[];
-    byTransaction: { name: string; totalWeight: number; totalTransaction: number }[];
-  };
+    byWeight: { name: string; totalWeight: number; totalTransaction: number }[]
+    byTransaction: {
+      name: string
+      totalWeight: number
+      totalTransaction: number
+    }[]
+  }
 }
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
@@ -43,137 +47,142 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   selectedYear: new Date().getFullYear() + "",
 
   fetchTransactions: async () => {
-    set({ loading: true });
+    set({ loading: true })
     try {
-      const transactions = await getAllTransactions();
-      set({ transactions });
+      const transactions = await getAllTransactions()
+      set({ transactions })
     } catch (error: any) {
-      console.error("Failed to fetch transactions:", error);
+      console.error("Failed to fetch transactions:", error)
     } finally {
-      set({ loading: false });
+      set({ loading: false })
     }
   },
 
   setSelectedMonth: (month: string | null) => {
-    set({ selectedMonth: month });
+    set({ selectedMonth: month })
   },
 
   setSelectedYear: (year: string | null) => {
-    set({ selectedYear: year });
+    set({ selectedYear: year })
   },
 
   getSalesRecap: (type, month, year) => {
     const date =
-      month && year ? new Date(parseInt(year), parseInt(month) - 1) : new Date();
-    const { start, end } = getDateRange(type, date);
+      month && year ? new Date(parseInt(year), parseInt(month)) : new Date()
+    const { start, end } = getDateRange(type, date) // Mengambil rentang tanggal berdasarkan tipe
 
-    const transactions = get().transactions;
+    const transactions = get().transactions // Mengambil transaksi dari state
 
-    let totalTransactions = 0;
-    let totalWeight = 0;
-    let totalRevenue = 0;
+    let totalTransactions = 0
+    let totalWeight = 0
+    let totalRevenue = 0
 
+    // Menghitung total transaksi, berat, dan pendapatan
     transactions.forEach((tx) => {
       if (tx.createdAt >= start.toDate() && tx.createdAt <= end.toDate()) {
-        totalTransactions += 1;
-        totalRevenue += tx.totalTransaction;
+        totalTransactions += 1
+        totalRevenue += tx.totalTransaction
         totalWeight += tx.cards.reduce(
           (sum, card) => sum + parseFloat(card.weight || "0"),
           0
-        );
+        )
       }
-    });
+    })
 
     return {
       transactions: totalTransactions,
       totalFabricSold: parseFloat(totalWeight.toFixed(2)),
       totalRevenue,
-    };
+    }
   },
 
   getMonthlySalesChartData: (year) => {
-    const targetYear = year ? parseInt(year) : new Date().getFullYear();
-    const transactions = get().transactions;
+    const targetYear = year ? parseInt(year) : new Date().getFullYear()
+    const transactions = get().transactions
 
-    const monthlyTotals: Record<number, number> = {};
+    const monthlyTotals: Record<number, number> = {}
 
     transactions.forEach((t) => {
-      const txYear = t.createdAt.getFullYear();
+      const txYear = t.createdAt.getFullYear()
       if (txYear === targetYear) {
-        const month = t.createdAt.getMonth();
+        const month = t.createdAt.getMonth()
         const weightSum = t.cards.reduce(
           (sum, card) => sum + parseFloat(card.weight || "0"),
           0
-        );
-        monthlyTotals[month] = (monthlyTotals[month] || 0) + weightSum;
+        )
+        monthlyTotals[month] = (monthlyTotals[month] || 0) + weightSum
       }
-    });
+    })
 
     return Array.from({ length: 12 }, (_, i) => ({
       month: new Date(targetYear, i).toLocaleString("id", { month: "short" }),
       totalWeight: monthlyTotals[i] || 0,
-    }));
+    }))
   },
 
   getFabricsRecap: (month, year) => {
+    // Mendapatkan rentang tanggal berdasarkan bulan dan tahun yang dipilih
     const date =
-      month && year ? new Date(parseInt(year), parseInt(month) - 1) : new Date();
-    const { start, end } = getDateRange("monthly", date);
-    const transactions = get().transactions;
+      month && year ? new Date(parseInt(year), parseInt(month)) : new Date()
+    const { start, end } = getDateRange("monthly", date) // Mengambil rentang tanggal bulanan
+    const transactions = get().transactions // Mengambil transaksi dari state
 
+    // Mengambil semua kartu dari transaksi yang berada dalam rentang tanggal
     const allCards = transactions
       .filter(
         (tx) => tx.createdAt >= start.toDate() && tx.createdAt <= end.toDate()
       )
-      .flatMap((tx) => tx.cards || []);
+      .flatMap((tx) => tx.cards || [])
 
-    const fabricMap: Record<string, number> = {};
+    const fabricMap: Record<string, number> = {} // Map untuk menyimpan total berat per kain
 
+    // Menghitung total berat per kain
     allCards.forEach((card: any) => {
-      const name = card.fabricName;
-      const weight = parseFloat(card.weight || "0");
+      const name = card.fabricName // Nama kain
+      const weight = parseFloat(card.weight || "0") // Berat kain
 
       if (!fabricMap[name]) {
-        fabricMap[name] = 0;
+        fabricMap[name] = 0 // Inisialisasi jika kain belum ada di map
       }
 
-      fabricMap[name] += weight;
-    });
+      fabricMap[name] += weight // Tambahkan berat kain ke total
+    })
 
+    // Mengembalikan array dari objek kain dengan total berat, diurutkan berdasarkan berat
     return Object.entries(fabricMap)
       .map(([fabricName, totalWeight]) => ({
         fabricName,
         totalWeight,
       }))
-      .sort((a, b) => b.totalWeight - a.totalWeight); // Sort by totalWeight descending
+      .sort((a, b) => b.totalWeight - a.totalWeight) // Urutkan dari berat tertinggi
   },
 
   getCustomersRecap: (month, year) => {
     const date =
-      month && year ? new Date(parseInt(year), parseInt(month) - 1) : new Date();
-    const { start, end } = getDateRange("monthly", date);
-    const transactions = get().transactions;
+      month && year ? new Date(parseInt(year), parseInt(month)) : new Date()
+    const { start, end } = getDateRange("monthly", date)
+    const transactions = get().transactions
 
     const customerMap: Record<
       string,
       { totalWeight: number; totalTransaction: number }
-    > = {};
+    > = {}
 
     transactions.forEach((tx) => {
       if (tx.createdAt >= start.toDate() && tx.createdAt <= end.toDate()) {
-        const customerName = tx.customerName;
+        const customerName = tx.customerName
         const weightSum = tx.cards.reduce((sum: number, card: any) => {
-          return sum + parseFloat(card.weight || "0");
-        }, 0);
+          return sum + parseFloat(card.weight || "0")
+        }, 0)
 
         if (!customerMap[customerName]) {
-          customerMap[customerName] = { totalWeight: 0, totalTransaction: 0 };
+          customerMap[customerName] = { totalWeight: 0, totalTransaction: 0 }
         }
 
-        customerMap[customerName].totalWeight += weightSum;
-        customerMap[customerName].totalTransaction += tx.totalTransaction || 0;
+        customerMap[customerName].totalWeight += weightSum
+        customerMap[customerName].totalTransaction += tx.totalTransaction || 0
       }
-    });
+    })
 
     const customersArray = Object.entries(customerMap).map(
       ([name, { totalWeight, totalTransaction }]) => ({
@@ -181,15 +190,18 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         totalWeight,
         totalTransaction,
       })
-    );
+    )
 
-    // Sort customers by totalWeight and totalTransaction
-    const byWeight = customersArray.sort((a, b) => b.totalWeight - a.totalWeight);
-    const byTransaction = customersArray.sort((a, b) => b.totalTransaction - a.totalTransaction);
+    const byWeight = customersArray.sort(
+      (a, b) => b.totalWeight - a.totalWeight
+    )
+    const byTransaction = customersArray.sort(
+      (a, b) => b.totalTransaction - a.totalTransaction
+    )
 
     return {
       byWeight,
       byTransaction,
-    };
+    }
   },
-}));
+}))

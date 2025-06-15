@@ -45,13 +45,6 @@ export default function History() {
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedQuery = useDebouncedValue(searchQuery, 500)
 
-  useEffect(() => {
-    console.log(transactions)
-    console.log(tempStartDate)
-    console.log(tempEndDate)
-    console.log(searchQuery)
-  }, [])
-
   // Fetch data awal saat pertama kali
   useEffect(() => {
     fetchInitial()
@@ -59,8 +52,8 @@ export default function History() {
 
   // Fetch ulang ketika query nama customer berubah
   useEffect(() => {
-    setCustomerName(searchQuery)
-  }, [searchQuery])
+    setCustomerName(debouncedQuery)
+  }, [debouncedQuery])
 
   // Terapkan filter tanggal
   const applyDateFilter = () => {
@@ -103,7 +96,6 @@ export default function History() {
                   onChange={({ startDate, endDate }: any) => {
                     setTempStartDate(startDate)
                     setTempEndDate(endDate)
-                    console.log("Selected date range:", { startDate, endDate })
                   }}
                   classNames={{
                     ...defaultClassNames,
