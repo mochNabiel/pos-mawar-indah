@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import { Tabs, useRouter } from "expo-router"
 import { Feather } from "@expo/vector-icons"
-import { Pressable } from "react-native"
+import { LogBox, Pressable } from "react-native"
 import * as Notifications from "expo-notifications"
 import { useQuickActions } from "@/components/QuickActionSheet"
 import { registerForPushNotificationsAsync } from "@/lib/helper/notification"
@@ -22,41 +22,44 @@ export default function TabsLayout() {
   const { openSheet, sheet } = useQuickActions()
   const router = useRouter()
 
-  const notificationListener = useRef<Notifications.EventSubscription | null>(null)
+  // Bug Pada pick bulan dan tahun di dashboard (Warning: useInsertionEffect must not schedule updates.)
+  // Dibawah adalah perintah untuk menghilangkan dialog warning
+  LogBox.ignoreLogs(["Warning: useInsertionEffect must not schedule updates"])
+
+  const notificationListener = useRef<Notifications.EventSubscription | null>(
+    null
+  )
   const responseListener = useRef<Notifications.EventSubscription | null>(null)
 
   useEffect(() => {
-  registerForPushNotificationsAsync()
-    .then((token) => {
-      if (token) saveExpoPushToken(token)
-      else console.warn("Token push notification kosong")
-    })
-    .catch((err) => {
-      console.warn("Gagal register push notification:", err)
-    })
+    registerForPushNotificationsAsync()
+      .then((token) => {
+        if (token) saveExpoPushToken(token)
+        else console.warn("Token push notification kosong")
+      })
+      .catch((err) => {
+        console.warn("Gagal register push notification:", err)
+      })
 
-  notificationListener.current = Notifications.addNotificationReceivedListener(
-    (notification) => {
-      console.log("Notification received:", notification)
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        console.log("Notification received:", notification)
+      })
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log("User interacted with notification:", response)
+        const screen = response.notification.request.content.data.screen
+        if (screen === "logs") {
+          router.push("/(protected)/logs")
+        }
+      })
+
+    return () => {
+      notificationListener.current?.remove()
+      responseListener.current?.remove()
     }
-  )
-
-  responseListener.current = Notifications.addNotificationResponseReceivedListener(
-    (response) => {
-      console.log("User interacted with notification:", response)
-      const screen = response.notification.request.content.data.screen
-      if (screen === "logs") {
-        router.push("/(protected)/logs")
-      }
-    }
-  )
-
-  return () => {
-    notificationListener.current?.remove()
-    responseListener.current?.remove()
-  }
-}, [])
-
+  }, [])
 
   return (
     <>

@@ -3,7 +3,6 @@ import { Dimensions, ScrollView, View } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { LineChart } from "react-native-chart-kit"
 
-import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 import { Heading } from "@/components/ui/heading"
 import { Text } from "@/components/ui/text"
 import { Card } from "@/components/ui/card"
@@ -18,11 +17,13 @@ import { Button, ButtonText } from "@/components/ui/button"
 import { useRouter } from "expo-router"
 
 export default function Dashboard() {
-  const { user, loadingCurrentUser } = useCurrentUser()
   const router = useRouter()
   const {
     loading,
+    loadingUser,
+    user,
     fetchTransactions,
+    fetchUser,
     getSalesRecap,
     getMonthlySalesChartData,
     getFabricsRecap,
@@ -34,7 +35,11 @@ export default function Dashboard() {
   } = useDashboardStore()
 
   useEffect(() => {
-    fetchTransactions()
+    const fetchData = async () => {
+      await fetchUser() // Ambil data user
+      await fetchTransactions() // Ambil transaksi
+    }
+    fetchData()
   }, [])
 
   const handleApply = (month: string | null, year: string | null) => {
@@ -42,38 +47,35 @@ export default function Dashboard() {
     if (year) setSelectedYear(year)
   }
 
-  const salesRecapData = useMemo(
-    () => [
-      {
-        key: "daily",
-        title: "Harian",
-        content: (
-          <SalesRecapContent
-            data={getSalesRecap("daily", selectedMonth, selectedYear)}
-          />
-        ),
-      },
-      {
-        key: "weekly",
-        title: "Mingguan",
-        content: (
-          <SalesRecapContent
-            data={getSalesRecap("weekly", selectedMonth, selectedYear)}
-          />
-        ),
-      },
-      {
-        key: "monthly",
-        title: "Bulanan",
-        content: (
-          <SalesRecapContent
-            data={getSalesRecap("monthly", selectedMonth, selectedYear)}
-          />
-        ),
-      },
-    ],
-    [selectedMonth, selectedYear, getSalesRecap]
-  )
+  const salesRecapData = [
+    {
+      key: "daily",
+      title: "Harian",
+      content: (
+        <SalesRecapContent
+          data={getSalesRecap("daily", selectedMonth, selectedYear)}
+        />
+      ),
+    },
+    {
+      key: "weekly",
+      title: "Mingguan",
+      content: (
+        <SalesRecapContent
+          data={getSalesRecap("weekly", selectedMonth, selectedYear)}
+        />
+      ),
+    },
+    {
+      key: "monthly",
+      title: "Bulanan",
+      content: (
+        <SalesRecapContent
+          data={getSalesRecap("monthly", selectedMonth, selectedYear)}
+        />
+      ),
+    },
+  ]
 
   const monthlySales = getMonthlySalesChartData(selectedYear)
   const topFabrics = getFabricsRecap(selectedMonth, selectedYear)
@@ -82,7 +84,7 @@ export default function Dashboard() {
     selectedYear
   )
 
-  if (loading && loadingCurrentUser) {
+  if (loadingUser || loading) {
     return <LoadingMessage message="Memuat Data Dashboard..." />
   }
 
@@ -234,7 +236,7 @@ export default function Dashboard() {
             ]}
           />
         )}
-        {user?.role == "superadmin" && (
+        {user && user.role == "superadmin" && (
           <Button
             variant="link"
             className="mt-3"
@@ -284,7 +286,7 @@ export default function Dashboard() {
             ))}
           </View>
         )}
-        {user?.role == "superadmin" && (
+        {user && user.role == "superadmin" && (
           <Button
             variant="link"
             className="mt-3"

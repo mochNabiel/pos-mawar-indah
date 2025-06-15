@@ -14,7 +14,13 @@ import {
 } from "@/components/ui/select"
 import { ChevronDownIcon } from "@/components/ui/icon"
 import { Button, ButtonText } from "@/components/ui/button"
-import { Modal, ModalBackdrop, ModalContent, ModalBody, ModalFooter } from "@/components/ui/modal"
+import {
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+} from "@/components/ui/modal"
 
 interface MonthPickerProps {
   selectedMonth: string | null
@@ -27,12 +33,13 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
   selectedYear,
   onApply,
 }) => {
-  const [showModal, setShowModal] = useState<boolean>(false)
-  // Local state to hold temporary selected month/year inside modal
+  const [showModal, setShowModal] = useState(false)
+
+  // Temp state untuk simpan pilihan sementara di modal
   const [tempMonth, setTempMonth] = useState<string | null>(selectedMonth)
   const [tempYear, setTempYear] = useState<string | null>(selectedYear)
 
-  // Sync local state when props change and modal is not open
+  // Sinkronisasi temp state dengan props hanya saat modal ditutup
   useEffect(() => {
     if (!showModal) {
       setTempMonth(selectedMonth)
@@ -61,32 +68,39 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
   )
   const years = yearsData.filter((year) => parseInt(year, 10) >= 2025)
 
+  // Event handler dipanggil hanya saat user klik Terapkan
   const handleApply = () => {
-    onApply(tempMonth, tempYear)
+    onApply(tempMonth, tempYear) // update global selected month & year lewat callback prop
     setShowModal(false)
   }
 
   return (
     <View>
-      {/* Button to open modal */}
-      <Button variant="outline" size="lg" className="rounded-lg mb-4" onPress={() => setShowModal(true)}>
+      <Button
+        variant="outline"
+        size="lg"
+        className="rounded-lg mb-4"
+        onPress={() => setShowModal(true)}
+      >
         <ButtonText>Pilih Bulan dan Tahun</ButtonText>
       </Button>
 
-      {/* Modal */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
         <ModalBackdrop />
         <ModalContent>
           <ModalBody>
             <View className="w-full gap-3">
-              {/* Month Select */}
               <View>
                 <Select
-                  onValueChange={(val) => setTempMonth(val)}
-                  selectedValue={tempMonth || ""}
+                  selectedValue={tempMonth ?? ""}
+                  onValueChange={setTempMonth}
                   accessibilityLabel="Pilih Bulan"
                 >
-                  <SelectTrigger variant="outline" size="lg" className="rounded-lg">
+                  <SelectTrigger
+                    variant="outline"
+                    size="lg"
+                    className="rounded-lg"
+                  >
                     <SelectInput
                       placeholder="Pilih Bulan"
                       value={
@@ -95,7 +109,11 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
                           : ""
                       }
                     />
-                    <SelectIcon className="ml-auto mr-2" size="sm" as={ChevronDownIcon} />
+                    <SelectIcon
+                      className="ml-auto mr-2"
+                      size="sm"
+                      as={ChevronDownIcon}
+                    />
                   </SelectTrigger>
                   <SelectPortal>
                     <SelectBackdrop />
@@ -115,19 +133,26 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
                 </Select>
               </View>
 
-              {/* Year Select */}
               <View>
                 <Select
-                  onValueChange={(val) => setTempYear(val)}
-                  selectedValue={tempYear || ""}
+                  selectedValue={tempYear ?? ""}
+                  onValueChange={setTempYear}
                   accessibilityLabel="Pilih Tahun"
                 >
-                  <SelectTrigger variant="outline" size="lg" className="rounded-lg">
+                  <SelectTrigger
+                    variant="outline"
+                    size="lg"
+                    className="rounded-lg"
+                  >
                     <SelectInput
                       placeholder="Pilih Tahun"
-                      value={tempYear || ""}
+                      value={tempYear ?? ""}
                     />
-                    <SelectIcon className="ml-auto mr-2" size="sm" as={ChevronDownIcon} />
+                    <SelectIcon
+                      className="ml-auto mr-2"
+                      size="sm"
+                      as={ChevronDownIcon}
+                    />
                   </SelectTrigger>
                   <SelectPortal>
                     <SelectBackdrop />
@@ -147,13 +172,18 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
           <ModalFooter className="flex gap-3 items-center">
             <Button
               variant="outline"
+              size="lg"
               action="secondary"
               className="rounded-lg flex-1"
               onPress={() => setShowModal(false)}
             >
               <ButtonText>Batal</ButtonText>
             </Button>
-            <Button className="rounded-lg flex-1" onPress={handleApply}>
+            <Button
+              size="lg"
+              className="rounded-lg flex-1"
+              onPress={handleApply}
+            >
               <ButtonText>Terapkan</ButtonText>
             </Button>
           </ModalFooter>
@@ -164,4 +194,3 @@ const MonthPicker: React.FC<MonthPickerProps> = ({
 }
 
 export default MonthPicker
-

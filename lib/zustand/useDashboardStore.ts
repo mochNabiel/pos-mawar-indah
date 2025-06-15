@@ -2,12 +2,16 @@ import { create } from "zustand"
 import { TransactionWithId } from "@/types/transaction"
 import { getAllTransactions } from "@/lib/firestore/dashboard"
 import getDateRange from "@/lib/helper/getDateRange"
+import { getCurrentUserData, AppUser  } from "@/lib/helper/getCurrentUserData";
 
 interface DashboardState {
   transactions: TransactionWithId[]
+  user: any
   loading: boolean
+  loadingUser: boolean
   selectedMonth: string | null
   selectedYear: string | null
+  fetchUser:  () => Promise<void>; 
   fetchTransactions: () => Promise<void>
   setSelectedMonth: (month: string | null) => void
   setSelectedYear: (year: string | null) => void
@@ -42,19 +46,36 @@ interface DashboardState {
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   transactions: [],
+  user: null,
   loading: false,
-  selectedMonth: new Date().getMonth() + 1 + "",
-  selectedYear: new Date().getFullYear() + "",
+  loadingUser:  false,
+  selectedMonth: new Date().getMonth() + 1 + "", // Inisialisasi di set pada bulan ini
+  selectedYear: new Date().getFullYear() + "", // inisialisasi di set pada tahun ini
+
+  fetchUser:  async () => {
+    set({ loadingUser:  true }); // Set loadingUser  menjadi true saat mengambil data
+    try {
+      const user = await getCurrentUserData();
+      set({ user });
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    } finally {
+      set({ loadingUser:  false }); // Set loadingUser  menjadi false setelah selesai
+    }
+  },
 
   fetchTransactions: async () => {
-    set({ loading: true })
-    try {
-      const transactions = await getAllTransactions()
-      set({ transactions })
-    } catch (error: any) {
-      console.error("Failed to fetch transactions:", error)
-    } finally {
-      set({ loading: false })
+    // Hanya ambil transaksi jika belum ada
+    if (get().transactions.length === 0) {
+      set({ loading: true })
+      try {
+        const transactions = await getAllTransactions()
+        set({ transactions })
+      } catch (error: any) {
+        console.error("Failed to fetch transactions:", error)
+      } finally {
+        set({ loading: false })
+      }
     }
   },
 
