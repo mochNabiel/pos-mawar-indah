@@ -22,14 +22,14 @@ import { useRouter } from "expo-router"
 
 export default function FabricRecap() {
   const router = useRouter()
-  const { loading, getFabricsRecap } = useDashboardStore()
-
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(
-    new Date().getMonth() + 1 + ""
-  )
-  const [selectedYear, setSelectedYear] = useState<string | null>(
-    new Date().getFullYear() + ""
-  )
+  const {
+    loading,
+    getFabricsRecap,
+    selectedMonth,
+    selectedYear,
+    setSelectedMonth,
+    setSelectedYear,
+  } = useDashboardStore()
   const [showModal, setShowModal] = useState<boolean>(false)
   const [fabricsData, setFabricsData] = useState<any[]>([])
 
@@ -43,8 +43,8 @@ export default function FabricRecap() {
   }
 
   const handleApply = (month: string | null, year: string | null) => {
-    if (month) setSelectedMonth(month)
-    if (year) setSelectedYear(year)
+    if (month) setSelectedMonth(month) // Update global store
+    if (year) setSelectedYear(year) // Update global store
     setShowModal(false)
   }
 
@@ -79,7 +79,6 @@ export default function FabricRecap() {
           <ButtonText>Pilih Bulan dan Tahun</ButtonText>
         </Button>
 
-        {/* Modal untuk memilih bulan dan tahun */}
         <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="md">
           <ModalBackdrop />
           <ModalContent>

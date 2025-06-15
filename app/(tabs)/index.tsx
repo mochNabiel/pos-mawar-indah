@@ -27,21 +27,19 @@ import getMonthName from "@/lib/helper/getMonthName"
 export default function Dashboard() {
   const { user } = useCurrentUser()
   const router = useRouter()
-  const {
+const {
     loading,
     fetchTransactions,
     getSalesRecap,
     getMonthlySalesChartData,
     getFabricsRecap,
     getCustomersRecap,
-  } = useDashboardStore()
+    selectedMonth,
+    selectedYear,
+    setSelectedMonth,
+    setSelectedYear,
+  } = useDashboardStore();
 
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(
-    new Date().getMonth() + 1 + ""
-  )
-  const [selectedYear, setSelectedYear] = useState<string | null>(
-    new Date().getFullYear() + ""
-  )
   const [showModal, setShowModal] = useState<boolean>(false)
 
   useEffect(() => {

@@ -4,6 +4,8 @@ import DropdownSelector from "@/components/DropdownSelector"
 import { useDashboardStore } from "@/lib/zustand/useDashboardStore"
 import { useFabricStore } from "@/lib/zustand/useFabricStore"
 import { Card } from "@/components/ui/card"
+import getMonthName from "@/lib/helper/getMonthName"
+import { calculateLeastSquareForecast } from "@/lib/forecast/leastSquareForecast"
 
 interface FabricRecap {
   name: string
@@ -19,6 +21,10 @@ const FabricForecastScreen = () => {
   const [selectedFabric, setSelectedFabric] = useState<string | null>(null)
   const [predictionResult, setPredictionResult] =
     useState<PredictionResult | null>(null)
+  const [calculationDetail, setCalculationDetail] = useState<string | null>(
+    null
+  )
+
   const [fabrics, setFabrics] = useState<FabricRecap[]>([])
   const { fabrics: fabricNames, fetchAllFabrics } = useFabricStore()
   const { getFabricsRecap } = useDashboardStore()
@@ -52,17 +58,17 @@ const FabricForecastScreen = () => {
         const weight =
           typeof item?.totalWeight === "number" ? item.totalWeight : 0
 
-        if (!fabricName || typeof fabricName !== "string") return 
+        if (!fabricName || typeof fabricName !== "string") return
 
         const existingFabric = monthlyData.find((f) => f.name === fabricName)
         if (existingFabric) {
-          existingFabric.weights[m - 1] = weight 
+          existingFabric.weights[m - 1] = weight
         } else {
           const newFabric: FabricRecap = {
             name: fabricName,
             weights: new Array(12).fill(0),
           }
-          newFabric.weights[m - 1] = weight 
+          newFabric.weights[m - 1] = weight
           monthlyData.push(newFabric)
         }
       })
@@ -82,38 +88,24 @@ const FabricForecastScreen = () => {
       return
     }
 
-    // Ambil data y: dari bulan Januari sampai bulan sekarang - 1
     const y = fabric.weights.slice(0, currentMonth - 1)
-    const n = y.length
+    const result = calculateLeastSquareForecast(y, currentMonth, currentYear)
 
-    if (n < 2) {
+    if (!result) {
       setPredictionResult(null)
       return
     }
 
-    // Buat x yang simetris terhadap pusat (misal n=5 → x=[-2,-1,0,1,2])
-    const x = Array.from({ length: n }, (_, i) => i - Math.floor(n / 2))
-
-    // Hitung parameter a dan b
-    const sumY = y.reduce((a, b) => a + b, 0)
-    const sumXY = x.reduce((acc, xi, i) => acc + xi * y[i], 0)
-    const sumX2 = x.reduce((acc, xi) => acc + xi * xi, 0)
-
-    const a = sumY / n
-    const b = sumXY / sumX2
-
-    const xNext = x[x.length - 1] + 1 // Prediksi di titik waktu selanjutnya
-    const forecast = a + b * xNext
-
     setPredictionResult({
       name: fabric.name,
-      predictedWeight: parseFloat(forecast.toFixed(2)),
+      predictedWeight: result.predictedWeight,
     })
+    setCalculationDetail(result.detail)
   }, [selectedFabric, fabrics])
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
-      <Text className="text-xl font-bold mb-4">
+      <Text className="text-xl font-bold mb-4 text-center text-self-purple">
         Prediksi Stok Kain Bulan Ini
       </Text>
 
@@ -145,13 +137,23 @@ const FabricForecastScreen = () => {
           </View>
 
           {predictionResult ? (
-            <Text className="mt-2 font-semibold text-green-600">
-              Prediksi Bulan Ini: {predictionResult.predictedWeight} kg
+            <Text className="text-lg font-bold mt-2 text-self-purple">
+              Prediksi penjualan {getMonthName(currentMonth.toString())}{" "}
+              {currentYear}: {predictionResult.predictedWeight} kg
             </Text>
           ) : (
             <Text className="mt-2 text-gray-500">
               Tidak cukup data untuk prediksi
             </Text>
+          )}
+
+          {calculationDetail && (
+            <Card variant="filled" className="rounded-lg mt-4">
+              <Text className="font-semibold mb-1">Detail Perhitungan:</Text>
+              <Text className="font-mono text-sm whitespace-pre-wrap">
+                {calculationDetail}
+              </Text>
+            </Card>
           )}
         </Card>
       )}

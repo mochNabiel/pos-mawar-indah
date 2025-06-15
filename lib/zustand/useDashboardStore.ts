@@ -6,7 +6,11 @@ import getDateRange from "@/lib/helper/getDateRange";
 interface DashboardState {
   transactions: TransactionWithId[];
   loading: boolean;
+  selectedMonth: string | null;
+  selectedYear: string | null;
   fetchTransactions: () => Promise<void>;
+  setSelectedMonth: (month: string | null) => void;
+  setSelectedYear: (year: string | null) => void;
   getSalesRecap: (
     type: "daily" | "weekly" | "monthly",
     month?: string | null,
@@ -35,6 +39,8 @@ interface DashboardState {
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   transactions: [],
   loading: false,
+  selectedMonth: new Date().getMonth() + 1 + "",
+  selectedYear: new Date().getFullYear() + "",
 
   fetchTransactions: async () => {
     set({ loading: true });
@@ -46,6 +52,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
+  },
+
+  setSelectedMonth: (month: string | null) => {
+    set({ selectedMonth: month });
+  },
+
+  setSelectedYear: (year: string | null) => {
+    set({ selectedYear: year });
   },
 
   getSalesRecap: (type, month, year) => {
