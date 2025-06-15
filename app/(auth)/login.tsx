@@ -59,7 +59,7 @@ const Login = () => {
     <View className="flex-1 bg-white p-5">
       <Center>
         <Image
-          source={require("../../assets/images/mawarindah.png")}
+          source={require("@/assets/images/mawarindah.png")}
           style={{ width: 150, height: 150 }}
         />
       </Center>

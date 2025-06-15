@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "pos-mawar-indah",
-    "slug": "pos-mawar-indah",
+    "name": "POS Mawar Indah",
+    "slug": "POS Mawar Indah",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/mawarindah.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -26,7 +26,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/mawarindah.png"
     },
     "plugins": [
       "expo-router",
