@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "POS Mawar Indah",
-    "slug": "POS Mawar Indah",
+    "slug": "pos-mawar-indah",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/mawarindah.png",
