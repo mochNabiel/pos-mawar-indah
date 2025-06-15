@@ -25,10 +25,6 @@ import useGenerateInvoice from "@/lib/hooks/useGenerateInvoice"
 import { TTransactionSchema } from "@/schema/transactionSchema"
 import { createTransaction } from "@/lib/firestore/transaction"
 import { Spinner } from "@/components/ui/spinner"
-import DateTimePicker from "react-native-ui-datepicker"
-
-import { useDefaultClassNames } from "react-native-ui-datepicker"
-import { Timestamp } from "firebase/firestore"
 
 const NewTransactionScreen = () => {
   const { user } = useCurrentUser()
@@ -41,9 +37,6 @@ const NewTransactionScreen = () => {
 
   const [invoiceCode, setInvoiceCode] = useState<string>()
   const [loading, setLoading] = useState<boolean>(false)
-
-  const [date, setDate] = useState(undefined)
-  const defaultClassNames = useDefaultClassNames()
 
   useEffect(() => {
     fetchAllCustomers()
@@ -134,21 +127,6 @@ const NewTransactionScreen = () => {
   }, [watchedCards])
 
   const onSubmit = async (data: TTransactionSchema) => {
-    // Ambil tanggal dari date picker (user memilihnya)
-    // dan ambil waktu sekarang
-    const selectedDate = date || new Date()
-    const now = new Date()
-
-    // Gabungkan: ambil tanggal dari DatePicker, waktu dari sekarang
-    const combinedDate = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate(),
-      now.getHours(),
-      now.getMinutes(),
-      now.getSeconds()
-    )
-
     setLoading(true)
     const transactionData = {
       ...data,
@@ -157,7 +135,6 @@ const NewTransactionScreen = () => {
         ...card,
         discountPerKg: parseFloat(card.discountPerKg) || 0, // Pastikan Type nya number, bukan string
       })),
-      createdAt: Timestamp.fromDate(combinedDate),
     }
 
     try {
@@ -165,8 +142,7 @@ const NewTransactionScreen = () => {
       showToast("Transaksi berhasil dibuat", "success")
       reset()
       setLoading(false)
-      // router.push(`/transactions/${invoiceCode}`)
-      router.push(`/transactions/new`) // sementara
+      router.push(`/transactions/${invoiceCode}`)
     } catch (error) {
       showToast("Gagal membuat transaksi", "error")
       setLoading(false)
@@ -198,23 +174,6 @@ const NewTransactionScreen = () => {
         </Card>
         <DateTimeDisplay />
       </View>
-
-      <DateTimePicker
-        mode="single"
-        date={date}
-        onChange={({ date }: any) => {
-          setDate(date)
-        }}
-        classNames={{
-          ...defaultClassNames,
-          today: "border-self-purple border-1",
-          selected: "bg-self-purple",
-          selected_label: "text-white",
-          range_end_label: "text-white",
-          range_start_label: "text-white",
-          range_fill: "bg-self-purple/20",
-        }}
-      />
 
       {/* Section Field Nama Customer */}
       <View className="mb-5 flex gap-1">
@@ -281,7 +240,7 @@ const NewTransactionScreen = () => {
         onPress={handleSubmit(onSubmit)}
         size="xl"
         variant="solid"
-        disabled={!isValid || loading}
+        isDisabled={!isValid || loading}
         className={`rounded-lg mb-24 ${
           !isValid ? "opacity-50 cursor-not-allowed" : ""
         }`}

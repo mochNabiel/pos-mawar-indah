@@ -136,7 +136,7 @@ export const createTransaction = async (data: Transaction) => {
 
   const finalData = {
     ...data,
-    // createdAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
   }
   const docRef = await addDoc(transactionsRef, finalData)
 
