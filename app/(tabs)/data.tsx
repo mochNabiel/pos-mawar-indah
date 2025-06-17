@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons"
 
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser"
 import LoadingMessage from "@/components/LoadingMessage"
+import GradientCard from "@/components/GradientCard"
 
 const Data = () => {
   const router = useRouter()
@@ -26,7 +27,7 @@ const Data = () => {
         <Card
           size="lg"
           variant="outline"
-          className="flex flex-row items-center gap-5 m-3"
+          className="flex flex-row items-center gap-5 mb-3"
         >
           <Feather name="layers" size={32} color="#BF40BF" />
           <View>
@@ -41,7 +42,7 @@ const Data = () => {
         <Card
           size="lg"
           variant="outline"
-          className="flex flex-row items-center gap-5 m-3"
+          className="flex flex-row items-center gap-5 mb-3"
         >
           <Feather name="users" size={32} color="#40BFBF" />
           <View>
@@ -53,7 +54,7 @@ const Data = () => {
         </Card>
       </Pressable>
 
-      {user?.role === "superadmin" && (
+      {user && user.role == "superadmin" && (
         <>
           <Pressable
             onPress={() => router.push("/(protected)/logs" as any)}
@@ -62,7 +63,7 @@ const Data = () => {
             <Card
               size="lg"
               variant="outline"
-              className="flex-row items-center gap-5 m-3"
+              className="flex-row items-center gap-5 mb-3"
             >
               <Feather name="bell" size={32} color="#FFB740" />
               <View>
@@ -81,7 +82,7 @@ const Data = () => {
             <Card
               size="lg"
               variant="outline"
-              className="flex-row items-center gap-5 m-3"
+              className="flex-row items-center gap-5 mb-3"
             >
               <Feather name="lock" size={32} color="#3D8B37" />
               <View>
@@ -90,6 +91,29 @@ const Data = () => {
                 </Heading>
                 <Text size="lg">Klik untuk melihat daftar admin</Text>
               </View>
+            </Card>
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              router.push("/(protected)/fabric-recap/forecast-fabric" as any)
+            }
+            className="w-full"
+          >
+            <Card size="lg" className="p-0">
+              <GradientCard>
+                <View className="flex-row items-center gap-5 p-5 py-3">
+                  <Feather name="trending-up" size={32} color="white" />
+                  <View className="flex-1">
+                    <Heading size="lg" className="mb-1 text-secondary-50">
+                      Prediksi Penjualan Kain
+                    </Heading>
+                    <Text size="lg" className="text-secondary-100">
+                      Klik untuk prediksi penjualan 
+                    </Text>
+                  </View>
+                </View>
+              </GradientCard>
             </Card>
           </Pressable>
         </>

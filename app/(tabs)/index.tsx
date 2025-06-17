@@ -34,6 +34,9 @@ export default function Dashboard() {
     setSelectedYear,
   } = useDashboardStore()
 
+  const now = new Date()
+  const currentMonth = now.getMonth() - 1
+
   useEffect(() => {
     const fetchData = async () => {
       await fetchUser() // Ambil data user
@@ -139,10 +142,14 @@ export default function Dashboard() {
           <ScrollView horizontal>
             <LineChart
               data={{
-                labels: monthlySales.map((m) => m.month),
+                labels: monthlySales
+                  .filter((m, index) => index <= currentMonth)
+                  .map((m) => m.month), // Hanya menampilkan data bulan lalu
                 datasets: [
                   {
-                    data: monthlySales.map((m) => m.totalWeight),
+                    data: monthlySales
+                      .filter((m, index) => index <= currentMonth)
+                      .map((m) => m.totalWeight),
                     color: (opacity = 1) => `rgba(191, 64, 191, ${opacity})`,
                   },
                 ],
@@ -159,6 +166,7 @@ export default function Dashboard() {
                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 style: { borderRadius: 16 },
               }}
+              fromZero={true}
             />
           </ScrollView>
         )}
