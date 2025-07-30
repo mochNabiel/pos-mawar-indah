@@ -33,11 +33,11 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+.env
 
 # typescript
 *.tsbuildinfo
 
 app-example
-
+google-services.json
 pos-mawar-indah-123-firebase-adminsdk-fbsvc-c317637b0c.json

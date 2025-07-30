@@ -17,11 +17,16 @@ interface FabricRecap {
 
 interface PredictionResult {
   name: string
-  predictedWeight: number
-  MAE: number
+  predictedWeight: number // Berat yang diprediksi untuk bulan selanjutnya
+  MAE: number // Mean Absolute Error (rata-rata absolut error)
+  MAPE: number // Mean Absolute Percentage Error (rata-rata persentase absolut error)
   a: number // Intercept
   b: number // Slope
-  previousForecasts: number[]
+  previousForecasts: number[] // Prediksi untuk bulan sebelumnya
+  x: number[] // Array nilai x
+  y: number[] // Array nilai y
+  absoluteErrors: number[] // Array error absolut
+  percentageErrors: number[] // Array persentase error
 }
 
 const screenWidth = Dimensions.get("window").width
@@ -125,16 +130,22 @@ const FabricForecastScreen = () => {
       name: fabric.name,
       predictedWeight: result.predictedWeight,
       MAE: result.MAE,
+      MAPE: result.MAPE,
       a: result.a, // Intercept
       b: result.b, // Slope
       previousForecasts: result.previousForecasts,
+      x: result.x, // Array nilai x
+      y: result.y, // Array nilai y
+      absoluteErrors: result.absoluteErrors, // Array error absolut
+      percentageErrors: result.percentageErrors, // Array persentase error
     })
   }, [selectedFabric, fabrics])
 
   return (
     <ScrollView className="flex-1 bg-white p-5">
       <Text className="text-2xl font-bold mb-4 text-center text-self-purple">
-        Prediksi Stok Kain Bulan Ini
+        Prediksi Stok Kain Bulan {getMonthName(currentMonth.toString())}{" "}
+        {currentYear}
       </Text>
 
       <DropdownSelector
@@ -156,55 +167,53 @@ const FabricForecastScreen = () => {
           {/* Tabel Penjualan Kain Bulanan */}
           <View className="mb-2 border-b border-gray-300 rounded-lg">
             <View className="flex-row justify-between p-0 py-2 rounded-t-lg border-b">
-              <Text className="font-bold flex-1">Bulan</Text>
+              <Text className="font-bold flex-1">Periode</Text>
               <Text className="font-bold flex-1 text-center">
                 Penjualan (kg)
               </Text>
             </View>
             {/* Baris data */}
-            {fabrics
-              .find((f) => f.name === selectedFabric)
-              ?.weights.slice(0, currentMonth - 1)
-              .map((weight, index) => (
-                <View
-                  key={index}
-                  className="flex-row justify-between py-1 border-b border-gray-200"
-                >
-                  <Text className="flex-1">
-                    {usedMonthLabels[index] || `Bulan ${index + 1}`}
-                  </Text>
-                  <Text className="flex-1 text-center">
-                    {weight.toFixed(2)}
-                  </Text>
-                </View>
-              ))}
+            {predictionResult.y.map((weight, index) => (
+              <View
+                key={index}
+                className="flex-row justify-between py-1 border-b border-gray-200"
+              >
+                <Text className="flex-1">
+                  {usedMonthLabels[index] || `Bulan ${index + 1}`} {currentYear}
+                </Text>
+                <Text className="flex-1 text-center">{weight.toFixed(2)}</Text>
+              </View>
+            ))}
           </View>
 
           {/* Hasil */}
-          <Text className="text-xl font-semibold mt-2 mb-5 text-self-purple">
+          <Text className="text-xl font-semibold text-self-purple">
             Prediksi penjualan {getMonthName(currentMonth.toString())}{" "}
-            {currentYear} adalah {predictionResult.predictedWeight} kg, dengan
-            MAE {predictionResult.MAE.toFixed(2)} kg
+            {currentYear} adalah {predictionResult.predictedWeight} kg
+          </Text>
+          <Text className="text-xl font-semibold text-self-purple">
+            MAE = {predictionResult.MAE.toFixed(2)} kg
+          </Text>
+          <Text className="text-xl font-semibold text-self-purple">
+            MAPE = {predictionResult.MAPE.toFixed(2)} %
           </Text>
 
           <Button
             variant="outline"
-            onPress={() => {
-              !showDetail ? setShowDetail(true) : setShowDetail(false)
-            }}
-            className="mb-3 rounded-lg"
+            onPress={() => setShowDetail(!showDetail)}
+            className="mb-3 mt-5 rounded-lg"
           >
-            {showDetail ? (
-              <View className="flex-row items-center gap-1">
-                <ButtonText>Sembunyikan Detail Perhitungan</ButtonText>
-                <Feather name="chevron-up" size={16} />
-              </View>
-            ) : (
-              <View className="flex-row items-center gap-1">
-                <ButtonText>Tampilkan Detail Perhitungan</ButtonText>
-                <Feather name="chevron-down" size={16} />
-              </View>
-            )}
+            <View className="flex-row items-center gap-1">
+              <ButtonText>
+                {showDetail
+                  ? "Sembunyikan Detail Perhitungan"
+                  : "Tampilkan Detail Perhitungan"}
+              </ButtonText>
+              <Feather
+                name={showDetail ? "chevron-up" : "chevron-down"}
+                size={16}
+              />
+            </View>
           </Button>
 
           {showDetail && (
@@ -215,29 +224,13 @@ const FabricForecastScreen = () => {
 
               {/* 1. Nilai X */}
               <Text className="mb-1">
-                1. Nilai X (simetris terhadap titik tengah):{" "}
-                {(() => {
-                  const n = predictionResult.previousForecasts.length ?? 0
-                  if (n === 0) return ""
-                  const x = Array.from(
-                    { length: n },
-                    (_, i) => i - Math.floor(n / 2)
-                  )
-                  return "[" + x.join(", ") + "]"
-                })()}
+                1. Nilai X: [{predictionResult.x.join(", ")}]
               </Text>
 
               {/* 2. Nilai Y */}
               <Text className="mb-1">
-                2. Data Y (penjualan aktual):{" "}
-                {(() => {
-                  if (!selectedFabric) return ""
-                  const fabric = fabrics.find((f) => f.name === selectedFabric)
-                  if (!fabric) return ""
-                  const n = predictionResult.previousForecasts.length ?? 0
-                  const y = fabric.weights.slice(0, n)
-                  return "[" + y.map((v) => v.toFixed(2)).join(", ") + "]"
-                })()}
+                2. Data Y: [
+                {predictionResult.y.map((v) => v.toFixed(2)).join(", ")}]
               </Text>
 
               {/* 3. Tabel perhitungan X, Y, XY, dan X^2 */}
@@ -249,52 +242,24 @@ const FabricForecastScreen = () => {
                   <View className="flex-row justify-between p-2 border-b">
                     <Text className="font-bold flex-1">X</Text>
                     <Text className="font-bold flex-1">Y</Text>
-                    <Text className="font-bold flex-1">XY</Text>
                     <Text className="font-bold flex-1">X²</Text>
+                    <Text className="font-bold flex-1">XY</Text>
                   </View>
-                  {(() => {
-                    const n = predictionResult.previousForecasts.length ?? 0
-                    const fabric = fabrics.find(
-                      (f) => f.name === selectedFabric
-                    )
-                    if (!fabric) return null
-                    const y = fabric.weights.slice(0, n)
-                    const x = Array.from(
-                      { length: n },
-                      (_, i) => i - Math.floor(n / 2)
-                    )
-                    const sumY = y.reduce((acc, val) => acc + val, 0)
-                    const sumXY = x.reduce((acc, val, i) => acc + val * y[i], 0)
-                    const sumX2 = x.reduce((acc, val) => acc + val * val, 0)
-
-                    return x
-                      .map((val, index) => (
-                        <View
-                          key={index} // Pastikan key unik
-                          className="flex-row justify-between py-1 border-b border-gray-200"
-                        >
-                          <Text className="flex-1">{val}</Text>
-                          <Text className="flex-1">{y[index].toFixed(2)}</Text>
-                          <Text className="flex-1">
-                            {(val * y[index]).toFixed(2)}
-                          </Text>
-                          <Text className="flex-1">
-                            {(val * val).toFixed(2)}
-                          </Text>
-                        </View>
-                      ))
-                      .concat(
-                        <View
-                          key="sum"
-                          className="flex-row justify-between bg-self-purple/20 py-1 font-bold"
-                        >
-                          <Text className="flex-1">Total:</Text>
-                          <Text className="flex-1">{sumY.toFixed(2)}</Text>
-                          <Text className="flex-1">{sumXY.toFixed(2)}</Text>
-                          <Text className="flex-1">{sumX2.toFixed(2)}</Text>
-                        </View>
-                      )
-                  })()}
+                  {predictionResult.x.map((val, index) => (
+                    <View
+                      key={index}
+                      className="flex-row justify-between py-1 border-b border-gray-200"
+                    >
+                      <Text className="flex-1">{val}</Text>
+                      <Text className="flex-1">
+                        {predictionResult.y[index].toFixed(2)}
+                      </Text>
+                      <Text className="flex-1">{(val * val).toFixed(2)}</Text>
+                      <Text className="flex-1">
+                        {(val * predictionResult.y[index]).toFixed(2)}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
               </View>
 
@@ -308,9 +273,9 @@ const FabricForecastScreen = () => {
                 5. Slope (b): {predictionResult.b.toFixed(2)} kg
               </Text>
 
-              {/* 6. Prediksi bulan Juni */}
+              {/* 6. Prediksi bulan depan */}
               <Text className="mb-1">
-                6. Prediksi penjualan (y = a + b * x) untuk bulan Juni:{" "}
+                6. Prediksi penjualan {currentMonth} {currentYear}:{" "}
                 {predictionResult.predictedWeight.toFixed(2)} kg
               </Text>
 
@@ -320,7 +285,7 @@ const FabricForecastScreen = () => {
                   Tabel Perbandingan Penjualan
                 </Text>
                 <View className="flex-row items-center justify-between border-b pb-1 mb-1">
-                  <Text className="font-bold flex-1">Bulan</Text>
+                  <Text className="font-bold flex-1">Periode</Text>
                   <Text className="font-bold flex-1 text-center">
                     Aktual (kg)
                   </Text>
@@ -330,40 +295,54 @@ const FabricForecastScreen = () => {
                   <Text className="font-bold flex-1 text-center">
                     Error Absolut (kg)
                   </Text>
+                  <Text className="font-bold flex-1 text-center">
+                    Persentase Error (%)
+                  </Text>
                 </View>
-                {fabrics
-                  .find((f) => f.name === selectedFabric)
-                  ?.weights.slice(0, currentMonth - 1)
-                  .map((weight, index) => {
-                    const forecast = predictionResult.previousForecasts[index]
-                    const difference = Math.abs(weight - forecast) // Gunakan selisih absolute
-                    return (
-                      <View
-                        key={index} // Pastikan key unik
-                        className="flex-row justify-between py-1 border-b border-gray-200"
-                      >
-                        <Text className="flex-1">{usedMonthLabels[index]}</Text>
-                        <Text className="flex-1 text-center">
-                          {weight.toFixed(2)}
-                        </Text>
-                        <Text className="flex-1 text-center">
-                          {forecast.toFixed(2)}
-                        </Text>
-                        <Text className="flex-1 text-center">
-                          {difference.toFixed(2)}
-                        </Text>
-                      </View>
-                    )
-                  })}
+                {predictionResult.y.map((weight, index) => {
+                  const forecast = predictionResult.previousForecasts[index]
+                  const difference = Math.abs(weight - forecast)
+                  const percentageError =
+                    weight === 0 ? 0 : (difference / weight) * 100
+                  return (
+                    <View
+                      key={index}
+                      className="flex-row justify-between py-1 border-b border-gray-200"
+                    >
+                      <Text className="flex-1">
+                        {usedMonthLabels[index]} {currentYear}
+                      </Text>
+                      <Text className="flex-1 text-center">
+                        {weight.toFixed(2)}
+                      </Text>
+                      <Text className="flex-1 text-center">
+                        {forecast.toFixed(2)}
+                      </Text>
+                      <Text className="flex-1 text-right">
+                        {difference.toFixed(2)}
+                      </Text>
+                      <Text className="flex-1 text-right">
+                        {percentageError.toFixed(2)} %
+                      </Text>
+                    </View>
+                  )
+                })}
               </View>
 
               {/* 8. MAE */}
-              <Text className="mb-5">
+              <Text className="mt-5">
                 8. MAE (Mean Absolute Error): {predictionResult.MAE.toFixed(2)}{" "}
                 kg
               </Text>
 
-              {/* 9. Grafik Perbandingan Aktual vs Prediksi */}
+              {/* 9. MAPE */}
+              <Text className="mb-5">
+                9. MAPE (Mean Absolute Percentage Error):{" "}
+                {predictionResult.MAPE.toFixed(2)} % (mengabaikan nilai
+                penjualan 0)
+              </Text>
+
+              {/* 10. Grafik Perbandingan Aktual vs Prediksi */}
               <View>
                 <Text className="text-center font-semibold text-self-purple mb-2">
                   Grafik Penjualan Aktual vs Prediksi
@@ -375,10 +354,9 @@ const FabricForecastScreen = () => {
                       datasets: [
                         {
                           data:
-                            fabrics
-                              .find((f) => f.name === selectedFabric)
-                              ?.weights.slice(0, currentMonth - 1)
-                              .map((w) => Number(w.toFixed(2))) || [],
+                            predictionResult.y.map((w) =>
+                              Number(w.toFixed(2))
+                            ) || [],
                           color: (opacity = 1) => `rgba(0, 255, 0, ${opacity})`,
                           strokeWidth: 3,
                           withDots: true,
